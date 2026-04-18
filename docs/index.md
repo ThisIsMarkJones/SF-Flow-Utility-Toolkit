@@ -40,6 +40,13 @@ A browser extension designed to make working with Salesforce Flows faster, easie
   </div>
 </div>
 
+## Support
+
+Need help or want to suggest an improvement?
+
+- [Report a Bug]({{ '/report-a-bug.html' | relative_url }})
+- [Feature Requests]({{ '/feature-requests.html' | relative_url }})
+
 ## Documentation status
 
 This is a prototype GitHub Pages setup for the project documentation. Branding, screenshots, and additional feature pages can be layered in next.
