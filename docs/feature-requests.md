@@ -36,10 +36,10 @@ Please consider:
 
 ## Submit a feature request
 
-Use GitHub to suggest new features or enhancements for the project.
+Use GitHub Ideas to suggest new features or enhancements for the project.
 
 <div class="quick-links">
-  <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/discussions" target="_blank" rel="noopener noreferrer">Open Feature Requests on GitHub</a>
+  <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/discussions/categories/ideas" target="_blank" rel="noopener noreferrer">Open Feature Requests on GitHub</a>
 </div>
 
 ## What happens next
@@ -49,5 +49,5 @@ Feature requests may be discussed, refined, prioritised, or moved into tracked w
 Some requests may be small usability improvements, while others may become larger roadmap items.
 
 <div class="note-box">
-This page can later link to a dedicated GitHub Discussion category or Issue Form once you have that structure in place.
+Feature requests for this project are currently handled through the <strong>Ideas</strong> category in GitHub Discussions.
 </div>
