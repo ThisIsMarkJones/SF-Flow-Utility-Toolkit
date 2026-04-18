@@ -1,0 +1,83 @@
+{
+  "manifest_version": 3,
+  "name": "SF Flow Utility Toolkit",
+  "version": "0.1.0",
+  "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "clipboardWrite",
+    "cookies",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.salesforce.com/*",
+    "https://*.salesforce-setup.com/*",
+    "https://*.lightning.force.com/*",
+    "https://*.my.salesforce.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.salesforce.com/*",
+        "https://*.salesforce-setup.com/*",
+        "https://*.lightning.force.com/*",
+        "https://*.my.salesforce.com/*"
+      ],
+      "js": [
+        "utils/context-detector.js",
+        "utils/settings-manager.js",
+        "utils/salesforce-api.js",
+        "utils/flow-metadata-cleaner.js",
+        "utils/flow-health-normalizer.js",
+        "utils/flow-health-rules.js",
+        "utils/flow-health-scorer.js",
+        "utils/flow-health-exporter.js",
+        "config/ai-prompt-templates.js",
+        "config/api-name-prefixes.js",
+        "ui/side-button.js",
+        "ui/flow-health-modal.js",
+        "main.js",
+        "features/setup-tabs.js",
+        "features/flow-list-search.js",
+        "features/canvas-search.js",
+        "features/missing-description-flags.js",
+        "features/ai-assistant.js",
+        "features/comparison-exporter.js",
+        "features/api-name-generator.js",
+        "features/flow-version-manager.js",
+        "features/flow-trigger-explorer-enhancer.js",
+        "features/flow-health-check.js"
+      ],
+      "css": [
+        "styles/toolkit.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "options_page": "settings/settings.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/xlsx.bundle.js",
+        "assets/Flow Comparison Documentation Template.xlsx",
+        "config/default-prefixes.json"
+      ],
+      "matches": [
+        "https://*.salesforce.com/*",
+        "https://*.salesforce-setup.com/*",
+        "https://*.lightning.force.com/*",
+        "https://*.my.salesforce.com/*"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
