@@ -17,8 +17,8 @@ A browser extension designed to make working with Salesforce Flows faster, easie
   <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
   <a href="{{ '/features/' | relative_url }}">Features Overview</a>
   <a href="{{ '/features/flow-health-check.html' | relative_url }}">Flow Health Check</a>
-  <a href="https://github.com/YOUR-USER/YOUR-REPO/issues">Report a Bug</a>
-  <a href="https://github.com/YOUR-USER/YOUR-REPO/discussions">Feature Requests</a>
+  <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
+  <a href="{{ '/feature-requests.html' | relative_url }}">Feature Requests</a>
 </div>
 
 ## Key features
