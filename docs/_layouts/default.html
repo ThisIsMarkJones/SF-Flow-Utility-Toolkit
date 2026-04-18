@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en-US' }}">
+  <head>
+    <meta charset="UTF-8">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ site.description }}">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <div class="brand-block">
+          <div class="brand-kicker">Documentation</div>
+          <h1 class="brand-title"><a href="{{ '/' | relative_url }}">{{ site.title }}</a></h1>
+          <p class="brand-description">{{ site.description }}</p>
+        </div>
+
+        <nav class="site-nav" aria-label="Primary">
+          <a href="{{ '/' | relative_url }}">Home</a>
+          <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
+          <a href="{{ '/features/' | relative_url }}">Features</a>
+          <a href="https://github.com/YOUR-USER/YOUR-REPO/issues">Report a Bug</a>
+          <a href="https://github.com/YOUR-USER/YOUR-REPO/discussions">Feature Requests</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-main">
+      <div class="container content-container">
+        {{ content }}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>SF Flow Utility Toolkit documentation prototype.</p>
+        <p class="footer-meta">Replace the GitHub links and branding when ready.</p>
+      </div>
+    </footer>
+  </body>
+</html>
