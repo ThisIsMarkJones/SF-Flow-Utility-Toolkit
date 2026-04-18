@@ -58,7 +58,3 @@ Use the GitHub issue tracker to submit bugs for this project.
 Submitted bugs may be reviewed, clarified, reproduced, prioritised, and tracked through GitHub.
 
 Not every bug will be fixed immediately, but clear reproduction steps make triage much easier.
-
-<div class="note-box">
-This page is intended to guide users before they submit a GitHub issue. Later, you can replace the general GitHub link with a direct link to a specific Issue Form.
-</div>
