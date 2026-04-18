@@ -1,15 +1,20 @@
+---
+layout: default
+title: Flow Health Check
+---
+
 # Flow Health Check
 
 ## Overview
 
 **Flow Health Check** analyses the currently open Salesforce Flow and produces a structured health report intended to help identify maintainability, reliability, performance, and portability concerns.
 
-The feature inspects the current Flow's metadata, evaluates it against a defined set of health rules, groups findings into issue families, calculates an overall score, and presents the results in a dedicated modal. It also provides export options for summary sharing and follow-on improvement work.
+The feature inspects the current Flow metadata, evaluates it against a defined set of health rules, groups findings into issue families, calculates an overall score, and presents the results in a dedicated modal. It also provides export options for summary sharing and follow-on improvement work.
 
-> **Screenshot placeholder:** Add a screenshot here showing the Health Check modal open with a completed report.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-modal-overview.png`
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Health Check modal open with a completed report.<br>
+Suggested file: <code>/images/flow-health-check/health-check-modal-overview.png</code>
+</div>
 
 ## What the feature does
 
@@ -30,14 +35,12 @@ Flow Health Check runs against the **currently open Flow** in Salesforce Flow Bu
 
 The report is presented in a modal overlay titled **Flow Health Check**.
 
-> **Screenshot placeholder:** Add a screenshot here showing where the user launches Flow Health Check from within the extension UI.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-launch-entry-point.png`
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing where the user launches Flow Health Check from within the extension UI.<br>
+Suggested file: <code>/images/flow-health-check/health-check-launch-entry-point.png</code>
+</div>
 
 ## Report contents
-
-The Health Check report currently includes the following sections.
 
 ### Header summary
 
@@ -59,11 +62,7 @@ The report includes summary cards for:
 - Low
 - Info
 
-These reflect the number of issue families at each severity level.
-
 ### Issue Families
-
-Findings are grouped into **issue families**, rather than treated only as isolated individual issues.
 
 Each issue family can be expanded to show:
 
@@ -93,15 +92,15 @@ The report lists detected custom dependencies, including where applicable:
 - Apex-defined types
 - External actions
 
-> **Screenshot placeholder:** Add a screenshot here showing the Issue Families section expanded.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-issue-families.png`
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Issue Families section expanded.<br>
+Suggested file: <code>/images/flow-health-check/health-check-issue-families.png</code>
+</div>
 
-> **Screenshot placeholder:** Add a screenshot here showing the Flow Profile and Dependencies sections.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-profile-and-dependencies.png`
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow Profile and Dependencies sections.<br>
+Suggested file: <code>/images/flow-health-check/health-check-profile-and-dependencies.png</code>
+</div>
 
 ## Scoring model
 
@@ -122,11 +121,7 @@ Current score rating bands are:
 - 55 to 69 = Poor
 - below 55 = Very Poor
 
-This means the score is intended to represent the overall health of the Flow at a family level, rather than heavily penalising repeated instances of the same issue type.
-
 ## Checks currently included
-
-The current implementation evaluates a range of health checks across several categories.
 
 ### Maintainability checks
 
@@ -156,8 +151,6 @@ The current implementation evaluates a range of health checks across several cat
 - Possible hard-coded URLs
 - Custom dependency inventory
 
-These checks are currently produced by the rule engine and then grouped into score families for reporting.
-
 ## How to use it
 
 1. Open a Flow in Salesforce Flow Builder.
@@ -171,47 +164,14 @@ These checks are currently produced by the rule engine and then grouped into sco
 
 The current modal footer supports the following actions:
 
-- **Copy Summary**  
-  Copies a markdown summary of the Health Check report.
+- **Copy Summary** — Copies a markdown summary of the Health Check report.
+- **Copy JSON** — Copies the raw JSON report.
+- **Send to Improvement Prompt** — Copies a generated improvement prompt to the clipboard and, if available, activates the AI Assistant.
 
-- **Copy JSON**  
-  Copies the raw JSON report.
-
-- **Send to Improvement Prompt**  
-  Copies a generated improvement prompt to the clipboard and, if available, activates the AI Assistant.
-
-The markdown summary includes Flow details, score, severity counts, key issue families, and dependency counts.
-
-The improvement prompt includes the Flow summary, issue families, dependencies, and a request to prioritise the most important changes first.
-
-> **Screenshot placeholder:** Add a screenshot here showing the modal footer actions.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-export-actions.png`
-
-## How findings are interpreted
-
-Flow Health Check is intended to provide a practical quality review, not a hard validator.
-
-A lower score does not automatically mean that a Flow is incorrect, and a higher score does not guarantee that a Flow is fully optimised. Instead, the feature is designed to highlight patterns that are commonly associated with:
-
-- harder maintenance
-- weaker fault handling
-- avoidable performance risk
-- deployment or environment portability concerns
-
-Users should review findings in the context of the Flow's actual business purpose.
-
-## Naming convention support
-
-Where available, Flow Health Check can use naming settings and configured prefixes from the extension to evaluate naming convention compliance for:
-
-- Flow API names
-- variables
-- formulas
-- constants
-
-This allows the Health Check to align with the naming approach already used elsewhere in the toolkit, rather than relying only on fixed hardcoded patterns.
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the modal footer actions.<br>
+Suggested file: <code>/images/flow-health-check/health-check-export-actions.png</code>
+</div>
 
 ## Error handling
 
@@ -219,14 +179,12 @@ If the current Flow ID cannot be determined from the URL, or if Flow metadata ca
 
 If an unexpected error occurs during execution, the modal displays the error message where available.
 
-> **Screenshot placeholder:** Add a screenshot here showing the error state of the Health Check modal.
->
-> Suggested file:
-> `../images/flow-health-check/health-check-error-state.png`
+<div class="screenshot-placeholder">
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the error state of the Health Check modal.<br>
+Suggested file: <code>/images/flow-health-check/health-check-error-state.png</code>
+</div>
 
 ## Notes and limitations
-
-Current implementation notes:
 
 - The Health Check runs against the currently open Flow.
 - The report is based on retrieved Flow metadata and the current rule set.
@@ -235,13 +193,6 @@ Current implementation notes:
 - Naming convention checks depend on available settings and prefix configuration.
 - If naming configuration cannot be fully built, the Health Check falls back to default behaviour.
 
-## Future documentation expansion
-
-This page can later be expanded with more detailed sections such as:
-
-- score interpretation guidance
-- issue family reference
-- examples of strong vs weak Flow patterns
-- export format examples
-- AI Assistant handoff examples
-- troubleshooting for unsupported or unexpected Flow structures
+<div class="note-box">
+This page is intended as a first documentation prototype and can be expanded later with issue family reference pages, export examples, and troubleshooting guidance.
+</div>
