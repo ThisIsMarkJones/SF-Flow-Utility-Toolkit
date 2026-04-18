@@ -50,7 +50,7 @@ If a screenshot includes sensitive information, redact it before uploading.
 Use the GitHub issue tracker to submit bugs for this project.
 
 <div class="quick-links">
-  <a href="[https://github.com/YOUR-USER/YOUR-REPO/issues](https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/issues)">Open Bug Reporting on GitHub</a>
+  <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/issues" target="_blank" rel="noopener noreferrer">Open Bug Reporting on GitHub</a>
 </div>
 
 ## What happens next
