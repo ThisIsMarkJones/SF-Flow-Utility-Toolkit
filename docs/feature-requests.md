@@ -39,7 +39,7 @@ Please consider:
 Use GitHub to suggest new features or enhancements for the project.
 
 <div class="quick-links">
-  <a href="https://github.com/YOUR-USER/YOUR-REPO/discussions">Open Feature Requests on GitHub</a>
+  <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/discussions" target="_blank" rel="noopener noreferrer">Open Feature Requests on GitHub</a>
 </div>
 
 ## What happens next
