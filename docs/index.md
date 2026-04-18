@@ -1,50 +1,52 @@
 ---
 layout: default
-title: Features
+title: Home
 ---
 
-# Features Overview
+# SF Flow Utility Toolkit
 
-SF Flow Utility Toolkit is made up of targeted features for Salesforce Flow Builder and related Salesforce automation pages.
+Utilities for Salesforce Flow Builder.
 
-The toolkit is designed to improve navigation, documentation, analysis, and day-to-day Flow administration by adding focused enhancements directly into the Salesforce experience.
+<div class="callout">
+A browser extension designed to make working with Salesforce Flows faster, easier, and more consistent.
+</div>
 
-## Available features
+## Quick links
 
-- [Flow Health Check]({{ '/features/flow-health-check.html' | relative_url }})
-- [Flow List Search]({{ '/features/flow-list-search.html' | relative_url }})
-- [Canvas Search]({{ '/features/canvas-search.html' | relative_url }})
-- [API Name Generator]({{ '/features/api-name-generator.html' | relative_url }})
-- [Flow Version Manager]({{ '/features/flow-version-manager.html' | relative_url }})
-- [Comparison Exporter]({{ '/features/comparison-exporter.html' | relative_url }})
-- [Missing Description Flags]({{ '/features/missing-description-flags.html' | relative_url }})
-- [Setup Tabs]({{ '/features/setup-tabs.html' | relative_url }})
-- [Flow Trigger Explorer Enhancer]({{ '/features/flow-trigger-explorer-enhancer.html' | relative_url }})
-- [AI Assistant]({{ '/features/ai-assistant.html' | relative_url }})
+<div class="quick-links">
+  <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
+  <a href="{{ '/features/' | relative_url }}">Features Overview</a>
+  <a href="{{ '/features/flow-health-check.html' | relative_url }}">Flow Health Check</a>
+  <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
+  <a href="{{ '/feature-requests.html' | relative_url }}">Feature Requests</a>
+</div>
 
-## Feature groups
+## Key features
 
-### Flow Builder analysis and documentation
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3><a href="{{ '/features/flow-health-check.html' | relative_url }}">Flow Health Check</a></h3>
+    <p>Analyse a Flow and identify maintainability, reliability, performance, and portability concerns.</p>
+  </div>
 
-- [Flow Health Check]({{ '/features/flow-health-check.html' | relative_url }})
-- [Comparison Exporter]({{ '/features/comparison-exporter.html' | relative_url }})
-- [Missing Description Flags]({{ '/features/missing-description-flags.html' | relative_url }})
-- [AI Assistant]({{ '/features/ai-assistant.html' | relative_url }})
+  <div class="feature-card">
+    <h3>Flow List Search</h3>
+    <p>Locate Flows more quickly and reduce navigation friction in larger orgs.</p>
+  </div>
 
-### Search and navigation
+  <div class="feature-card">
+    <h3>Canvas Search</h3>
+    <p>Find relevant nodes inside more complex Flow canvases.</p>
+  </div>
+</div>
 
-- [Flow List Search]({{ '/features/flow-list-search.html' | relative_url }})
-- [Canvas Search]({{ '/features/canvas-search.html' | relative_url }})
-- [Setup Tabs]({{ '/features/setup-tabs.html' | relative_url }})
-- [Flow Trigger Explorer Enhancer]({{ '/features/flow-trigger-explorer-enhancer.html' | relative_url }})
+## Support
 
-### Build and admin utilities
+Need help or want to suggest an improvement?
 
-- [API Name Generator]({{ '/features/api-name-generator.html' | relative_url }})
-- [Flow Version Manager]({{ '/features/flow-version-manager.html' | relative_url }})
+- [Report a Bug]({{ '/report-a-bug.html' | relative_url }})
+- [Feature Requests]({{ '/feature-requests.html' | relative_url }})
 
-## Notes
+## Documentation status
 
-These pages represent the current first-draft documentation set for the toolkit.
-
-Some features may continue to evolve before go-live, and the documentation will be refined alongside those changes.
+This is a prototype GitHub Pages setup for the project documentation. Branding, screenshots, and additional feature pages can be layered in next.
