@@ -45,6 +45,6 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 
 ## Notes
 
-These pages represent the current first-draft documentation set for the toolkit.
+These pages cover the current documented feature set for SF Flow Utility Toolkit.
 
-Some features may continue to evolve before go-live, and the documentation will be refined alongside those changes.
+Some features may continue to evolve, and the documentation will be refined alongside future updates.
