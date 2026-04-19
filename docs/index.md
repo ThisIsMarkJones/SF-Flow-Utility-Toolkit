@@ -72,6 +72,6 @@ Need help or want to suggest an improvement?
 
 ## Documentation status
 
-This documentation set now covers the current first-draft feature set for SF Flow Utility Toolkit.
+This documentation set covers the current V1 feature set for SF Flow Utility Toolkit.
 
-Some features may continue to evolve before go-live, and screenshots, examples, and refinements will be added over time.
+Screenshots, examples, and refinements will continue to be added over time as the extension evolves.
