@@ -18,6 +18,7 @@ A browser extension designed to make working with Salesforce Flows faster, easie
   <a href="{{ '/features/' | relative_url }}">Features Overview</a>
   <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
   <a href="{{ '/feature-requests.html' | relative_url }}">Feature Requests</a>
+  <a href="{{ '/privacy-policy.html' | relative_url }}">Privacy Policy</a>
 </div>
 
 ## Featured capabilities
@@ -67,6 +68,7 @@ Need help or want to suggest an improvement?
 
 - [Report a Bug]({{ '/report-a-bug.html' | relative_url }})
 - [Feature Requests]({{ '/feature-requests.html' | relative_url }})
+- [Privacy Policy]({{ '/privacy-policy.html' | relative_url }})
 
 ## Documentation status
 
