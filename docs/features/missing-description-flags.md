@@ -190,16 +190,6 @@ Current implementation notes:
 - Manual refresh is supported and is useful after editing descriptions.
 - Save-triggered refresh behaviour is present but should be treated as supportive rather than the only refresh path.
 
-### Flow Orchestrator note
-
-The current implementation includes logic for **Stage** and **Step** detection.
-
-However, there is currently a known issue affecting **Flow Orchestrator stage flagging**, where stages are not being flagged properly in all cases. Step-related support is included in the implementation, but orchestration-related behaviour should still be treated as an area under active refinement.
-
-<div class="note-box">
-Flow Orchestrator support is part of the intended feature scope, but stage flagging is currently known to be incomplete and should be treated as a current limitation until the outstanding bug is resolved.
-</div>
-
 ## Accessibility and usability notes
 
 The current implementation includes:
