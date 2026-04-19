@@ -194,5 +194,5 @@ Suggested file: <code>/images/flow-health-check/health-check-error-state.png</co
 - If naming configuration cannot be fully built, the Health Check falls back to default behaviour.
 
 <div class="note-box">
-This page is intended as a first documentation prototype and can be expanded later with issue family reference pages, export examples, and troubleshooting guidance.
+This page can be expanded further over time with issue family reference pages, export examples, and troubleshooting guidance.
 </div>
