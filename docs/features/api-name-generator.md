@@ -250,16 +250,6 @@ Current implementation notes:
 - The feature is designed to remain usable even if the JSON default file cannot be loaded, by falling back to hardcoded defaults.
 - Some specialist editor types may require additional refinement over time.
 
-### Flow Orchestrator note
-
-The current implementation includes orchestration-specific handling for **Stage** and **Step**.
-
-However, as noted during development, there is currently outstanding bug work related to **Flow Orchestrator** behaviour. This means orchestration-related support should be treated as an implemented area that may still require refinement before go-live.
-
-<div class="note-box">
-Flow Orchestrator support is already represented in the implementation, but it is sensible to treat that area as under active refinement until the outstanding bug is resolved.
-</div>
-
 ## Accessibility and usability notes
 
 The current implementation includes:
