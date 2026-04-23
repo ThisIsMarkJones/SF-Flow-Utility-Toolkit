@@ -20,7 +20,7 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 - [Missing Description Flags]({{ '/features/missing-description-flags.html' | relative_url }})
 - [Setup Tabs]({{ '/features/setup-tabs.html' | relative_url }})
 - [Flow Trigger Explorer Enhancer]({{ '/features/flow-trigger-explorer-enhancer.html' | relative_url }})
-- [AI Assistant]({{ '/features/ai-assistant.html' | relative_url }})
+- [Flow Metadata & AI Assistant]({{ '/features/flow-metadata-ai-assistant.html' | relative_url }})
 
 ## Feature groups
 
@@ -29,7 +29,7 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 - [Flow Health Check]({{ '/features/flow-health-check.html' | relative_url }})
 - [Comparison Exporter]({{ '/features/comparison-exporter.html' | relative_url }})
 - [Missing Description Flags]({{ '/features/missing-description-flags.html' | relative_url }})
-- [AI Assistant]({{ '/features/ai-assistant.html' | relative_url }})
+- [Flow Metadata & AI Assistant]({{ '/features/flow-metadata-ai-assistant.html' | relative_url }})
 
 ### Search and navigation
 
