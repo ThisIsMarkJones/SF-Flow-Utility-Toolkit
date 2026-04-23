@@ -7,7 +7,7 @@ excerpt_separator: <!--more-->
 ---
 
 {% if page.category %}
-<div class="note-box">{{ page.category }}</div>
+<div class="noteBoxes type1">{{ page.category }}</div>
 {% endif %}
 
 ## SF Flow Utility Toolkit is Live on the Chrome Web Store ##
