@@ -17,10 +17,7 @@ The feature is designed to make it easier to find specific Flows in larger orgs 
 - filter by Flow type
 - quickly see how many Flows match the current filters
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow List Search toolbar above the Salesforce Flows list.<br>
-Suggested file: <code>/images/flow-list-search/flow-list-search-toolbar.png</code>
-</div>
+![Flow List Search Module]({{ '/images/flow-list-search/flow-list-search-module.png' | relative_url }})
 
 ## Where it appears
 
@@ -59,10 +56,7 @@ The placeholder text shown in the search box is:
 
 **Search by label or API name...**
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the search field populated with a search term and filtered results below.<br>
-Suggested file: <code>/images/flow-list-search/flow-list-search-text-filter.png</code>
-</div>
+![Flow List Search Results]({{ '/images/flow-list-search/flow-list-search-results.png' | relative_url }})
 
 ## Filters
 
@@ -75,6 +69,8 @@ The Status filter currently supports:
 - Inactive
 
 Status values are normalized internally so both checkbox-style values and textual active/inactive values can be handled consistently.
+
+![Flow List Search Status Filter]({{ '/images/flow-list-search/flow-list-search-status-filter.png' | relative_url }})
 
 ### Type filter
 
@@ -93,10 +89,7 @@ Type labels are mapped into more user-friendly display values where possible. Ex
 
 If a type value is not in the defined label map, it is converted into a more human-readable format.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Status and Type filters expanded.<br>
-Suggested file: <code>/images/flow-list-search/flow-list-search-filters.png</code>
-</div>
+![Flow List Search Flow Type Filter]({{ '/images/flow-list-search/flow-list-search-flow-type-filter.png' | relative_url }})
 
 ## Lazy-loading support
 
@@ -163,12 +156,3 @@ The current implementation includes:
 - labelled filter dropdowns
 - a clear button with an accessible label
 - keyboard shortcut support for quick access
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- screenshots of each filter state
-- examples of supported Flow type labels
-- troubleshooting guidance if the toolbar does not appear
-- known Salesforce UI limitations or compatibility notes
