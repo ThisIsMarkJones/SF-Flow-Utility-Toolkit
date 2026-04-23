@@ -32,7 +32,7 @@ Flow Health Check runs against the **currently open Flow** in Salesforce Flow Bu
 
 The report is presented in a modal overlay titled **Flow Health Check**.
 
-![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-launch-from-side-bar.png' | relative_url }})
+![Flow Health Check Module]({{ '/images/flow-health-check/flow-health-check-launch-from-side-bar.png' | relative_url }})
 
 ## Report contents
 
@@ -86,9 +86,9 @@ The report lists detected custom dependencies, including where applicable:
 - Apex-defined types
 - External actions
 
-![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-issue-families.png' | relative_url }})
+![Flow Health Check Issue Families]({{ '/images/flow-health-check/flow-health-check-issue-families.png' | relative_url }})
 
-![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-profiles-and-dependencies.png' | relative_url }})
+![Flow Health Check Profiles and Dependencies]({{ '/images/flow-health-check/flow-health-check-profiles-and-dependencies.png' | relative_url }})
 
 ## Scoring model
 
@@ -156,7 +156,7 @@ The current modal footer supports the following actions:
 - **Copy JSON** — Copies the raw JSON report.
 - **Send to Improvement Prompt** — Copies a generated improvement prompt to the clipboard and, if available, activates the AI Assistant.
 
-![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-footer-area.png' | relative_url }})
+![Flow Health Check Footer Area]({{ '/images/flow-health-check/flow-health-check-footer-area.png' | relative_url }})
 
 ## Error handling
 
