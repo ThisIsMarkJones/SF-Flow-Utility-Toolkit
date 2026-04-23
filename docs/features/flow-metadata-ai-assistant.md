@@ -19,10 +19,7 @@ It provides a side-panel experience that helps users:
 
 The feature is designed to support documentation, design analysis, testing, improvement review, and diagram generation workflows.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow Metadata & Flow Metadata & AI Assistant panel open in Flow Builder.<br>
-Suggested file: <code>/images/ai-assistant/ai-assistant-panel-overview.png</code>
-</div>
+![Flow Metadata & AI Assistant Module]({{ '/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-module.png' | relative_url }})
 
 ## Where it appears
 
@@ -97,10 +94,7 @@ The AI Prompt Assistant section allows the user to:
 - view a prompt-size token estimate
 - copy the assembled prompt to the clipboard
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow Summary and Metadata actions sections.<br>
-Suggested file: <code>/images/ai-assistant/ai-assistant-summary-and-metadata.png</code>
-</div>
+![Flow Metadata & AI Assistant Summary/Metadata Sections]({{ '/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-summary-metadata-sections.png' | relative_url }})
 
 ## Metadata formats
 
@@ -165,10 +159,9 @@ Each template includes:
 
 When a template is selected, the assistant assembles the final prompt by combining the template prompt text with either the raw or cleaned metadata JSON.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the prompt template dropdown and metadata format selection.<br>
-Suggested file: <code>/images/ai-assistant/ai-assistant-template-selection.png</code>
-</div>
+![Flow Metadata & AI Assistant Prompt Template Section]({{ '/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-prompt-template-section.png' | relative_url }})
+
+![Flow Metadata & AI Assistant Prompt Template Section Options]({{ '/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-prompt-template-section-options.png' | relative_url }})
 
 ## Current prompt template purposes
 
@@ -273,14 +266,3 @@ The current implementation includes:
 - template descriptions shown inline
 - explicit raw/clean metadata selection
 - token estimates for prompt planning
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- example outputs for each template
-- more guidance on when to choose raw vs clean metadata
-- screenshots of the copy/download workflow
-- screenshots of the generated JSON files
-- troubleshooting guidance for metadata retrieval failures
-- guidance on which template is best for different admin or consultant tasks
