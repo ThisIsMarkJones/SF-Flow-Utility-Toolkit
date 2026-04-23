@@ -18,10 +18,7 @@ Current behaviour supports:
 - the main changes table
 - optional detail text from each **View Details** panel
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Compare Versions page with the Comparison Exporter available from the extension.<br>
-Suggested file: <code>/images/comparison-exporter/comparison-exporter-entry-point.png</code>
-</div>
+![Comparison Exporter Side Bar Module]({{ '/images/comparison-exporter/comparison-exporter-side-bar-module.png' | relative_url }})
 
 ## Where it appears
 
@@ -58,10 +55,7 @@ The modal currently includes:
 
 If the user cancels the modal, the export does not continue.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the export options modal with the Include Details checkbox.<br>
-Suggested file: <code>/images/comparison-exporter/comparison-exporter-options-modal.png</code>
-</div>
+![Comparison Exporter Export Module]({{ '/images/comparison-exporter/comparison-exporter-export-module.png' | relative_url }})
 
 ## What gets exported
 
@@ -112,11 +106,6 @@ If **Include "View Details" panel text** is enabled, the exporter attempts to:
 This produces a richer export, but it is slower because the feature must iterate through the comparison rows one at a time.
 
 The implementation also includes logic to ignore obviously bad or interrupted overlays when scraping detail content.
-
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing a View Details modal that contributes to the exported Details column.<br>
-Suggested file: <code>/images/comparison-exporter/comparison-exporter-view-details-modal.png</code>
-</div>
 
 ## Excel template behaviour
 
@@ -211,13 +200,3 @@ That means the exported output is intended to align with a pre-defined documenta
 <div class="note-box">
 This feature is especially useful when comparison output needs to be retained as formal documentation rather than only reviewed in the Salesforce UI.
 </div>
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- screenshots of the finished workbook
-- a template field-to-output mapping reference
-- explanation of the Changes table columns
-- troubleshooting guidance if the compare table or detail modal cannot be scraped
-- notes on large comparisons and expected export times
