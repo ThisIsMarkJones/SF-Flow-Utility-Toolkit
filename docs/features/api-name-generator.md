@@ -18,7 +18,7 @@ Current behaviour supports a broad range of Flow element and resource types, wit
 - the configured naming pattern
 - the currently loaded prefix configuration
 
-![API Name Generator Inline Tag Button]({{ '/images/flow-health-check/api-name-generator-inline-tag-button.png' | relative_url }})
+![API Name Generator Inline Tag Button]({{ '/images/api-name-generator/api-name-generator-inline-tag-button.png' | relative_url }})
 
 ## Where it appears
 
@@ -68,7 +68,7 @@ The source comments also describe a **modal fallback mode** accessible from the 
 
 This documentation page is currently focused on the inline generation behaviour, which is the clearest implemented user-facing flow from the supplied files.
 
-![API Name Generator Element Update]({{ '/images/flow-health-check/api-name-generator-element-update.png' | relative_url }})
+![API Name Generator Element Update]({{ '/images/api-name-generator/api-name-generator-element-update.png' | relative_url }})
 
 ## Naming patterns
 
@@ -82,7 +82,7 @@ The current code references:
 
 The configured naming pattern is read from settings and applied when generating the final API name.
 
-![API Name Generator Settings Options]({{ '/images/flow-health-check/api-name-generator-settings-options.png' | relative_url }})
+![API Name Generator Settings Options]({{ '/images/api-name-generator/api-name-generator-settings-options.png' | relative_url }})
 
 ### Example behaviour
 
@@ -185,7 +185,7 @@ The implementation also includes detection and prefix mappings for:
 - Stage
 - Step
 
-![API Name Generator Resource Item Update]({{ '/images/flow-health-check/api-name-generator-resource-item-update.png' | relative_url }})
+![API Name Generator Resource Item Update]({{ '/images/api-name-generator/api-name-generator-resource-item-update.png' | relative_url }})
 
 ## How generation works
 
@@ -232,7 +232,7 @@ The prefix configuration system also supports:
 
 This means updates to custom prefix configuration can be reflected without requiring a manual Flow Builder page refresh.
 
-![API Name Generator Download/Upload Prefixes]({{ '/images/flow-health-check/api-name-generator-download-upload-prefixes.png' | relative_url }})
+![API Name Generator Download/Upload Prefixes]({{ '/images/api-name-generator/api-name-generator-download-upload-prefixes.png' | relative_url }})
 
 ## Notes and limitations
 
