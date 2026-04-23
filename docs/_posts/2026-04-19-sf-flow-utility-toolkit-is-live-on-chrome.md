@@ -1,7 +1,8 @@
 ---
 layout: default
-title: V1 is now live on the Chrome Web Store
+title: "V1 is now live on the Chrome Web Store"
 date: 2026-04-19 09:00:00 +0100
+permalink: /news/2026/04/19/v1-is-now-live-on-the-chrome-web-store/
 ---
 
 SF Flow Utility Toolkit is now available on the Chrome Web Store.
