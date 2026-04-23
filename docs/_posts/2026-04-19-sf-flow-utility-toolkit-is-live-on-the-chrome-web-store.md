@@ -6,6 +6,10 @@ category: Release
 excerpt_separator: <!--more-->
 ---
 
+{% if page.category %}
+<div class="note-box">{{ page.category }}</div>
+{% endif %}
+
 ## SF Flow Utility Toolkit is Live on the Chrome Web Store ##
 
 SF Flow Utility Toolkit is now available on the Chrome Web Store.
