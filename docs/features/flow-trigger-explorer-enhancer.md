@@ -18,11 +18,6 @@ Current enrichments include:
 - coloured trigger-context tags
 - a compact metadata tooltip
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing enriched rows in Flow Trigger Explorer with the info icon, inline metadata, and context tags.<br>
-Suggested file: <code>/images/flow-trigger-explorer-enhancer/fte-enhanced-rows.png</code>
-</div>
-
 ## Where it appears
 
 Flow Trigger Explorer Enhancer is intended for **Salesforce Flow Trigger Explorer**.
@@ -73,10 +68,7 @@ The feature also adds coloured tags for the current trigger context, using label
 
 These tags are intentionally limited to the **current explorer context only** and are not persisted across views.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Created / Updated / Deleted tags in the explorer row list.<br>
-Suggested file: <code>/images/flow-trigger-explorer-enhancer/fte-context-tags.png</code>
-</div>
+![Flow Trigger Explorer Enhancer Injected Information]({{ '/images/flow-trigger-explorer-enhancer/flow-trigger-explorer-enhancer-injected-information.png' | relative_url }})
 
 ## Tooltip content
 
@@ -93,10 +85,7 @@ If metadata is not currently available in the explorer DOM, the tooltip shows a 
 
 This helps the feature remain useful without making assumptions beyond what is visible in the page.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the tooltip content for a Flow row in Flow Trigger Explorer.<br>
-Suggested file: <code>/images/flow-trigger-explorer-enhancer/fte-tooltip.png</code>
-</div>
+![Flow Trigger Explorer Enhancer Tooltip Information]({{ '/images/flow-trigger-explorer-enhancer/flow-trigger-explorer-enhancer-tooltip-information.png' | relative_url }})
 
 ## How metadata is learned
 
@@ -195,13 +184,3 @@ The current implementation includes:
 - tooltip support for hover and focus
 - Escape handling to hide the tooltip
 - compact inline metadata intended to reduce the need for repeated panel opening
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- screenshots of each context state
-- examples of tooltip content for different Flow types
-- notes on how cached metadata improves row rendering over time
-- troubleshooting guidance if enrichments do not appear
-- a clearer list of what is row-derived versus details-panel-derived
