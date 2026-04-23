@@ -185,3 +185,12 @@ body {
     padding: 1.25rem;
   }
 }
+
+.content-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--sfut-border);
+  box-shadow: var(--sfut-shadow);
+  margin: 1rem 0 1.25rem;
+}
