@@ -17,13 +17,24 @@
         </div>
 
         <nav class="site-nav" aria-label="Primary">
-          <a href="{{ '/' | relative_url }}">Home</a>
-          <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
-          <a href="{{ '/features/' | relative_url }}">Features</a>
-          <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
-          <a href="{{ '/feature-requests.html' | relative_url }}">Feature Requests</a>
-          <a href="{{ '/privacy-policy.html' | relative_url }}">Privacy Policy</a>
-        </nav>
+  <a href="{{ '/' | relative_url }}">Home</a>
+  <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
+  <a href="{{ '/features/' | relative_url }}">Features</a>
+  <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
+  <a href="{{ '/feature-requests.html' | relative_url }}">Feature Requests</a>
+  <a href="{{ '/privacy-policy.html' | relative_url }}">Privacy Policy</a>
+
+  <div class="site-nav-dropdown">
+    <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+      Install
+    </button>
+    <div class="site-nav-dropdown-menu">
+      <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+        Google Chrome
+      </a>
+    </div>
+  </div>
+</nav>
       </div>
     </header>
 
