@@ -75,9 +75,9 @@ When a toolbox match is focused, the feature attempts to:
 
 This helps make search useful across both the canvas itself and the supporting left-hand panel.
 
-![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-canvas-highlight.png' | relative_url }})
+![Canvas Search Canvas Highlight]({{ '/images/canvas-search/flow-canvas-search-canvas-highlight.png' | relative_url }})
 
-![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-toolbox-highlight.png' | relative_url }})
+![Canvas Search Toolbox Highlight]({{ '/images/canvas-search/flow-canvas-search-toolbox-highlight.png' | relative_url }})
 
 ## Navigation behaviour
 
@@ -112,7 +112,7 @@ The default shortcut is:
 
 If the search overlay is already open, triggering the shortcut again focuses and selects the input.
 
-![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-settings-config.png' | relative_url }})
+![Canvas Search Settings Config]({{ '/images/canvas-search/flow-canvas-search-settings-config.png' | relative_url }})
 
 ### Navigate matches
 
