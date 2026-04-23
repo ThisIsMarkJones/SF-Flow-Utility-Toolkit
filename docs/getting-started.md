@@ -22,6 +22,12 @@ Before using the toolkit, make sure that:
 
 Some features are designed for Flow Builder specifically, while others are intended for related Setup and automation pages.
 
+## Install the extension
+
+Should you need to install the extension, you can do so on the following browsers:
+
+- [Google Chrome](https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl)
+
 ## Supported environments
 
 The extension is intended for use with Salesforce environments such as:
