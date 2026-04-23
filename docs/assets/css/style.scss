@@ -281,3 +281,16 @@ body {
     min-width: 200px;
   }
 }
+
+.post-category-tag {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #fde8e8;
+  border: 1px solid #f5b5b5;
+  color: #a61b1b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
