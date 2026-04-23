@@ -284,13 +284,32 @@ body {
 
 .post-category-tag {
   display: inline-block;
-  margin-bottom: 0.35rem;
-  padding: 0.2rem 0.6rem;
+  margin: 0 0 0.5rem 0;
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
-  background: #fde8e8;
-  border: 1px solid #f5b5b5;
-  color: #a61b1b;
   font-size: 0.8rem;
   font-weight: 700;
   line-height: 1.2;
+  border: 1px solid transparent;
+}
+
+/* Announcements */
+.post-category-announcements {
+  background: #fff1f1;
+  border-color: #d92d20;
+  color: #b42318;
+}
+
+/* Release Updates */
+.post-category-release-updates {
+  background: #eff8ff;
+  border-color: #53b1fd;
+  color: #175cd3;
+}
+
+/* Feature Upgrades */
+.post-category-feature-upgrades {
+  background: #ecfdf3;
+  border-color: #6ce9a6;
+  color: #067647;
 }
