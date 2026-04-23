@@ -32,10 +32,7 @@ Flow Health Check runs against the **currently open Flow** in Salesforce Flow Bu
 
 The report is presented in a modal overlay titled **Flow Health Check**.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing where the user launches Flow Health Check from within the extension UI.<br>
-Suggested file: <code>/images/flow-health-check/health-check-launch-entry-point.png</code>
-</div>
+![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-launch-from-side-bar.png' | relative_url }})
 
 ## Report contents
 
@@ -89,15 +86,9 @@ The report lists detected custom dependencies, including where applicable:
 - Apex-defined types
 - External actions
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Issue Families section expanded.<br>
-Suggested file: <code>/images/flow-health-check/health-check-issue-families.png</code>
-</div>
+![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-issue-families.png' | relative_url }})
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow Profile and Dependencies sections.<br>
-Suggested file: <code>/images/flow-health-check/health-check-profile-and-dependencies.png</code>
-</div>
+![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-profiles-and-dependencies.png' | relative_url }})
 
 ## Scoring model
 
@@ -165,21 +156,13 @@ The current modal footer supports the following actions:
 - **Copy JSON** — Copies the raw JSON report.
 - **Send to Improvement Prompt** — Copies a generated improvement prompt to the clipboard and, if available, activates the AI Assistant.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the modal footer actions.<br>
-Suggested file: <code>/images/flow-health-check/health-check-export-actions.png</code>
-</div>
+![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-footer-area.png' | relative_url }})
 
 ## Error handling
 
 If the current Flow ID cannot be determined from the URL, or if Flow metadata cannot be retrieved, the feature displays an error state in the modal.
 
 If an unexpected error occurs during execution, the modal displays the error message where available.
-
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the error state of the Health Check modal.<br>
-Suggested file: <code>/images/flow-health-check/health-check-error-state.png</code>
-</div>
 
 ## Notes and limitations
 
@@ -189,7 +172,3 @@ Suggested file: <code>/images/flow-health-check/health-check-error-state.png</co
 - Dependency reporting is intended as an inventory aid and does not by itself confirm deployment readiness.
 - Naming convention checks depend on available settings and prefix configuration.
 - If naming configuration cannot be fully built, the Health Check falls back to default behaviour.
-
-<div class="note-box">
-This page can be expanded further over time with issue family reference pages, export examples, and troubleshooting guidance.
-</div>
