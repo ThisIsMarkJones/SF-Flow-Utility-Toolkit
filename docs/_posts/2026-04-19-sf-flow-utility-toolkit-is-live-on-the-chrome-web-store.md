@@ -7,7 +7,7 @@ excerpt_separator: <!--more-->
 ---
 
 {% if page.category %}
-<p class="noteBoxes type1">{{ page.category }}</p>
+<div class="note-box">{{ page.category }}</div>
 {% endif %}
 
 ## {{ page.title }} ##
