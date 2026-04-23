@@ -13,10 +13,7 @@ The feature is designed to make version clean-up easier and safer by allowing us
 
 Current functionality focuses on bulk deletion support for Flow versions listed on the Setup versions page.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the versions table with the added checkbox column and Delete Selected Versions button.<br>
-Suggested file: <code>/images/flow-version-manager/flow-version-manager-table.png</code>
-</div>
+![Flow Version Manager Disabled Row and Button]({{ '/images/flow-version-manager/flow-version-manager-disabled-row-and-button.png' | relative_url }})
 
 ## Where it appears
 
@@ -70,16 +67,15 @@ This is surfaced in the implementation through row state handling and the messag
 
 - `Active versions cannot be deleted`
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing a mix of selectable and disabled rows in the versions table.<br>
-Suggested file: <code>/images/flow-version-manager/flow-version-manager-disabled-rows.png</code>
-</div>
+![Flow Version Manager Selectable Row and Button]({{ '/images/flow-version-manager/flow-version-manager-selectable-row-and-button.png' | relative_url }})
 
 ## Bulk delete action
 
 Once one or more versions are selected, users can click **Delete Selected Versions** to start the bulk deletion flow.
 
 The action is designed to keep the user in control by introducing a confirmation step before any delete actions are triggered.
+
+![Flow Version Manager Deletion Module]({{ '/images/flow-version-manager/flow-version-manager-deletion-module.png' | relative_url }})
 
 ## Confirmation modal
 
@@ -196,13 +192,3 @@ The current implementation includes:
 - a modal dialog with explicit confirmation wording
 - keyboard handling within the modal for Enter and Escape
 - clear destructive-action wording for deletion confirmation
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- more detail on which version states are selectable
-- screenshots of the complete deletion flow
-- troubleshooting guidance if the versions table is not detected
-- clarification around page refresh or navigation behaviour during queued deletion
-- examples of recommended clean-up workflows for old Flow versions
