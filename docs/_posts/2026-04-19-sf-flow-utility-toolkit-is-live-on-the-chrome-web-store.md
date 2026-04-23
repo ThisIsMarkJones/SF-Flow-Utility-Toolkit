@@ -2,12 +2,16 @@
 layout: default
 title: "SF Flow Utility Toolkit is Live on the Chrome Web Store"
 date: 2026-04-19 09:00:00 +0100
-category: Release
+category: Announcement
 excerpt_separator: <!--more-->
 ---
 
 {% if page.category %}
-<span class="post-category-tag">{{ page.category }}</span>
+<p>
+  <span class="post-category-tag post-category-{{ page.category | slugify }}">
+    {{ page.category }}
+  </span>
+</p>
 {% endif %}
 
 ## {{ page.title }} ##
