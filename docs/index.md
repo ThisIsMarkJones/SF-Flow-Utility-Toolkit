@@ -14,6 +14,7 @@ A browser extension designed to make working with Salesforce Flows faster, easie
 ## Quick links
 
 <div class="quick-links">
+  <a href="{{ '/whats-new.html' | relative_url }}">What's New</a>
   <a href="{{ '/getting-started.html' | relative_url }}">Getting Started</a>
   <a href="{{ '/features/' | relative_url }}">Features Overview</a>
   <a href="{{ '/report-a-bug.html' | relative_url }}">Report a Bug</a>
