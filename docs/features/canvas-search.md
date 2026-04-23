@@ -18,10 +18,7 @@ The feature is designed to help users work more efficiently in larger or more co
 
 Canvas Search highlights matching items and allows users to move between results using either the keyboard or on-screen navigation controls.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Canvas Search overlay open on the Flow Builder canvas.<br>
-Suggested file: <code>/images/canvas-search/canvas-search-overlay.png</code>
-</div>
+![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-module.png' | relative_url }})
 
 ## Where it appears
 
@@ -78,15 +75,9 @@ When a toolbox match is focused, the feature attempts to:
 
 This helps make search useful across both the canvas itself and the supporting left-hand panel.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing search results highlighted on the canvas.<br>
-Suggested file: <code>/images/canvas-search/canvas-search-results-highlighted.png</code>
-</div>
+![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-canvas-highlight.png' | relative_url }})
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing a matching toolbox or resource item in the left panel.<br>
-Suggested file: <code>/images/canvas-search/canvas-search-toolbox-results.png</code>
-</div>
+![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-toolbox-highlight.png' | relative_url }})
 
 ## Navigation behaviour
 
@@ -121,6 +112,8 @@ The default shortcut is:
 
 If the search overlay is already open, triggering the shortcut again focuses and selects the input.
 
+![Canvas Search Module]({{ '/images/canvas-search/flow-canvas-search-settings-config.png' | relative_url }})
+
 ### Navigate matches
 
 When the search overlay is open:
@@ -143,11 +136,6 @@ The overlay currently includes:
 - a close button
 
 This gives users both keyboard and click-based navigation options.
-
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the navigation controls and result count in the Canvas Search overlay.<br>
-Suggested file: <code>/images/canvas-search/canvas-search-navigation-controls.png</code>
-</div>
 
 ## Highlighting behaviour
 
@@ -205,13 +193,3 @@ The current implementation supports:
 - visible result counts
 - explicit close behaviour
 - visual highlighting for both all matches and the currently focused match
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- examples of search terms and what they match
-- screenshots of connector badge results
-- screenshots of resource and toolbox searching
-- troubleshooting guidance if no matches appear
-- notes on behaviour in very large or complex Flows
