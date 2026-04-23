@@ -1,13 +1,13 @@
 ---
 layout: default
-title: AI Assistant
+title: Flow Metadata & AI Assistant
 ---
 
-# AI Assistant
+# Flow Metadata & AI Assistant
 
 ## Overview
 
-**AI Assistant** is a combined metadata and prompt-generation feature for Salesforce Flow Builder.
+**Flow Metadata & AI Assistant** is a combined metadata and prompt-generation feature for Salesforce Flow Builder.
 
 It provides a side-panel experience that helps users:
 
@@ -20,17 +20,17 @@ It provides a side-panel experience that helps users:
 The feature is designed to support documentation, design analysis, testing, improvement review, and diagram generation workflows.
 
 <div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the AI Assistant panel open in Flow Builder.<br>
+<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Flow Metadata & Flow Metadata & AI Assistant panel open in Flow Builder.<br>
 Suggested file: <code>/images/ai-assistant/ai-assistant-panel-overview.png</code>
 </div>
 
 ## Where it appears
 
-AI Assistant is intended for **Salesforce Flow Builder**.
+Flow Metadata & AI Assistant is intended for **Salesforce Flow Builder**.
 
 When activated, it opens a panel overlay titled:
 
-**Flow Metadata & AI Assistant**
+**Flow Metadata & Flow Metadata & AI Assistant**
 
 The panel is displayed over the current Flow Builder page and can be closed by:
 
@@ -40,7 +40,7 @@ The panel is displayed over the current Flow Builder page and can be closed by:
 
 ## What the feature does
 
-AI Assistant currently provides the following functionality:
+Flow Metadata & AI Assistant currently provides the following functionality:
 
 1. Detects that the user is in Flow Builder.
 2. Opens a dedicated panel overlay when activated.
