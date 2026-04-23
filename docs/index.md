@@ -60,7 +60,7 @@ A browser extension designed to make working with Salesforce Flows faster, easie
 - [Missing Description Flags]({{ '/features/missing-description-flags.html' | relative_url }}) — highlight elements, resources, and Flow-level items that are missing descriptions.
 - [Setup Tabs]({{ '/features/setup-tabs.html' | relative_url }}) — add quick-access Setup tabs for key Flow and automation destinations.
 - [Flow Trigger Explorer Enhancer]({{ '/features/flow-trigger-explorer-enhancer.html' | relative_url }}) — enrich Flow Trigger Explorer rows with inline metadata, context tags, and compact tooltips.
-- [AI Assistant]({{ '/features/ai-assistant.html' | relative_url }}) — work with Flow metadata, copy/download JSON, and generate prompt-ready content for AI-assisted workflows.
+- [Flow Metadata & AI Assistant]({{ '/features/flow-metadata-ai-assistant.html' | relative_url }}) — work with Flow metadata, copy/download JSON, and generate prompt-ready content for AI-assisted workflows.
 
 ## Support
 
