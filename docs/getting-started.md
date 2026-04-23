@@ -26,7 +26,7 @@ Some features are designed for Flow Builder specifically, while others are inten
 
 Should you need to install the extension, you can do so on the following browsers:
 
-- <li><a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
+<li><a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
 
 ## Supported environments
 
