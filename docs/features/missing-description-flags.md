@@ -18,11 +18,6 @@ Current behaviour supports flagging missing descriptions across:
 - flow-level description state
 - some orchestration-related items such as steps
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing warning flags on Flow Builder canvas elements.<br>
-Suggested file: <code>/images/missing-description-flags/missing-description-flags-canvas.png</code>
-</div>
-
 ## Where it appears
 
 Missing Description Flags is intended for **Salesforce Flow Builder**.
@@ -88,6 +83,8 @@ The implementation also checks resource-style items such as:
 
 If the Flow itself does not have a description, the feature also attempts to add a Flow-level warning indicator.
 
+![Missing Description Flags Flagged Items]({{ '/images/missing-description-flags/missing-description-flags-flagged-items.png' | relative_url }})
+
 ### Orchestration-related items
 
 The implementation includes logic for:
@@ -96,11 +93,6 @@ The implementation includes logic for:
 - Step
 
 This means orchestrator-related metadata is part of the current scope, though there is a known issue affecting stage flagging behaviour.
-
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing warning flags on toolbox/resource items.<br>
-Suggested file: <code>/images/missing-description-flags/missing-description-flags-toolbox.png</code>
-</div>
 
 ## How matching works
 
@@ -145,11 +137,6 @@ The warning text is intended to make the reason clear, for example:
 - `"Element Name" has no description`
 - `This flow has no description`
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing a Flow-level warning flag near the Flow name.<br>
-Suggested file: <code>/images/missing-description-flags/missing-description-flags-flow-level.png</code>
-</div>
-
 ## Activation and refresh behaviour
 
 Missing Description Flags can be enabled or disabled, and its current state is exposed so the extension UI can switch between:
@@ -171,10 +158,18 @@ The implementation also includes optional save-related refresh logic.
 
 This means the feature can attempt to detect save completion and refresh the metadata after a short delay, helping the warnings stay aligned with recent edits.
 
+![Missing Description Flags Hide/Show/Refresh Side Bar Items]({{ '/images/missing-description-flags/missing-description-flags-hide-refresh-side-bar-items.png' | relative_url }})
+
+### Enable/Disable the Function
+
+The Missing Description Flags function can be enabled/disabled with a toggle in the settings page. The setting will be enabled by default upon installation of the extension.
+
+![Missing Description Flags Settings Toggle]({{ '/images/missing-description-flags/missing-description-flags-settings-toggle.png' | relative_url }})
+
 ## How to use it
 
 1. Open a Flow in Salesforce Flow Builder.
-2. Enable **Missing Description Flags** from the extension.
+2. Enable **Missing Description Flags** from the extension (they will be present by default in existing Flows).
 3. Review the warning indicators shown on the canvas, in the toolbox, and at Flow level where applicable.
 4. Add missing descriptions as needed.
 5. Use the refresh action if required to rebuild the flags after updates.
@@ -198,13 +193,3 @@ The current implementation includes:
 - tooltip text for missing-description warnings
 - a toggleable active state
 - manual refresh support for keeping flags in sync after edits
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- examples of supported element/resource categories
-- screenshots of orchestration-related flagging
-- troubleshooting guidance if flags do not appear
-- notes on refresh timing after Save
-- clearer before-and-after examples showing descriptions being added and warnings disappearing
