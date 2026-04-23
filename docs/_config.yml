@@ -3,3 +3,4 @@ description: Documentation for the Salesforce Flow Builder browser extension
 theme: jekyll-theme-cayman
 markdown: kramdown
 plugins: []
+permalink: /news/:year/:month/:day/:title/
