@@ -17,14 +17,13 @@ Current tab support includes:
 - Flow Trigger Explorer
 - Process Automation Settings
 
+![Setup Tabs Injected Tabs (No Automation Home)]({{ '/images/setup-tabs/setup-tabs-injected-tabs-no-automation-home.png' | relative_url }})
+
 An optional additional tab is also available for:
 
 - Automation Home
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the injected Setup Tabs in the Salesforce Setup tab bar.<br>
-Suggested file: <code>/images/setup-tabs/setup-tabs-tab-bar.png</code>
-</div>
+![Setup Tabs Injected Tabs (With Automation Home)]({{ '/images/setup-tabs/setup-tabs-injected-tabs-with-automation-home.png' | relative_url }})
 
 ## Where it appears
 
@@ -74,11 +73,6 @@ When enabled, it links to the Automation App home using the known Lightning app 
 - `/lightning/app/standard__FlowsApp`
 
 This tab opens in a **new browser tab**.
-
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the optional Automation Home tab enabled alongside the default tabs.<br>
-Suggested file: <code>/images/setup-tabs/setup-tabs-automation-home.png</code>
-</div>
 
 ## Navigation behaviour
 
@@ -144,10 +138,7 @@ The settings page includes a dedicated toggle for:
 
 This allows users to control whether the base tabs and optional extra tab should appear.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Setup Tabs and Automation Home settings in the toolkit settings page.<br>
-Suggested file: <code>/images/setup-tabs/setup-tabs-settings.png</code>
-</div>
+![Setup Tabs Settings Options]({{ '/images/setup-tabs/setup-tabs-settings-options.png' | relative_url }})
 
 ## How URLs are built
 
@@ -197,13 +188,3 @@ The current implementation includes:
 - active-state handling based on the current URL
 - user-facing settings toggles for enabling/disabling the feature
 - toast feedback when the feature is enabled or disabled via activation
-
-## Future documentation expansion
-
-This page can later be expanded with:
-
-- screenshots from different supported Setup pages
-- clarification around which destinations open in a new tab and why
-- examples from sandbox and production hostname patterns
-- troubleshooting guidance if tabs do not appear
-- a future change log if additional quick-access tabs are added
