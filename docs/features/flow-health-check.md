@@ -11,10 +11,7 @@ title: Flow Health Check
 
 The feature inspects the current Flow metadata, evaluates it against a defined set of health rules, groups findings into issue families, calculates an overall score, and presents the results in a dedicated modal. It also provides export options for summary sharing and follow-on improvement work.
 
-<div class="screenshot-placeholder">
-<strong>Screenshot placeholder:</strong> Add a screenshot here showing the Health Check modal open with a completed report.<br>
-Suggested file: <code>/images/flow-health-check/health-check-modal-overview.png</code>
-</div>
+![Flow Health Check module]({{ '/images/flow-health-check/flow-health-check-module.png' | relative_url }})
 
 ## What the feature does
 
