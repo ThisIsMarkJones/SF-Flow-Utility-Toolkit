@@ -10,8 +10,8 @@
  * Dependencies:
  *   - SalesforceAPI (utils/salesforce-api.js)
  *   - FlowMetadataCleaner (utils/flow-metadata-cleaner.js)
- *   - AIPromptTemplates (config/ai-prompt-templates.js)
- *   - SettingsManager (utils/settings-manager.js)
+ *   - AIPromptLibrary (config/ai-prompt-library.js) — unified access to
+ *     standard + custom prompts, respecting the user's enabled/disabled state
  */
 
 const FlowAIAssistant = (() => {
@@ -313,8 +313,23 @@ const FlowAIAssistant = (() => {
     const select = _panelEl.querySelector('#sfut-ai-template-select');
     if (!select) return;
 
-    const templates = AIPromptTemplates.getAll();
-    const defaultTemplate = await SettingsManager.get('aiAssistant.defaultTemplate');
+    // Ensure the library has read storage before we query it. Idempotent
+    // across repeat panel opens.
+    try {
+      await AIPromptLibrary.load();
+    } catch (err) {
+      console.warn('[SFUT AI] Failed to load prompt library:', err);
+    }
+
+    // Get every currently-enabled prompt — standards + customs, merged.
+    // A disabled prompt (standard or custom) is intentionally absent from
+    // this list so users can't pick one that the settings page has turned off.
+    const templates = AIPromptLibrary.getEnabled();
+
+    // Resolved default (respects fallback cascade if the user's starred
+    // default is disabled or deleted). Library self-heals if nothing is
+    // enabled at all, so this is guaranteed to match a template below.
+    const defaultTemplate = AIPromptLibrary.getDefaultPromptId();
 
     select.innerHTML = '';
     templates.forEach(t => {
@@ -325,7 +340,10 @@ const FlowAIAssistant = (() => {
       select.appendChild(option);
     });
 
-    // Fallback if saved setting is missing or invalid
+    // Fallback cascade: if the saved default points to a disabled or
+    // deleted prompt, nothing will have been marked selected and the
+    // browser will visually show the first option. Make that explicit
+    // so downstream reads of select.value are reliable.
     if (!select.value && templates.length > 0) {
       select.value = templates[0].id;
     }
@@ -344,7 +362,7 @@ const FlowAIAssistant = (() => {
     const descEl = _panelEl?.querySelector('#sfut-ai-template-desc');
     if (!descEl) return;
 
-    const template = AIPromptTemplates.getById(templateId);
+    const template = AIPromptLibrary.getById(templateId);
     descEl.textContent = template ? template.description : '';
   }
 
@@ -354,7 +372,7 @@ const FlowAIAssistant = (() => {
 
     const format = _getSelectedFormat();
     const json = format === 'raw' ? rawJson : cleanJson;
-    const template = AIPromptTemplates.getById(
+    const template = AIPromptLibrary.getById(
       _panelEl?.querySelector('#sfut-ai-template-select')?.value
     );
 
@@ -395,7 +413,7 @@ const FlowAIAssistant = (() => {
 
     const format = _getSelectedFormat();
     const json = format === 'raw' ? rawJson : cleanJson;
-    const assembled = AIPromptTemplates.assemble(select.value, json);
+    const assembled = AIPromptLibrary.assemble(select.value, json);
 
     if (!assembled) {
       _showStatus('Error: Template not found', true);
