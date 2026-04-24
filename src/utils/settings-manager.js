@@ -19,8 +19,10 @@ const SettingsManager = (() => {
     'canvasSearch.shortcut': 'Ctrl+Shift+F',
     'canvasSearch.highlightColour': '#FFD700',
 
-    // AI Assistant
-    'aiAssistant.defaultTemplate': 'summarise',
+    // (AI Assistant default prompt moved to AIPromptLibrary — see
+    // config/ai-prompt-library.js, storage key `aiPromptLibrary.defaultPromptId`.
+    // v1.0 stored it here under `aiAssistant.defaultTemplate`; the library
+    // migrates that key on first load.)
 
     // API Name Generator
     'apiNameGenerator.namingPattern': 'Snake_Case'
