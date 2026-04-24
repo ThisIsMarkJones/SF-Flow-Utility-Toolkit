@@ -70,9 +70,3 @@ Need help or want to suggest an improvement?
 - [Report a Bug]({{ '/report-a-bug.html' | relative_url }})
 - [Feature Requests]({{ '/feature-requests.html' | relative_url }})
 - [Privacy Policy]({{ '/privacy-policy.html' | relative_url }})
-
-## Documentation status
-
-This documentation set covers the current V1 feature set for SF Flow Utility Toolkit.
-
-Screenshots, examples, and refinements will continue to be added over time as the extension evolves.
