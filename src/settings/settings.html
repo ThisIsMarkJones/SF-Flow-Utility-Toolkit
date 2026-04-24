@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SF Flow Utility Toolkit - Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Salesforce Sans', Arial, sans-serif;
+      font-size: 14px;
+      color: #181818;
+      background-color: #f4f6f9;
+      padding: 24px;
+    }
+
+    .settings-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .settings-header {
+      margin-bottom: 24px;
+    }
+
+    .settings-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0176d3;
+      margin-bottom: 4px;
+    }
+
+    .settings-header p {
+      font-size: 13px;
+      color: #706e6b;
+    }
+
+    .settings-section {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .settings-section-header {
+      padding: 14px 20px;
+      background-color: #f3f3f3;
+      border-bottom: 1px solid #e5e5e5;
+      font-weight: 700;
+      font-size: 14px;
+      color: #181818;
+    }
+
+    .settings-section-body {
+      padding: 16px 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      flex: 1;
+      margin-right: 16px;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 2px;
+    }
+
+    .setting-description {
+      font-size: 12px;
+      color: #706e6b;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #c9c9c9;
+      border-radius: 24px;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #0176d3;
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* Select dropdown */
+    .setting-select {
+      padding: 6px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+      min-width: 140px;
+    }
+
+    .setting-select:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    /* Text input */
+    .setting-input {
+      padding: 6px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+      width: 140px;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    /* Colour picker */
+    .setting-colour {
+      width: 40px;
+      height: 30px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    /* Buttons (used in prefix config) */
+    .setting-button {
+      padding: 6px 12px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #181818;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .setting-button:hover {
+      background-color: #f3f3f3;
+      border-color: #a8a8a8;
+    }
+
+    .setting-button-primary {
+      background-color: #0176d3;
+      color: #ffffff;
+      border-color: #0176d3;
+    }
+
+    .setting-button-primary:hover {
+      background-color: #014486;
+      border-color: #014486;
+    }
+
+    .setting-button-danger {
+      color: #ba0517;
+      border-color: #d4a5aa;
+    }
+
+    .setting-button-danger:hover {
+      background-color: #feded8;
+      border-color: #ba0517;
+    }
+
+    .setting-button:disabled,
+    .setting-button[hidden] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Prefix config specific layout */
+    .prefix-status-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prefix-status-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-right: 8px;
+    }
+
+    .prefix-status-value {
+      font-size: 13px;
+      color: #706e6b;
+    }
+
+    .prefix-status-value.is-custom {
+      color: #2e844a;
+      font-weight: 600;
+    }
+
+    .prefix-buttons-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 0;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prefix-hint {
+      padding: 12px 0 4px;
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.5;
+    }
+
+    .prefix-hint code {
+      background-color: #f3f3f3;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 11px;
+    }
+
+    /* Footer */
+    .settings-footer {
+      text-align: center;
+      padding: 16px;
+      color: #706e6b;
+      font-size: 12px;
+    }
+
+    .settings-footer a {
+      color: #0176d3;
+      text-decoration: none;
+    }
+
+    /* Save confirmation */
+    .save-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #2e844a;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .save-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .save-toast.is-error {
+      background-color: #ba0517;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="settings-container">
+
+    <div class="settings-header">
+      <h1>⚡ SF Flow Utility Toolkit</h1>
+      <p>Configure your toolkit preferences below. Changes are saved automatically.</p>
+    </div>
+
+    <!-- Feature Toggles -->
+    <div class="settings-section">
+      <div class="settings-section-header">Feature Toggles</div>
+      <div class="settings-section-body">
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Setup Tabs</div>
+            <div class="setting-description">Show quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Automation Home Tab</div>
+            <div class="setting-description">Add a quick-access tab to open the Automation App home.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Group Setup Tabs</div>
+            <div class="setting-description">Collapse all Setup Tabs into a single grouped dropdown in the tab bar.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Missing Description Flags</div>
+            <div class="setting-description">Flag elements and resources in Flow Builder that have no description.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Search & Highlight -->
+    <div class="settings-section">
+      <div class="settings-section-header">Search & Highlight</div>
+      <div class="settings-section-body">
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Keyboard Shortcut</div>
+            <div class="setting-description">Shortcut to open the Flow Canvas search modal.</div>
+          </div>
+          <input type="text" 
+                 class="setting-input" 
+                 id="setting-shortcut" 
+                 data-key="canvasSearch.shortcut" 
+                 readonly
+                 placeholder="Click to set...">
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Highlight Colour</div>
+            <div class="setting-description">Colour used to highlight search results and missing descriptions.</div>
+          </div>
+          <input type="color" 
+                 class="setting-colour" 
+                 id="setting-highlightColour" 
+                 data-key="canvasSearch.highlightColour">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- AI Assistant -->
+    <div class="settings-section">
+      <div class="settings-section-header">AI Assistant</div>
+      <div class="settings-section-body">
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Default Prompt Template</div>
+            <div class="setting-description">The prompt template selected by default when opening the AI Assistant.</div>
+          </div>
+          <select class="setting-select" 
+                  id="setting-defaultTemplate" 
+                  data-key="aiAssistant.defaultTemplate">
+            <option value="summarise">Summarise Flow</option>
+            <option value="draw-io">Generate Draw.io Diagram</option>
+            <option value="improvements">Suggest Improvements</option>
+            <option value="test-scenarios">Generate Test Scenarios</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- API Name Generator -->
+    <div class="settings-section">
+      <div class="settings-section-header">API Name Generator</div>
+      <div class="settings-section-body">
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Naming Pattern</div>
+            <div class="setting-description">The naming convention used when generating Flow API names.</div>
+          </div>
+          <select class="setting-select" 
+                  id="setting-namingPattern" 
+                  data-key="apiNameGenerator.namingPattern">
+            <option value="Snake_Case">Snake_Case</option>
+            <option value="PascalCase">PascalCase</option>
+            <option value="camelCase">camelCase</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Custom Prefix Configuration -->
+    <div class="settings-section">
+      <div class="settings-section-header">Custom Prefix Configuration</div>
+      <div class="settings-section-body">
+
+        <div class="prefix-status-row">
+          <span class="prefix-status-label">Currently using:</span>
+          <span class="prefix-status-value" id="prefix-status-value">Loading…</span>
+        </div>
+
+        <div class="prefix-buttons-row">
+          <button type="button"
+                  class="setting-button"
+                  id="prefix-download-btn"
+                  title="Download the currently active prefix configuration as a JSON file">
+            ⬇ Download current config
+          </button>
+          <button type="button"
+                  class="setting-button setting-button-primary"
+                  id="prefix-upload-btn"
+                  title="Upload a custom prefix configuration JSON file">
+            ⬆ Upload custom config
+          </button>
+          <button type="button"
+                  class="setting-button setting-button-danger"
+                  id="prefix-reset-btn"
+                  title="Clear the custom config and revert to shipped defaults"
+                  hidden>
+            ↺ Reset to defaults
+          </button>
+          <input type="file"
+                 id="prefix-file-input"
+                 accept=".json,application/json"
+                 style="display:none">
+        </div>
+
+        <div class="prefix-hint">
+          The toolkit ships with a default set of prefixes. To customise them, click
+          <strong>Download current config</strong> to get the JSON as a starting
+          point, edit the prefixes in your favourite editor, then
+          <strong>Upload custom config</strong> to apply your changes. Your
+          customisations apply to all open Flow Builder tabs immediately — no
+          reload required. Use <strong>Reset to defaults</strong> at any point to
+          revert.
+        </div>
+
+      </div>
+    </div>
+
+    <div class="settings-footer" id="settings-footer">
+      SF Flow Utility Toolkit
+    </div>
+
+  </div>
+
+  <div class="save-toast" id="save-toast">Settings saved</div>
+
+  <script src="../config/api-name-prefixes.js"></script>
+  <script src="settings.js"></script>
+
+</body>
+</html>
