@@ -20,12 +20,12 @@
     }
 
     .settings-container {
-      max-width: 640px;
+      max-width: 720px;
       margin: 0 auto;
     }
 
     .settings-header {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .settings-header h1 {
@@ -39,6 +39,69 @@
       font-size: 13px;
       color: #706e6b;
     }
+
+    /* ===== Tab navigation ===== */
+
+    .settings-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5e5e5;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .settings-tab {
+      padding: 10px 18px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #706e6b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .settings-tab:hover {
+      color: #181818;
+      background-color: rgba(1, 118, 211, 0.04);
+    }
+
+    .settings-tab:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.3);
+    }
+
+    .settings-tab.active {
+      color: #0176d3;
+      border-bottom-color: #0176d3;
+    }
+
+    .settings-tab-panel {
+      display: none;
+    }
+
+    .settings-tab-panel.active {
+      display: block;
+      animation: tabFadeIn 0.18s ease;
+    }
+
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== Section cards ===== */
 
     .settings-section {
       background-color: #ffffff;
@@ -145,7 +208,7 @@
       font-family: inherit;
       color: #181818;
       background-color: #ffffff;
-      min-width: 140px;
+      min-width: 200px;
     }
 
     .setting-select:focus {
@@ -182,7 +245,7 @@
       padding: 2px;
     }
 
-    /* Buttons (used in prefix config) */
+    /* Buttons */
     .setting-button {
       padding: 6px 12px;
       border: 1px solid #c9c9c9;
@@ -227,7 +290,7 @@
       cursor: not-allowed;
     }
 
-    /* Prefix config specific layout */
+    /* Prefix config layout */
     .prefix-status-row {
       display: flex;
       align-items: center;
@@ -273,6 +336,529 @@
       border-radius: 3px;
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 11px;
+    }
+
+    /* ===== About tab ===== */
+
+    .about-row {
+      display: flex;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 16px;
+    }
+
+    .about-row:last-child {
+      border-bottom: none;
+    }
+
+    .about-label {
+      flex: 0 0 200px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+    }
+
+    .about-value {
+      flex: 1;
+      font-size: 13px;
+      color: #181818;
+    }
+
+    .about-value a {
+      color: #0176d3;
+      text-decoration: none;
+    }
+
+    .about-value a:hover {
+      text-decoration: underline;
+    }
+
+    .about-value em {
+      color: #706e6b;
+      font-style: italic;
+    }
+
+    .about-value-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .about-credits {
+      padding: 14px 0 4px;
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.6;
+    }
+
+    /* ===== Placeholder note for upcoming sections ===== */
+
+    .upcoming-note {
+      padding: 12px 14px;
+      background-color: #f4f8fb;
+      border: 1px dashed #b4d3ea;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #506c82;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .upcoming-note strong {
+      color: #0176d3;
+    }
+
+    /* ===== Prompt library UI ===== */
+
+    .prompts-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-bottom: 14px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+    }
+
+    .prompt-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prompt-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prompt-row:last-child {
+      border-bottom: none;
+    }
+
+    .prompt-row .toggle-switch {
+      margin-top: 2px;
+    }
+
+    .prompt-row.is-disabled .prompt-main {
+      opacity: 0.55;
+    }
+
+    .prompt-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .prompt-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .prompt-description {
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.5;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .prompt-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background-color: #eaf4fb;
+      color: #0176d3;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .prompt-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .prompt-action-btn {
+      padding: 4px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #181818;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .prompt-action-btn:hover {
+      background-color: #f3f3f3;
+      border-color: #a8a8a8;
+    }
+
+    .prompt-action-btn.is-danger {
+      color: #ba0517;
+      border-color: #d4a5aa;
+    }
+
+    .prompt-action-btn.is-danger:hover {
+      background-color: #feded8;
+      border-color: #ba0517;
+    }
+
+    /* Star toggle — sets the default prompt. Sits leftmost in the
+       actions cluster, visually distinct from the text buttons. */
+    .prompt-star-btn {
+      width: 30px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #b0b0b0;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .prompt-star-btn:hover {
+      background-color: #fff8e1;
+      border-color: #f0b700;
+      color: #f0b700;
+    }
+
+    .prompt-star-btn.is-default {
+      color: #f0b700;
+      border-color: #f0b700;
+      background-color: #fff8e1;
+    }
+
+    .prompt-star-btn.is-default:hover {
+      /* Clicking the already-default star is a no-op; keep the hover
+         styling stable so it doesn't look clickable-into-something-new. */
+      background-color: #fff8e1;
+      border-color: #f0b700;
+    }
+
+    .prompts-empty-state {
+      padding: 24px 16px;
+      text-align: center;
+      color: #706e6b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .prompts-empty-state strong {
+      color: #181818;
+    }
+
+    /* ===== Modal dialog ===== */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(24, 24, 24, 0.45);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 640px;
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(-8px);
+      transition: transform 0.18s ease;
+    }
+
+    .modal-overlay.is-open .modal-dialog {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background-color: #f3f3f3;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #181818;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      color: #706e6b;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: color 0.15s ease;
+    }
+
+    .modal-close:hover {
+      color: #181818;
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px;
+      background-color: #fafafa;
+      border-top: 1px solid #e5e5e5;
+      flex-wrap: wrap;
+    }
+
+    /* ===== Form controls inside modals ===== */
+
+    .form-field {
+      margin-bottom: 14px;
+    }
+
+    .form-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 4px;
+    }
+
+    .form-label .required {
+      color: #ba0517;
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    .form-control.is-invalid {
+      border-color: #ba0517;
+    }
+
+    .form-control.is-invalid:focus {
+      box-shadow: 0 0 0 2px rgba(186, 5, 23, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 180px;
+      resize: vertical;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .form-help {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #706e6b;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .form-error {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #ba0517;
+      display: none;
+    }
+
+    .form-error.is-visible {
+      display: block;
+    }
+
+    .char-counter.is-over {
+      color: #ba0517;
+      font-weight: 600;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #181818;
+      cursor: pointer;
+    }
+
+    .form-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* ===== Import results modal ===== */
+
+    .import-summary-section {
+      margin-bottom: 12px;
+    }
+
+    .import-summary-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .import-summary-heading {
+      font-weight: 700;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 6px;
+    }
+
+    .import-summary-card {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .import-summary-card.is-success {
+      background-color: #eaf7ee;
+      color: #1f6438;
+      border-left: 3px solid #2e844a;
+    }
+
+    .import-summary-card.is-warning {
+      background-color: #fff4e0;
+      color: #7a4f00;
+      border-left: 3px solid #c97300;
+    }
+
+    .import-summary-card.is-error {
+      background-color: #fde7e9;
+      color: #8a0413;
+      border-left: 3px solid #ba0517;
+    }
+
+    .import-summary-list {
+      list-style: none;
+      margin: 6px 0 0 0;
+      padding: 0;
+    }
+
+    .import-summary-list li {
+      padding: 3px 0;
+      font-size: 12px;
+    }
+
+    .import-summary-list li + li {
+      border-top: 1px dashed currentColor;
+      margin-top: 3px;
+      padding-top: 6px;
+    }
+
+    .import-summary-list .reasons {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .import-conflict-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .import-conflict-choice {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .import-conflict-choice:hover {
+      background-color: #fafafa;
+    }
+
+    .import-conflict-choice.is-selected {
+      border-color: #0176d3;
+      background-color: #eaf4fb;
+    }
+
+    .import-conflict-choice input[type="radio"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .import-conflict-choice .choice-label {
+      font-weight: 600;
+      color: #181818;
+    }
+
+    .import-conflict-choice .choice-help {
+      display: block;
+      color: #706e6b;
+      margin-top: 2px;
     }
 
     /* Footer */
@@ -323,182 +909,361 @@
       <p>Configure your toolkit preferences below. Changes are saved automatically.</p>
     </div>
 
-    <!-- Feature Toggles -->
-    <div class="settings-section">
-      <div class="settings-section-header">Feature Toggles</div>
-      <div class="settings-section-body">
+    <!-- ===== Tab navigation ===== -->
+    <nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+      <button type="button"
+              class="settings-tab active"
+              role="tab"
+              data-tab="general"
+              aria-selected="true"
+              aria-controls="tab-general"
+              id="tab-btn-general">General</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="ai-prompts"
+              aria-selected="false"
+              aria-controls="tab-ai-prompts"
+              id="tab-btn-ai-prompts"
+              tabindex="-1">AI Prompts</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="api-prefixes"
+              aria-selected="false"
+              aria-controls="tab-api-prefixes"
+              id="tab-btn-api-prefixes"
+              tabindex="-1">API Name Prefixes</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="about"
+              aria-selected="false"
+              aria-controls="tab-about"
+              id="tab-btn-about"
+              tabindex="-1">About</button>
+    </nav>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Setup Tabs</div>
-            <div class="setting-description">Show quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
+    <!-- =========================================== -->
+    <!-- ===== GENERAL TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel active"
+         id="tab-general"
+         role="tabpanel"
+         aria-labelledby="tab-btn-general"
+         data-tab-panel="general">
+
+      <!-- Feature Toggles -->
+      <div class="settings-section">
+        <div class="settings-section-header">Feature Toggles</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Setup Tabs</div>
+              <div class="setting-description">Show quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Automation Home Tab</div>
-            <div class="setting-description">Add a quick-access tab to open the Automation App home.</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Automation Home Tab</div>
+              <div class="setting-description">Add a quick-access tab to open the Automation App home.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Group Setup Tabs</div>
-            <div class="setting-description">Collapse all Setup Tabs into a single grouped dropdown in the tab bar.</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Group Setup Tabs</div>
+              <div class="setting-description">Collapse all Setup Tabs into a single grouped dropdown in the tab bar.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Missing Description Flags</div>
-            <div class="setting-description">Flag elements and resources in Flow Builder that have no description.</div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Missing Description Flags</div>
+              <div class="setting-description">Flag elements and resources in Flow Builder that have no description.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
 
+        </div>
       </div>
+
+      <!-- Search & Highlight -->
+      <div class="settings-section">
+        <div class="settings-section-header">Search &amp; Highlight</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Keyboard Shortcut</div>
+              <div class="setting-description">Shortcut to open the Flow Canvas search modal.</div>
+            </div>
+            <input type="text"
+                   class="setting-input"
+                   id="setting-shortcut"
+                   data-key="canvasSearch.shortcut"
+                   readonly
+                   placeholder="Click to set...">
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Highlight Colour</div>
+              <div class="setting-description">Colour used to highlight search results and missing descriptions.</div>
+            </div>
+            <input type="color"
+                   class="setting-colour"
+                   id="setting-highlightColour"
+                   data-key="canvasSearch.highlightColour">
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
-    <!-- Search & Highlight -->
-    <div class="settings-section">
-      <div class="settings-section-header">Search & Highlight</div>
-      <div class="settings-section-body">
+    <!-- =========================================== -->
+    <!-- ===== AI PROMPTS TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-ai-prompts"
+         role="tabpanel"
+         aria-labelledby="tab-btn-ai-prompts"
+         data-tab-panel="ai-prompts"
+         hidden>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Keyboard Shortcut</div>
-            <div class="setting-description">Shortcut to open the Flow Canvas search modal.</div>
+      <!-- Standard Prompts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Standard Prompts</div>
+        <div class="settings-section-body">
+          <div class="prompt-list" id="standard-prompts-list">
+            <div class="prompts-empty-state">Loading…</div>
           </div>
-          <input type="text" 
-                 class="setting-input" 
-                 id="setting-shortcut" 
-                 data-key="canvasSearch.shortcut" 
-                 readonly
-                 placeholder="Click to set...">
         </div>
-
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Highlight Colour</div>
-            <div class="setting-description">Colour used to highlight search results and missing descriptions.</div>
-          </div>
-          <input type="color" 
-                 class="setting-colour" 
-                 id="setting-highlightColour" 
-                 data-key="canvasSearch.highlightColour">
-        </div>
-
       </div>
+
+      <!-- Custom Prompts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Custom Prompts</div>
+        <div class="settings-section-body">
+
+          <div class="prompts-toolbar">
+            <button type="button"
+                    class="setting-button setting-button-primary"
+                    id="custom-prompt-new-btn"
+                    title="Create a new custom prompt">
+              + New Prompt
+            </button>
+            <button type="button"
+                    class="setting-button"
+                    id="custom-prompt-import-btn"
+                    title="Import custom prompts from a JSON file">
+              ⬆ Import JSON
+            </button>
+            <button type="button"
+                    class="setting-button"
+                    id="custom-prompt-export-btn"
+                    title="Download all custom prompts as a JSON file">
+              ⬇ Export JSON
+            </button>
+            <input type="file"
+                   id="custom-prompt-file-input"
+                   accept=".json,application/json"
+                   style="display:none">
+          </div>
+
+          <div class="prompt-list" id="custom-prompts-list">
+            <div class="prompts-empty-state">Loading…</div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
-    <!-- AI Assistant -->
-    <div class="settings-section">
-      <div class="settings-section-header">AI Assistant</div>
-      <div class="settings-section-body">
+    <!-- =========================================== -->
+    <!-- ===== API NAME PREFIXES TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-api-prefixes"
+         role="tabpanel"
+         aria-labelledby="tab-btn-api-prefixes"
+         data-tab-panel="api-prefixes"
+         hidden>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Default Prompt Template</div>
-            <div class="setting-description">The prompt template selected by default when opening the AI Assistant.</div>
+      <!-- API Name Generator -->
+      <div class="settings-section">
+        <div class="settings-section-header">API Name Generator</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Naming Pattern</div>
+              <div class="setting-description">The naming convention used when generating Flow API names.</div>
+            </div>
+            <select class="setting-select"
+                    id="setting-namingPattern"
+                    data-key="apiNameGenerator.namingPattern">
+              <option value="Snake_Case">Snake_Case</option>
+              <option value="PascalCase">PascalCase</option>
+              <option value="camelCase">camelCase</option>
+            </select>
           </div>
-          <select class="setting-select" 
-                  id="setting-defaultTemplate" 
-                  data-key="aiAssistant.defaultTemplate">
-            <option value="summarise">Summarise Flow</option>
-            <option value="draw-io">Generate Draw.io Diagram</option>
-            <option value="improvements">Suggest Improvements</option>
-            <option value="test-scenarios">Generate Test Scenarios</option>
-          </select>
-        </div>
 
+        </div>
       </div>
+
+      <!-- Custom Prefix Configuration -->
+      <div class="settings-section">
+        <div class="settings-section-header">Custom Prefix Configuration</div>
+        <div class="settings-section-body">
+
+          <div class="prefix-status-row">
+            <span class="prefix-status-label">Currently using:</span>
+            <span class="prefix-status-value" id="prefix-status-value">Loading…</span>
+          </div>
+
+          <div class="prefix-buttons-row">
+            <button type="button"
+                    class="setting-button"
+                    id="prefix-download-btn"
+                    title="Download the currently active prefix configuration as a JSON file">
+              ⬇ Download current config
+            </button>
+            <button type="button"
+                    class="setting-button setting-button-primary"
+                    id="prefix-upload-btn"
+                    title="Upload a custom prefix configuration JSON file">
+              ⬆ Upload custom config
+            </button>
+            <button type="button"
+                    class="setting-button setting-button-danger"
+                    id="prefix-reset-btn"
+                    title="Clear the custom config and revert to shipped defaults"
+                    hidden>
+              ↺ Reset to defaults
+            </button>
+            <input type="file"
+                   id="prefix-file-input"
+                   accept=".json,application/json"
+                   style="display:none">
+          </div>
+
+          <div class="prefix-hint">
+            The toolkit ships with a default set of prefixes. To customise them, click
+            <strong>Download current config</strong> to get the JSON as a starting
+            point, edit the prefixes in your favourite editor, then
+            <strong>Upload custom config</strong> to apply your changes. Your
+            customisations apply to all open Flow Builder tabs immediately — no
+            reload required. Use <strong>Reset to defaults</strong> at any point to
+            revert.
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
-    <!-- API Name Generator -->
-    <div class="settings-section">
-      <div class="settings-section-header">API Name Generator</div>
-      <div class="settings-section-body">
+    <!-- =========================================== -->
+    <!-- ===== ABOUT TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-about"
+         role="tabpanel"
+         aria-labelledby="tab-btn-about"
+         data-tab-panel="about"
+         hidden>
 
-        <div class="setting-row">
-          <div class="setting-info">
-            <div class="setting-label">Naming Pattern</div>
-            <div class="setting-description">The naming convention used when generating Flow API names.</div>
+      <div class="settings-section">
+        <div class="settings-section-header">About</div>
+        <div class="settings-section-body">
+
+          <div class="about-row">
+            <div class="about-label">Version</div>
+            <div class="about-value" id="about-version">—</div>
           </div>
-          <select class="setting-select" 
-                  id="setting-namingPattern" 
-                  data-key="apiNameGenerator.namingPattern">
-            <option value="Snake_Case">Snake_Case</option>
-            <option value="PascalCase">PascalCase</option>
-            <option value="camelCase">camelCase</option>
-          </select>
-        </div>
 
+          <div class="about-row">
+            <div class="about-label">Chrome Web Store</div>
+            <div class="about-value">
+              <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl"
+                 target="_blank"
+                 rel="noopener noreferrer">View Listing</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Microsoft Edge Add-Ons</div>
+            <div class="about-value" id="about-edge-link">
+              <em>Submission pending approval</em>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">GitHub Repository</div>
+            <div class="about-value">
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit"
+                 target="_blank"
+                 rel="noopener noreferrer">Source &amp; Documentation</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Feature Requests &amp; Bug Reports</div>
+            <div class="about-value about-value-stack">
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/discussions/categories/ideas"
+                 target="_blank"
+                 rel="noopener noreferrer">Request a Feature on GitHub</a>
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/issues"
+                 target="_blank"
+                 rel="noopener noreferrer">Open an Issue on GitHub</a>
+            </div>
+          </div>
+
+           <div class="about-row">
+            <div class="about-label">Change Log</div>
+            <div class="about-value">
+              <a href="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/whats-new.html"
+              target="_blank"
+              rel="noopener noreferrer">Change Log</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Privacy Policy</div>
+            <div class="about-value">
+              <a href="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/privacy-policy.html"
+              target="_blank"
+              rel="noopener noreferrer">View Privacy Policy</a>
+            </div>
+          </div>
+
+          <div class="about-credits">
+            The SF Flow Utility Toolkit is an independent browser extension designed
+            for Salesforce admins, consultants, and developers. It is not affiliated
+            with or endorsed by Salesforce, Inc.
+          </div>
+
+        </div>
       </div>
-    </div>
 
-    <!-- Custom Prefix Configuration -->
-    <div class="settings-section">
-      <div class="settings-section-header">Custom Prefix Configuration</div>
-      <div class="settings-section-body">
-
-        <div class="prefix-status-row">
-          <span class="prefix-status-label">Currently using:</span>
-          <span class="prefix-status-value" id="prefix-status-value">Loading…</span>
-        </div>
-
-        <div class="prefix-buttons-row">
-          <button type="button"
-                  class="setting-button"
-                  id="prefix-download-btn"
-                  title="Download the currently active prefix configuration as a JSON file">
-            ⬇ Download current config
-          </button>
-          <button type="button"
-                  class="setting-button setting-button-primary"
-                  id="prefix-upload-btn"
-                  title="Upload a custom prefix configuration JSON file">
-            ⬆ Upload custom config
-          </button>
-          <button type="button"
-                  class="setting-button setting-button-danger"
-                  id="prefix-reset-btn"
-                  title="Clear the custom config and revert to shipped defaults"
-                  hidden>
-            ↺ Reset to defaults
-          </button>
-          <input type="file"
-                 id="prefix-file-input"
-                 accept=".json,application/json"
-                 style="display:none">
-        </div>
-
-        <div class="prefix-hint">
-          The toolkit ships with a default set of prefixes. To customise them, click
-          <strong>Download current config</strong> to get the JSON as a starting
-          point, edit the prefixes in your favourite editor, then
-          <strong>Upload custom config</strong> to apply your changes. Your
-          customisations apply to all open Flow Builder tabs immediately — no
-          reload required. Use <strong>Reset to defaults</strong> at any point to
-          revert.
-        </div>
-
-      </div>
     </div>
 
     <div class="settings-footer" id="settings-footer">
@@ -509,6 +1274,139 @@
 
   <div class="save-toast" id="save-toast">Settings saved</div>
 
+  <!-- ============================================================ -->
+  <!-- ===== Custom Prompt form modal (create / edit) ============ -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay"
+       id="prompt-form-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="prompt-form-title"
+       inert>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="prompt-form-title">New Custom Prompt</div>
+        <button type="button"
+                class="modal-close"
+                id="prompt-form-close"
+                aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-title-input">
+            Title <span class="required">*</span>
+          </label>
+          <input type="text"
+                 class="form-control"
+                 id="prompt-form-title-input"
+                 maxlength="100"
+                 autocomplete="off">
+          <div class="form-help">
+            <span>A short name for the prompt.</span>
+            <span class="char-counter" id="prompt-form-title-counter">0 / 100</span>
+          </div>
+          <div class="form-error" id="prompt-form-title-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-description-input">
+            Description <span class="required">*</span>
+          </label>
+          <input type="text"
+                 class="form-control"
+                 id="prompt-form-description-input"
+                 maxlength="500"
+                 autocomplete="off">
+          <div class="form-help">
+            <span>A one-line summary shown under the title.</span>
+            <span class="char-counter" id="prompt-form-description-counter">0 / 500</span>
+          </div>
+          <div class="form-error" id="prompt-form-description-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-category-input">
+            Category <span class="required">*</span>
+          </label>
+          <select class="form-control" id="prompt-form-category-input">
+            <!-- Options populated at runtime from AIPromptLibrary.getCategories() -->
+          </select>
+          <div class="form-help">
+            <span>Used to group prompts. Request additions via GitHub.</span>
+          </div>
+          <div class="form-error" id="prompt-form-category-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-prompt-input">
+            Prompt text <span class="required">*</span>
+          </label>
+          <textarea class="form-control"
+                    id="prompt-form-prompt-input"
+                    rows="10"
+                    spellcheck="false"></textarea>
+          <div class="form-help">
+            <span>The instruction text prepended to the Flow metadata.</span>
+            <span class="char-counter" id="prompt-form-prompt-counter">0 / 50000</span>
+          </div>
+          <div class="form-error" id="prompt-form-prompt-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-check">
+            <input type="checkbox"
+                   id="prompt-form-enabled-input"
+                   checked>
+            <span>Active &mdash; visible in the AI Assistant when enabled</span>
+          </label>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="setting-button"
+                id="prompt-form-cancel-btn">Cancel</button>
+        <button type="button"
+                class="setting-button setting-button-primary"
+                id="prompt-form-save-btn">Save Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== Import results modal ================================= -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay"
+       id="import-results-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="import-results-title"
+       inert>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="import-results-title">Import Results</div>
+        <button type="button"
+                class="modal-close"
+                id="import-results-close"
+                aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="import-results-body">
+        <!-- Populated at runtime -->
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="setting-button"
+                id="import-results-cancel-btn">Cancel</button>
+        <button type="button"
+                class="setting-button setting-button-primary"
+                id="import-results-confirm-btn">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../config/default-ai-prompt-templates.js"></script>
+  <script src="../config/ai-prompt-library.js"></script>
   <script src="../config/api-name-prefixes.js"></script>
   <script src="settings.js"></script>
 
