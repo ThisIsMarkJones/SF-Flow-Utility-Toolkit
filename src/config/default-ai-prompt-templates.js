@@ -1,18 +1,31 @@
 /**
- * SF Flow Utility Toolkit - AI Prompt Templates
- * 
- * Registry of prompt templates for the AI Assistant feature.
- * Each template defines a prefix that is prepended to the flow
- * metadata JSON when the user copies the assembled prompt.
- * 
- * Adding a new template is as simple as adding a new object to
+ * SF Flow Utility Toolkit - Default AI Prompt Templates
+ *
+ * Registry of the built-in (default) prompt templates for the AI
+ * Assistant feature. Each template defines a prefix that is prepended
+ * to the flow metadata JSON when the user copies the assembled prompt.
+ *
+ * These are the defaults that ship with the extension. User-created
+ * custom prompts are merged with this default set at runtime by the
+ * AIPromptLibrary module, which is the primary API consumers should
+ * use (see config/ai-prompt-library.js).
+ *
+ * Adding a new default template is as simple as adding a new object to
  * the TEMPLATES array. No UI or logic code changes required.
- * 
+ *
  * Template structure:
- *   id          - Unique identifier (matches settings value)
- *   title       - Display name shown in the dropdown
- *   description - Short description shown below the dropdown
- *   prompt      - The instruction text prepended to the JSON
+ *   id                 - Unique identifier (used in storage/settings)
+ *   title              - Display name shown in the dropdown / list
+ *   description        - Short description shown in the UI
+ *   prompt             - The instruction text prepended to the JSON
+ *   category           - Category from AIPromptLibrary.getCategories()
+ *   contexts           - Array of contexts where the prompt is available.
+ *                        Currently always ['flow-canvas']; will expand when
+ *                        the AI Assistant surfaces in other contexts.
+ *   isFallbackDefault  - Optional. Marks the prompt that the library falls
+ *                        back to if the user disables whatever is currently
+ *                        set as default. Exactly one default should have
+ *                        this flag.
  */
 
 const AIPromptTemplates = (() => {
@@ -22,6 +35,9 @@ const AIPromptTemplates = (() => {
       id: 'summarise',
       title: 'Summarise Flow',
       description: 'Produces a plain-English summary suitable for the Flow\'s Description field.',
+      category: 'Documentation',
+      contexts: ['flow-canvas'],
+      isFallbackDefault: true,
       prompt: `You are a Salesforce Flow documentation expert. Analyse the following Salesforce Flow metadata (JSON) and write a clear, concise plain-English description of what this Flow does.
 
 Your description should include:
@@ -41,6 +57,8 @@ Here is the Flow metadata:
   id: 'describe-elements',
   title: 'Generate Flow, Element, and Resource Descriptions',
   description: 'Produces a readable Flow summary plus grouped element and resource descriptions with paste-ready code snippets.',
+  category: 'Documentation',
+  contexts: ['flow-canvas'],
   prompt: `You are a Salesforce Flow documentation expert. Analyse the following Salesforce Flow metadata (JSON) and generate well-formatted, admin-friendly documentation for the Flow.
 
 Your output must include:
@@ -124,6 +142,8 @@ Here is the Flow metadata:
   id: 'draw-io',
   title: 'Generate Draw.io Diagram',
   description: 'Produces Draw.io compatible XML for a visual flow diagram.',
+  category: 'Diagramming',
+  contexts: ['flow-canvas'],
   prompt: `You are an expert at converting structured process metadata into Draw.io / diagrams.net XML source.
 
 Task:
@@ -191,6 +211,8 @@ Here is the Flow metadata:
       id: 'improvements',
       title: 'Suggest Improvements',
       description: 'Analyses the Flow for best practice violations and improvement opportunities.',
+      category: 'Optimization',
+      contexts: ['flow-canvas'],
       prompt: `You are a Salesforce Flow best practices expert. Analyse the following Salesforce Flow metadata (JSON) and provide specific, actionable suggestions for improvement.
 
 Evaluate the Flow against these categories:
@@ -218,6 +240,8 @@ Here is the Flow metadata:
       id: 'test-scenarios',
       title: 'Generate Test Scenarios',
       description: 'Produces test cases that exercise each path through the Flow.',
+      category: 'Testing',
+      contexts: ['flow-canvas'],
       prompt: `You are a Salesforce testing expert. Analyse the following Salesforce Flow metadata (JSON) and generate a comprehensive set of test scenarios that would exercise every path through this Flow.
 
 For each test scenario, provide:
