@@ -34,6 +34,8 @@ Your existing Setup Tabs configuration is untouched — grouping only changes ho
 
 This update ships as part of **v1.1.0**. Make sure your extension is up to date:
 
-[Google Chrome](https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl)
+<a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+        Install SF Flow Utility Toolkit on Google Chrome
+      </a>
 
 _N.B. This update will be submitted to Microsoft for review once the Edge Add-On becomes available._
