@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",
@@ -35,7 +35,8 @@
         "utils/flow-health-rules.js",
         "utils/flow-health-scorer.js",
         "utils/flow-health-exporter.js",
-        "config/ai-prompt-templates.js",
+        "config/default-ai-prompt-templates.js",
+        "config/ai-prompt-library.js",
         "config/api-name-prefixes.js",
         "ui/side-button.js",
         "ui/flow-health-modal.js",
