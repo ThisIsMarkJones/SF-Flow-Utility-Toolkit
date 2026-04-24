@@ -5,7 +5,6 @@
   "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",
-    "activeTab",
     "clipboardWrite",
     "cookies",
     "scripting"
