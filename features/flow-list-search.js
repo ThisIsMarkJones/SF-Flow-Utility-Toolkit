@@ -461,6 +461,7 @@ const FlowListSearchFeature = (() => {
 
       const ariaLabel = (checkboxLike.getAttribute('aria-label') || '').trim().toLowerCase();
       if (ariaLabel === 'true' || ariaLabel === 'false') return ariaLabel;
+      if (ariaLabel === 'active' || ariaLabel === 'inactive') return ariaLabel;
     }
 
     const text = _getCellText(cell).toLowerCase();

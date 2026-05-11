@@ -506,6 +506,7 @@ const FlowHealthNormalizer = (() => {
       const nextEdges = outgoing[current.id] || [];
       nextEdges.forEach((edge) => {
         if (edge.kind === 'fault') return;
+        if (edge.label === 'noMoreValues') return;
         if (!visited.has(edge.to)) {
           queue.push({ id: edge.to, depth: current.depth });
         }
