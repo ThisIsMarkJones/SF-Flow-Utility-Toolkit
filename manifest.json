@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",

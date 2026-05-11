@@ -440,8 +440,9 @@ const SetupTabsFeature = (() => {
     // `<org>.my.lightning.force.com`, a non-existent hostname for many orgs
     // (DNS_PROBE_FINISHED_NXDOMAIN). Validated in production v1.2.3 against
     // a dev-edition org reporter.
-    const orgIdentifier = hostname.split('.')[0];
-    return `${orgIdentifier}.lightning.force.com`;
+   const orgIdentifier = hostname.split('.')[0];
+   const sandboxSegment = hostname.includes('.sandbox.') ? 'sandbox.' : '';
+   return `${orgIdentifier}.${sandboxSegment}lightning.force.com`;
   }
 
   function _showToast(message) {

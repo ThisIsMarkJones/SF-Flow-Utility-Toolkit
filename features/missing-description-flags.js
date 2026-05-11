@@ -434,7 +434,8 @@ const MissingDescriptionFlags = (() => {
       if (!missingByName.has(matchKey)) continue;
 
       const flagId = `toolbox::${row.getAttribute('data-guid') || resourceName}`;
-      if (_flaggedElements.has(flagId)) continue;
+      if (_flaggedElements.has(flagId) && nameEl.querySelector('.sfut-desc-flag-toolbox')) continue;
+      if (_flaggedElements.has(flagId)) _flaggedElements.delete(flagId);
 
       // Inject a small ⚠ flag next to the resource name
       if (!nameEl.querySelector('.sfut-desc-flag-toolbox')) {
