@@ -441,8 +441,9 @@ const SetupTabsFeature = (() => {
     // (DNS_PROBE_FINISHED_NXDOMAIN). Validated in production v1.2.3 against
     // a dev-edition org reporter.
    const orgIdentifier = hostname.split('.')[0];
-   const sandboxSegment = hostname.includes('.sandbox.') ? 'sandbox.' : '';
-   return `${orgIdentifier}.${sandboxSegment}lightning.force.com`;
+   const knownSegments = ['sandbox', 'develop', 'scratch', 'trailblaze'];
+   const middleSegment = knownSegments.find(s => hostname.includes(`.${s}.`));
+   return `${orgIdentifier}.${middleSegment ? middleSegment + '.' : ''}lightning.force.com`;
   }
 
   function _showToast(message) {
