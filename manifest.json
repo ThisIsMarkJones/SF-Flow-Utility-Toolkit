@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
-  "version": "2.0.0",
-  "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
+  "version": "3.0.0",
+  "description": "A comprehensive toolkit for Salesforce Flow Builder \u2014 search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",
     "clipboardWrite",
@@ -37,11 +37,13 @@
         "utils/flow-health-exporter.js",
         "utils/scheduled-flow-calculator.js",
         "utils/scheduled-flow-discovery.js",
+        "utils/unused-resources-analyser.js",
         "config/default-ai-prompt-templates.js",
         "config/ai-prompt-library.js",
         "config/api-name-prefixes.js",
         "ui/side-button.js",
         "ui/flow-health-modal.js",
+        "ui/unused-resources-modal.js",
         "main.js",
         "features/setup-tabs.js",
         "features/flow-list-search.js",
@@ -53,6 +55,7 @@
         "features/flow-version-manager.js",
         "features/flow-trigger-explorer-enhancer.js",
         "features/flow-health-check.js",
+        "features/unused-resources.js",
         "features/scheduled-flow-explorer.js"
       ],
       "css": [

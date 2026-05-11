@@ -95,7 +95,8 @@ const ContextDetector = (() => {
           'missing-descriptions',
           'ai-assistant',
           'api-name-generator',
-          'flow-health-check'
+          'flow-health-check',
+          'unused-resources'
         ];
 
       case CONTEXTS.COMPARE_FLOWS:

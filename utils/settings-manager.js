@@ -13,7 +13,7 @@ const SettingsManager = (() => {
     'setupTabs.enabled': false,
     'setupTabs.automationHome.enabled': false, // Optional tab for Automation App Home
     'setupTabs.groupingEnabled': false,        // Group all Setup Tabs under a single dropdown
-    'missingDescriptions.enabled': false,
+    'missingDescriptions.enabled': true,
 
     // Search & Highlight
     'canvasSearch.shortcut': 'Ctrl+Shift+F',
@@ -28,6 +28,15 @@ const SettingsManager = (() => {
     'apiNameGenerator.namingPattern': 'Snake_Case',
 
     // Scheduled Flow Explorer
+    'apiNameGenerator.enabled': true,
+    'canvasSearch.enabled': true,
+    'flowAIAssistant.enabled': true,
+    'flowHealthCheck.enabled': true,
+    'comparisonExporter.enabled': true,
+    'flowVersionManager.enabled': true,
+    'flowTriggerExplorerEnhancer.enabled': true,
+    'flowListSearch.enabled': true,
+    'unusedResources.enabled': true,
     'scheduledFlowExplorer.enabled': true,             // Master toggle for the feature
     'scheduledFlowExplorer.defaultView': 'list'        // 'list' | 'calendar'
   };

@@ -17,6 +17,7 @@ const MissingDescriptionFlags = (() => {
 
   // Track state
   let _isActive = false;
+  let _enabled = true;
   let _flowMetadata = null;
   let _elementsWithoutDescription = [];
   let _observer = null;
@@ -67,6 +68,10 @@ const MissingDescriptionFlags = (() => {
    */
   function isActive() {
     return _isActive;
+  }
+
+  function isEnabled() {
+    return _enabled;
   }
 
   /**
@@ -644,7 +649,21 @@ const MissingDescriptionFlags = (() => {
   }
 
   // --- Public API ---
-  return { init, onActivate, refresh, isActive };
+  // When the settings toggle is changed while the feature is active,
+  // immediately deactivate so the sidebar and flags update without a page reload.
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace !== 'sync') return;
+      if (!Object.prototype.hasOwnProperty.call(changes, 'missingDescriptions.enabled')) return;
+      const nowEnabled = changes['missingDescriptions.enabled'].newValue;
+      _enabled = !!nowEnabled;
+      if (!nowEnabled && _isActive) {
+        _deactivate();
+      }
+    });
+  }
+
+  return { init, onActivate, refresh, isActive, isEnabled };
 
 })();
 
