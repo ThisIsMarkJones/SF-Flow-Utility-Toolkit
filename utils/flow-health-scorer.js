@@ -178,7 +178,6 @@ const FlowHealthScorer = (() => {
       fault_paths_actions: 'Action elements missing fault paths',
       fault_paths_queries: 'Query elements missing fault paths',
       fault_paths_dml: 'DML elements missing fault paths',
-      fault_paths_subflows: 'Subflow elements missing fault paths',
       dml_inside_loops: 'DML inside loops',
       queries_inside_loops: 'Queries inside loops',
       nested_loops: 'Nested loops',
