@@ -222,8 +222,8 @@ const FlowHealthNormalizer = (() => {
         label: item.label || item.name,
         apiName: item.name,
         description: item.description,
-        supportsFaultPath: true,
-        hasFaultPath: !!item.faultConnector?.targetReference,
+        supportsFaultPath: false,
+        hasFaultPath: false,
         metadata: {
           flowName: item.flowName || null,
           connectorTarget: item.connector?.targetReference || null

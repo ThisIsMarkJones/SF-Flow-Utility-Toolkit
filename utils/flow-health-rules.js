@@ -208,9 +208,6 @@ const FlowHealthRules = (() => {
         } else if (['CreateRecords', 'UpdateRecords', 'DeleteRecords'].includes(node.type)) {
           scoreFamily = 'fault_paths_dml';
           severity = 'high';
-        } else if (node.type === 'Subflow') {
-          scoreFamily = 'fault_paths_subflows';
-          severity = 'high';
         }
 
         return _finding({

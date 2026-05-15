@@ -360,29 +360,62 @@ const FlowListSearchFeature = (() => {
 
   function _indexRows() {
     const rows = _getAllRows();
+
+    // Build a column-name → index map from the table header.
+    // Different orgs render the Flows list with different columns
+    // (and different orderings), so we cannot rely on fixed td positions.
+    const table = rows[0]?.closest('table');
+    const columnMap = _buildColumnIndexMap(table);
+
     _rowIndex = rows
-      .map(row => _extractRowData(row))
+      .map(row => _extractRowData(row, columnMap))
       .filter(item => item && item.row && item.name);
   }
 
-  function _extractRowData(row) {
+  function _buildColumnIndexMap(table) {
+    const map = {};
+    if (!table) return map;
+
+    const headerRow = table.querySelector('thead tr');
+    if (!headerRow) return map;
+
+    const headers = Array.from(headerRow.querySelectorAll('th'));
+    headers.forEach((th, index) => {
+      const label = (
+        th.getAttribute('title') ||
+        th.getAttribute('aria-label') ||
+        ''
+      ).trim().toLowerCase();
+      if (label && !(label in map)) {
+        map[label] = index;
+      }
+    });
+
+    return map;
+  }
+
+  function _extractRowData(row, columnMap) {
     const rowHeader = row.querySelector('th[scope="row"]');
     if (!rowHeader) return null;
 
-    const tds = Array.from(row.querySelectorAll('td'));
+    // Use the combined th + td order so cell indices align with header indices.
+    const cells = Array.from(row.querySelectorAll('th, td'));
 
-    // Expected row order from the provided HTML:
-    // td[0] = item number
-    // th    = flow label
-    // td[1] = Flow API Name
-    // td[2] = Process Type
-    // td[3] = Trigger
-    // td[4] = Active
+    const cellByHeader = (headerName) => {
+      const idx = columnMap[headerName.toLowerCase()];
+      return idx !== undefined ? cells[idx] : null;
+    };
+
+    const apiNameCell = cellByHeader('Flow API Name');
+    const processTypeCell = cellByHeader('Process Type');
+    const triggerCell = cellByHeader('Trigger');
+    const activeCell = cellByHeader('Active');
+
     const name = _getFlowNameFromLink(row) || _getCellText(rowHeader);
-    const apiName = _getCellValue(tds[1]);
-    const processTypeRaw = _getCellValue(tds[2]);
-    const triggerTypeRaw = _getCellValue(tds[3]);
-    const activeRaw = _getCheckboxValue(tds[4]);
+    const apiName = apiNameCell ? _getCellValue(apiNameCell) : '';
+    const processTypeRaw = processTypeCell ? _getCellValue(processTypeCell) : '';
+    const triggerTypeRaw = triggerCell ? _getCellValue(triggerCell) : '';
+    const activeRaw = activeCell ? _getCheckboxValue(activeCell) : '';
     const statusNormalized = _normalizeStatus(activeRaw);
 
     const typeRaw = (triggerTypeRaw || processTypeRaw || '').trim();
