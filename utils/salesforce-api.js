@@ -287,10 +287,35 @@ const SalesforceAPI = (() => {
   async function getFlowMetadata(flowId) {
     console.log('[SFUT API] Fetching flow metadata for:', flowId);
 
+    // The URL "flowId" parameter is not always a Salesforce record ID.
+    // For some flows (notably Service Cloud templates such as
+    // "SvcCopilotTmpl__ResetPassword-1") the URL carries the Flow FullName
+    // ({Namespace__}{DeveloperName}-{VersionNumber}) instead. Putting a
+    // FullName into `WHERE DefinitionId = '...'` produces a Salesforce 400
+    // INVALID_QUERY_FILTER_OPERATOR ("invalid ID field"). Detect the shape
+    // of the identifier and route to the right query.
+    // A Salesforce record ID is exactly 15 or 18 alphanumeric characters.
+    const escaped = String(flowId).replace(/'/g, "\\'");
+    const looksLikeSalesforceId = /^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$/.test(flowId);
+
+    if (!looksLikeSalesforceId) {
+      const fullNameResult = await toolingQuery(
+        `SELECT Id, Definition.DeveloperName, FullName, Metadata, ` +
+        `MasterLabel, Description, ProcessType, Status ` +
+        `FROM Flow WHERE FullName = '${escaped}' LIMIT 1`
+      );
+
+      if (!fullNameResult.records || fullNameResult.records.length === 0) {
+        throw new Error(`No flow found for FullName: ${flowId}`);
+      }
+
+      return fullNameResult.records[0];
+    }
+
     const result = await toolingQuery(
       `SELECT Id, Definition.DeveloperName, FullName, Metadata, ` +
       `MasterLabel, Description, ProcessType, Status ` +
-      `FROM Flow WHERE DefinitionId = '${flowId}' ` +
+      `FROM Flow WHERE DefinitionId = '${escaped}' ` +
       `ORDER BY VersionNumber DESC LIMIT 1`
     );
 
@@ -298,7 +323,7 @@ const SalesforceAPI = (() => {
       const directResult = await toolingQuery(
         `SELECT Id, Definition.DeveloperName, FullName, Metadata, ` +
         `MasterLabel, Description, ProcessType, Status ` +
-        `FROM Flow WHERE Id = '${flowId}' LIMIT 1`
+        `FROM Flow WHERE Id = '${escaped}' LIMIT 1`
       );
 
       if (!directResult.records || directResult.records.length === 0) {
