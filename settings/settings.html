@@ -1,1891 +1,1738 @@
-/**
- * SF Flow Utility Toolkit - Settings Page Script
- *
- * Handles:
- *   - Tab navigation between General / AI Prompts / API Name Prefixes / About
- *   - Loading settings from Chrome storage and binding them to UI controls
- *   - Auto-saving changes on interaction
- *   - The Custom Prefix Configuration download / upload / reset flow
- *   - Populating the About tab from the manifest
- */
-
-(function () {
-
-  const DEFAULTS = {
-    // Feature toggles — default off (user must enable)
-    'setupTabs.enabled': false,
-    'setupTabs.automationHome.enabled': false,
-    'setupTabs.groupingEnabled': false,
-    'missingDescriptions.enabled': true,
-
-    // Feature toggles — default on (user can disable)
-    'apiNameGenerator.enabled': true,
-    'flowListSearch.enabled': true,
-    'canvasSearch.enabled': true,
-    'flowAIAssistant.enabled': true,
-    'flowHealthCheck.enabled': true,
-    'comparisonExporter.enabled': true,
-    'flowVersionManager.enabled': true,
-    'flowTriggerExplorerEnhancer.enabled': true,
-    'scheduledFlowExplorer.enabled': true,
-
-    // Other settings
-    'canvasSearch.shortcut': 'Ctrl+Shift+F',
-    'canvasSearch.highlightColour': '#FFD700',
-    'apiNameGenerator.namingPattern': 'Snake_Case',
-    'apiNameGenerator.flowRegex': null,
-    'flowHealthCheck.namingConventions.flow': null,
-    'scheduledFlowExplorer.defaultView': 'list'
-  };
-
-  /**
-   * Key in chrome.storage.local used to remember the last-viewed settings tab
-   * so the page opens on the same tab the user was last on.
-   */
-  const ACTIVE_TAB_STORAGE_KEY = 'settings.activeTab';
-  const DEFAULT_TAB = 'general';
-
-  // ===== Tab navigation =====
-
-  /**
-   * Initialises the settings tab navigation.
-   * Restores the previously active tab from storage, wires up click and
-   * keyboard handlers, and saves the active tab whenever it changes.
-   */
-  function initTabs() {
-    const tabs = Array.from(document.querySelectorAll('.settings-tab'));
-    const panels = Array.from(document.querySelectorAll('.settings-tab-panel'));
-
-    if (tabs.length === 0 || panels.length === 0) return;
-
-    // Restore previously active tab (if any).
-    chrome.storage.local.get(ACTIVE_TAB_STORAGE_KEY, (result) => {
-      const savedTab = result[ACTIVE_TAB_STORAGE_KEY];
-      const tabToActivate = _isValidTab(savedTab, tabs) ? savedTab : DEFAULT_TAB;
-      _activateTab(tabToActivate, tabs, panels);
-    });
-
-    // Click to switch.
-    tabs.forEach((tab) => {
-      tab.addEventListener('click', () => {
-        const tabName = tab.dataset.tab;
-        _activateTab(tabName, tabs, panels);
-        chrome.storage.local.set({ [ACTIVE_TAB_STORAGE_KEY]: tabName });
-      });
-    });
-
-    // Arrow-key navigation along the tablist for accessibility.
-    tabs.forEach((tab) => {
-      tab.addEventListener('keydown', (e) => {
-        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' &&
-            e.key !== 'Home' && e.key !== 'End') {
-          return;
-        }
-        e.preventDefault();
-
-        const currentIndex = tabs.indexOf(tab);
-        let nextIndex = currentIndex;
-
-        if (e.key === 'ArrowRight') {
-          nextIndex = (currentIndex + 1) % tabs.length;
-        } else if (e.key === 'ArrowLeft') {
-          nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-        } else if (e.key === 'Home') {
-          nextIndex = 0;
-        } else if (e.key === 'End') {
-          nextIndex = tabs.length - 1;
-        }
-
-        const nextTab = tabs[nextIndex];
-        nextTab.focus();
-        _activateTab(nextTab.dataset.tab, tabs, panels);
-        chrome.storage.local.set({ [ACTIVE_TAB_STORAGE_KEY]: nextTab.dataset.tab });
-      });
-    });
-  }
-
-  /**
-   * Activates the tab with the given name and shows its matching panel,
-   * deactivating all other tabs/panels.
-   * @param {string} tabName
-   * @param {HTMLElement[]} tabs
-   * @param {HTMLElement[]} panels
-   */
-  function _activateTab(tabName, tabs, panels) {
-    tabs.forEach((t) => {
-      const isActive = t.dataset.tab === tabName;
-      t.classList.toggle('active', isActive);
-      t.setAttribute('aria-selected', String(isActive));
-      t.tabIndex = isActive ? 0 : -1;
-    });
-
-    panels.forEach((p) => {
-      const isActive = p.dataset.tabPanel === tabName;
-      p.classList.toggle('active', isActive);
-      p.hidden = !isActive;
-    });
-  }
-
-  /**
-   * Returns true if the given tab name corresponds to one of the rendered tabs.
-   * @param {string} tabName
-   * @param {HTMLElement[]} tabs
-   * @returns {boolean}
-   */
-  function _isValidTab(tabName, tabs) {
-    if (!tabName || typeof tabName !== 'string') return false;
-    return tabs.some((t) => t.dataset.tab === tabName);
-  }
-
-  // ===== Settings load / save =====
-
-  /**
-   * Loads all settings from Chrome storage and populates the UI.
-   */
-  async function loadSettings() {
-    chrome.storage.sync.get(null, (result) => {
-      const settings = { ...DEFAULTS, ...result };
-
-      // Populate toggles
-      _setToggle('setting-setupTabs', settings['setupTabs.enabled']);
-      _setToggle('setting-automationHomeTab', settings['setupTabs.automationHome.enabled']);
-      _setToggle('setting-setupTabsGrouping', settings['setupTabs.groupingEnabled']);
-      _setToggle('setting-missingDescriptions', settings['missingDescriptions.enabled']);
-      _setToggle('setting-apiNameGenerator', settings['apiNameGenerator.enabled']);
-      _setToggle('setting-flowListSearch', settings['flowListSearch.enabled']);
-      _setToggle('setting-canvasSearchEnabled', settings['canvasSearch.enabled']);
-      _setToggle('setting-flowAIAssistant', settings['flowAIAssistant.enabled']);
-      _setToggle('setting-flowHealthCheck', settings['flowHealthCheck.enabled']);
-      _setToggle('setting-unusedResources', settings['unusedResources.enabled']);
-      _setToggle('setting-comparisonExporter', settings['comparisonExporter.enabled']);
-      _setToggle('setting-flowVersionManager', settings['flowVersionManager.enabled']);
-      _setToggle('setting-flowTriggerExplorerEnhancer', settings['flowTriggerExplorerEnhancer.enabled']);
-      _setToggle('setting-scheduledFlowExplorer', settings['scheduledFlowExplorer.enabled']);
-
-      // Populate inputs
-      _setInput('setting-shortcut', settings['canvasSearch.shortcut']);
-      _setInput('setting-highlightColour', settings['canvasSearch.highlightColour']);
-
-      // Populate selects
-      _setSelect('setting-namingPattern', settings['apiNameGenerator.namingPattern']);
-      _setSelect('setting-scheduledFlowExplorerDefaultView', settings['scheduledFlowExplorer.defaultView']);
-    });
-  }
-
-  /**
-   * Attaches event listeners to all setting controls for auto-save.
-   */
-  function attachListeners() {
-    // Toggle switches
-    document.querySelectorAll('.toggle-switch input').forEach((toggle) => {
-      toggle.addEventListener('change', () => {
-        _saveSetting(toggle.dataset.key, toggle.checked);
-      });
-    });
-
-    // Select dropdowns
-    document.querySelectorAll('.setting-select').forEach((select) => {
-      select.addEventListener('change', () => {
-        _saveSetting(select.dataset.key, select.value);
-      });
-    });
-
-    // Colour picker
-    const colourPicker = document.getElementById('setting-highlightColour');
-    if (colourPicker) {
-      colourPicker.addEventListener('input', () => {
-        _saveSetting(colourPicker.dataset.key, colourPicker.value);
-      });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SF Flow Utility Toolkit - Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    // Keyboard shortcut capture
-    const shortcutInput = document.getElementById('setting-shortcut');
-    if (shortcutInput) {
-      shortcutInput.addEventListener('click', () => {
-        shortcutInput.value = 'Press shortcut keys...';
-        shortcutInput.classList.add('capturing');
-      });
-
-      shortcutInput.addEventListener('keydown', (e) => {
-        if (!shortcutInput.classList.contains('capturing')) return;
-
-        e.preventDefault();
-
-        const keys = [];
-        if (e.ctrlKey) keys.push('Ctrl');
-        if (e.shiftKey) keys.push('Shift');
-        if (e.altKey) keys.push('Alt');
-        if (e.metaKey) keys.push('Cmd');
-
-        // Only capture if a modifier is pressed along with a regular key
-        if (keys.length > 0 && e.key !== 'Control' && e.key !== 'Shift' &&
-            e.key !== 'Alt' && e.key !== 'Meta') {
-          keys.push(e.key.toUpperCase());
-          const shortcut = keys.join('+');
-          shortcutInput.value = shortcut;
-          shortcutInput.classList.remove('capturing');
-          _saveSetting(shortcutInput.dataset.key, shortcut);
-        }
-      });
-
-      // Cancel capture on blur
-      shortcutInput.addEventListener('blur', () => {
-        if (shortcutInput.classList.contains('capturing')) {
-          shortcutInput.classList.remove('capturing');
-          // Restore previous value
-          chrome.storage.sync.get('canvasSearch.shortcut', (result) => {
-            shortcutInput.value = result['canvasSearch.shortcut'] || DEFAULTS['canvasSearch.shortcut'];
-          });
-        }
-      });
-    }
-  }
-
-  /**
-   * Saves a setting to Chrome storage and shows confirmation.
-   * @param {string} key - The setting key
-   * @param {any} value - The value to save
-   */
-  function _saveSetting(key, value) {
-    // Show reload notice when feature toggles change (not colour/shortcut settings)
-    const _featureKeys = [
-      'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
-      'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
-      'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled'
-    ];
-    if (_featureKeys.includes(key)) {
-      const notice = document.getElementById('feature-reload-notice');
-      if (notice) notice.hidden = false;
+    body {
+      font-family: 'Segoe UI', 'Salesforce Sans', Arial, sans-serif;
+      font-size: 14px;
+      color: #181818;
+      background-color: #f4f6f9;
+      padding: 24px;
     }
 
-    chrome.storage.sync.set({ [key]: value }, () => {
-      _showSaveToast();
-    });
-  }
-
-  /**
-   * Sets a toggle switch value.
-   * @param {string} id - The element ID
-   * @param {boolean} value - The checked state
-   */
-  function _setToggle(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.checked = !!value;
-    }
-  }
-
-  /**
-   * Sets an input field value.
-   * @param {string} id - The element ID
-   * @param {string} value - The input value
-   */
-  function _setInput(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.value = value || '';
-    }
-  }
-
-  /**
-   * Sets a select dropdown value.
-   * @param {string} id - The element ID
-   * @param {string} value - The selected value
-   */
-  function _setSelect(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.value = value || '';
-    }
-  }
-
-  // ===== Custom Prefix Configuration =====
-
-  // ===== Prefix tables =====
-
-  /**
-   * Table definitions: id matches the "table" field in default-prefixes.json
-   * and the container element IDs in settings.html.
-   */
-  const PREFIX_TABLES = [
-    { id: 'flowApi',  label: 'Flow API Prefixes' },
-    { id: 'element',  label: 'Element Prefixes' },
-    { id: 'variable', label: 'Variable & Collection Prefixes' },
-    { id: 'formula',  label: 'Formula Prefixes' },
-    { id: 'resource', label: 'Resource Prefixes' },
-  ];
-
-  // Per-table sort state: 'default' | 'asc' | 'desc'
-  const _tableSortState = {};
-  PREFIX_TABLES.forEach(t => { _tableSortState[t.id] = 'default'; });
-
-  // Tracks which row (by type string) is currently open for editing, per table.
-  const _editingRow = {};   // { [tableId]: typeName | null }
-  PREFIX_TABLES.forEach(t => { _editingRow[t.id] = null; });
-
-  /**
-   * Entry point: loads prefixes, renders all five tables, wires up global buttons.
-   */
-  async function initPrefixConfig() {
-    try {
-      await APINamePrefixes.load();
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to load prefix config:', err);
+    .settings-container {
+      max-width: 720px;
+      margin: 0 auto;
     }
 
-    PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
-    _updatePrefixStatus();
-    _attachGlobalPrefixListeners();
-
-    // React to storage changes from other contexts (e.g. another settings page
-    // instance, or the api-name-prefixes.js live-reload).
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-      chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace !== 'local') return;
-        if (!Object.prototype.hasOwnProperty.call(changes, 'apiNameGenerator.prefixOverrides')) return;
-        // Re-render after the module has had time to reload.
-        setTimeout(() => {
-          PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
-          _updatePrefixStatus();
-        }, 120);
-      });
+    .settings-header {
+      margin-bottom: 20px;
     }
-  }
 
-  // ----- Table rendering -----
+    .settings-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0176d3;
+      margin-bottom: 4px;
+    }
 
-  /**
-   * Builds or rebuilds the table for a given tableId from current prefix data.
-   * Preserves the sort state and closes any open edit row.
-   * @param {string} tableId
-   */
-  function _renderPrefixTable(tableId) {
-    const container = document.getElementById(`prefix-table-${tableId}`);
-    if (!container) return;
+    .settings-header p {
+      font-size: 13px;
+      color: #706e6b;
+    }
 
-    _editingRow[tableId] = null;
+    /* ===== Tab navigation ===== */
 
-    const allPrefixes = APINamePrefixes.getAll().filter(p => p.table === tableId);
-    const sorted = _sortedPrefixes(allPrefixes, tableId);
-    const sortState = _tableSortState[tableId];
+    .settings-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5e5e5;
+      padding: 0;
+      flex-wrap: wrap;
+    }
 
-    const table = document.createElement('table');
-    table.className = 'prefix-table';
+    .settings-tab {
+      padding: 10px 18px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #706e6b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+      border-radius: 4px 4px 0 0;
+    }
 
-    // --- thead ---
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+    .settings-tab:hover {
+      color: #181818;
+      background-color: rgba(1, 118, 211, 0.04);
+    }
 
-    const headers = [
-      { key: 'type',       label: 'Type',       sortable: true  },
-      { key: 'master',     label: 'Master',      sortable: false },
-      { key: 'Snake_Case', label: 'Snake_Case',  sortable: false },
-      { key: 'PascalCase', label: 'PascalCase',  sortable: false },
-      { key: 'camelCase',  label: 'camelCase',   sortable: false },
-      { key: 'actions',    label: '',            sortable: false },
-    ];
+    .settings-tab:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.3);
+    }
 
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.className = `col-${h.key}`;
+    .settings-tab.active {
+      color: #0176d3;
+      border-bottom-color: #0176d3;
+    }
 
-      if (h.sortable) {
-        th.classList.add('col-sortable');
-        const indicator = document.createElement('span');
-        indicator.className = 'sort-indicator';
+    .settings-tab-panel {
+      display: none;
+    }
 
-        if (sortState === 'asc')  { th.classList.add('sort-asc');  indicator.textContent = ' ▲'; }
-        if (sortState === 'desc') { th.classList.add('sort-desc'); indicator.textContent = ' ▼'; }
-        if (sortState === 'default') { indicator.textContent = ' ⇅'; }
+    .settings-tab-panel.active {
+      display: block;
+      animation: tabFadeIn 0.18s ease;
+    }
 
-        th.textContent = h.label;
-        th.appendChild(indicator);
-
-        th.addEventListener('click', () => _handleSortClick(tableId));
-      } else {
-        th.textContent = h.label;
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
       }
-
-      headerRow.appendChild(th);
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // --- tbody ---
-    const tbody = document.createElement('tbody');
-
-    sorted.forEach(entry => {
-      const isCustom = APINamePrefixes.hasOverride(entry.type);
-      const master = entry.PascalCase; // PascalCase IS the master
-
-      const tr = document.createElement('tr');
-      tr.dataset.type = entry.type;
-      if (isCustom) tr.classList.add('is-custom');
-
-      // Type cell
-      const tdType = document.createElement('td');
-      tdType.className = 'col-type';
-      tdType.textContent = entry.type;
-      if (isCustom) {
-        const dot = document.createElement('span');
-        dot.className = 'prefix-custom-dot';
-        dot.title = 'Custom override active';
-        tdType.appendChild(dot);
-      }
-      tr.appendChild(tdType);
-
-      // Master cell
-      const tdMaster = document.createElement('td');
-      tdMaster.className = 'col-master';
-      tdMaster.textContent = master;
-      tr.appendChild(tdMaster);
-
-      // Snake_Case cell
-      const tdSnake = document.createElement('td');
-      tdSnake.className = 'col-snake';
-      tdSnake.textContent = entry.Snake_Case;
-      tr.appendChild(tdSnake);
-
-      // PascalCase cell
-      const tdPascal = document.createElement('td');
-      tdPascal.className = 'col-pascal';
-      tdPascal.textContent = entry.PascalCase;
-      tr.appendChild(tdPascal);
-
-      // camelCase cell
-      const tdCamel = document.createElement('td');
-      tdCamel.className = 'col-camel';
-      tdCamel.textContent = entry.camelCase;
-      tr.appendChild(tdCamel);
-
-      // Actions cell
-      const tdActions = document.createElement('td');
-      tdActions.className = 'col-actions';
-
-      const actions = document.createElement('div');
-      actions.className = 'prefix-row-actions';
-
-      const editBtn = document.createElement('button');
-      editBtn.type = 'button';
-      editBtn.className = 'prefix-row-btn btn-edit';
-      editBtn.title = 'Edit this prefix';
-      editBtn.textContent = '✎';
-      editBtn.addEventListener('click', () => _startRowEdit(tableId, entry.type));
-      actions.appendChild(editBtn);
-
-      if (isCustom) {
-        const revertBtn = document.createElement('button');
-        revertBtn.type = 'button';
-        revertBtn.className = 'prefix-row-btn btn-revert';
-        revertBtn.title = 'Revert to default';
-        revertBtn.textContent = '↺';
-        revertBtn.addEventListener('click', () => _handleRevertRow(tableId, entry.type));
-        actions.appendChild(revertBtn);
-      }
-
-      tdActions.appendChild(actions);
-      tr.appendChild(tdActions);
-
-      tbody.appendChild(tr);
-    });
-
-    table.appendChild(tbody);
-    container.innerHTML = '';
-    container.appendChild(table);
-
-    _updateTableResetButton(tableId);
-    _updateDirtyBanner();
-  }
-
-  /**
-   * Returns prefixes for a table sorted according to the current sort state.
-   * @param {Array} prefixes
-   * @param {string} tableId
-   */
-  function _sortedPrefixes(prefixes, tableId) {
-    const state = _tableSortState[tableId];
-    if (state === 'default') return prefixes;
-    return [...prefixes].sort((a, b) => {
-      const cmp = a.type.localeCompare(b.type);
-      return state === 'asc' ? cmp : -cmp;
-    });
-  }
-
-  /**
-   * Cycles sort state: default → asc → desc → default, then re-renders.
-   * @param {string} tableId
-   */
-  function _handleSortClick(tableId) {
-    const current = _tableSortState[tableId];
-    _tableSortState[tableId] = current === 'default' ? 'asc'
-                             : current === 'asc'     ? 'desc'
-                             :                         'default';
-    _renderPrefixTable(tableId);
-  }
-
-  // ----- Inline row editing -----
-
-  /**
-   * Converts a table row to edit mode.
-   * @param {string} tableId
-   * @param {string} type
-   */
-  function _startRowEdit(tableId, type) {
-    // Cancel any open edit in this table first
-    if (_editingRow[tableId]) {
-      _cancelRowEdit(tableId, _editingRow[tableId]);
-    }
-
-    _editingRow[tableId] = type;
-
-    const container = document.getElementById(`prefix-table-${tableId}`);
-    if (!container) return;
-
-    const tr = container.querySelector(`tr[data-type="${CSS.escape(type)}"]`);
-    if (!tr) return;
-
-    const entry = APINamePrefixes.getAll().find(p => p.type === type);
-    if (!entry) return;
-
-    tr.classList.add('is-editing');
-
-    // Replace cell contents with inputs
-    const master = entry.PascalCase;
-
-    // Master input
-    tr.children[1].innerHTML = '';
-    const masterInput = _buildEditInput('master', master, type, tableId);
-    masterInput.id = `prefix-input-master-${_safeId(type)}`;
-    tr.children[1].appendChild(masterInput);
-
-    // Snake_Case input
-    tr.children[2].innerHTML = '';
-    const snakeInput = _buildEditInput('snake', entry.Snake_Case, type, tableId);
-    snakeInput.id = `prefix-input-snake-${_safeId(type)}`;
-    tr.children[2].appendChild(snakeInput);
-
-    // PascalCase input
-    tr.children[3].innerHTML = '';
-    const pascalInput = _buildEditInput('pascal', entry.PascalCase, type, tableId);
-    pascalInput.id = `prefix-input-pascal-${_safeId(type)}`;
-    tr.children[3].appendChild(pascalInput);
-
-    // camelCase input
-    tr.children[4].innerHTML = '';
-    const camelInput = _buildEditInput('camel', entry.camelCase, type, tableId);
-    camelInput.id = `prefix-input-camel-${_safeId(type)}`;
-    tr.children[4].appendChild(camelInput);
-
-    // Master input drives all three when edited
-    masterInput.addEventListener('input', () => {
-      const m = masterInput.value.trim();
-      snakeInput.value  = m ? `${m}_` : '';
-      pascalInput.value = m;
-      camelInput.value  = m ? `${m[0].toLowerCase()}${m.slice(1)}` : '';
-      _clearInputError(snakeInput);
-      _clearInputError(pascalInput);
-      _clearInputError(camelInput);
-    });
-
-    // Actions cell: Save + Cancel
-    tr.children[5].innerHTML = '';
-    const actions = document.createElement('div');
-    actions.className = 'prefix-row-actions';
-
-    const saveBtn = document.createElement('button');
-    saveBtn.type = 'button';
-    saveBtn.className = 'prefix-row-btn btn-save';
-    saveBtn.title = 'Save changes';
-    saveBtn.textContent = '✔ Save';
-    saveBtn.addEventListener('click', () => _saveRowEdit(tableId, type));
-    actions.appendChild(saveBtn);
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.className = 'prefix-row-btn btn-cancel';
-    cancelBtn.title = 'Cancel edit';
-    cancelBtn.textContent = '✕';
-    cancelBtn.addEventListener('click', () => _cancelRowEdit(tableId, type));
-    actions.appendChild(cancelBtn);
-
-    tr.children[5].appendChild(actions);
-
-    _updateDirtyBanner();
-    masterInput.focus();
-    masterInput.select();
-  }
-
-  /**
-   * Cancels an in-progress row edit and re-renders the table.
-   * @param {string} tableId
-   * @param {string} type
-   */
-  function _cancelRowEdit(tableId, type) {
-    _editingRow[tableId] = null;
-    _renderPrefixTable(tableId);
-  }
-
-  /**
-   * Validates and persists the edited row values.
-   * @param {string} tableId
-   * @param {string} type
-   */
-  async function _saveRowEdit(tableId, type) {
-    const safeType = _safeId(type);
-    const snakeEl  = document.getElementById(`prefix-input-snake-${safeType}`);
-    const pascalEl = document.getElementById(`prefix-input-pascal-${safeType}`);
-    const camelEl  = document.getElementById(`prefix-input-camel-${safeType}`);
-
-    if (!snakeEl || !pascalEl || !camelEl) return;
-
-    const snake  = snakeEl.value.trim();
-    const pascal = pascalEl.value.trim();
-    const camel  = camelEl.value.trim();
-
-    // Per-case validation
-    let valid = true;
-    if (!_validateSnake(snake))  { _setInputError(snakeEl,  'Must be alphanumeric and end with _'); valid = false; }
-    if (!_validatePascal(pascal)) { _setInputError(pascalEl, 'Must start with an uppercase letter'); valid = false; }
-    if (!_validateCamel(camel))  { _setInputError(camelEl,  'Must start with a lowercase letter'); valid = false; }
-    if (!valid) return;
-
-    // Check whether values actually differ from the default
-    const def = APINamePrefixes.getDefaults().find(d => d.type === type);
-    const isUnchanged = def
-      && snake  === def.Snake_Case
-      && pascal === def.PascalCase
-      && camel  === def.camelCase;
-
-    if (isUnchanged) {
-      // Values match the default — remove any existing override instead of saving
-      await APINamePrefixes.resetRow(type);
-    } else {
-      await APINamePrefixes.saveRowOverride(type, { Snake_Case: snake, PascalCase: pascal, camelCase: camel });
-    }
-
-    _editingRow[tableId] = null;
-    _renderPrefixTable(tableId);
-    _updatePrefixStatus();
-
-    const overrideCount = Object.keys(APINamePrefixes.getOverrides()).length;
-    _showSaveToast(isUnchanged
-      ? `${type}: reverted to default`
-      : `${type}: prefix saved (${overrideCount} override${overrideCount !== 1 ? 's' : ''} active)`
-    );
-  }
-
-  /**
-   * Reverts a single row to its default and re-renders.
-   * @param {string} tableId
-   * @param {string} type
-   */
-  async function _handleRevertRow(tableId, type) {
-    await APINamePrefixes.resetRow(type);
-    _renderPrefixTable(tableId);
-    _updatePrefixStatus();
-    _showSaveToast(`${type}: reverted to default`);
-  }
-
-  // ----- Validation helpers -----
-
-  /** Snake_Case: alphanumeric + underscores, must end with _ */
-  function _validateSnake(val) {
-    return val.length > 0 && /^[A-Za-z][A-Za-z0-9_]*_$/.test(val);
-  }
-
-  /** PascalCase: starts with uppercase letter, alphanumeric only */
-  function _validatePascal(val) {
-    return val.length > 0 && /^[A-Z][A-Za-z0-9]*$/.test(val);
-  }
-
-  /** camelCase: starts with lowercase letter, alphanumeric only */
-  function _validateCamel(val) {
-    return val.length > 0 && /^[a-z][A-Za-z0-9]*$/.test(val);
-  }
-
-  function _setInputError(input, message) {
-    input.classList.add('is-error');
-    let msg = input.nextElementSibling;
-    if (!msg || !msg.classList.contains('prefix-error-msg')) {
-      msg = document.createElement('div');
-      msg.className = 'prefix-error-msg';
-      input.parentNode.insertBefore(msg, input.nextSibling);
-    }
-    msg.textContent = message;
-  }
-
-  function _clearInputError(input) {
-    input.classList.remove('is-error');
-    const msg = input.nextElementSibling;
-    if (msg && msg.classList.contains('prefix-error-msg')) {
-      msg.remove();
-    }
-  }
-
-  function _buildEditInput(colKey, value, type, tableId) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'prefix-edit-input';
-    input.value = value;
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter')  _saveRowEdit(tableId, type);
-      if (e.key === 'Escape') _cancelRowEdit(tableId, type);
-    });
-    // Per-column live validation (except master which drives the others)
-    if (colKey === 'snake') {
-      input.addEventListener('input', () => {
-        if (_validateSnake(input.value.trim())) _clearInputError(input);
-      });
-    } else if (colKey === 'pascal') {
-      input.addEventListener('input', () => {
-        if (_validatePascal(input.value.trim())) _clearInputError(input);
-      });
-    } else if (colKey === 'camel') {
-      input.addEventListener('input', () => {
-        if (_validateCamel(input.value.trim())) _clearInputError(input);
-      });
-    }
-    return input;
-  }
-
-  /** Converts a type string to a safe DOM id fragment. */
-  function _safeId(type) {
-    return type.replace(/[^A-Za-z0-9]/g, '_');
-  }
-
-  // ----- Status + button state -----
-
-  /**
-   * Updates the "Currently using" status line and the Reset All button visibility.
-   */
-  function _updatePrefixStatus() {
-    const statusEl  = document.getElementById('prefix-status-value');
-    const resetAll  = document.getElementById('prefix-reset-all-btn');
-
-    if (!statusEl) return;
-
-    const isCustom = APINamePrefixes.isCustom();
-    const overrides = Object.keys(APINamePrefixes.getOverrides()).length;
-
-    if (isCustom) {
-      statusEl.textContent = `Custom (${overrides} override${overrides !== 1 ? 's' : ''} active)`;
-      statusEl.classList.add('is-custom');
-      if (resetAll) resetAll.hidden = false;
-    } else {
-      statusEl.textContent = `Default prefixes`;
-      statusEl.classList.remove('is-custom');
-      if (resetAll) resetAll.hidden = true;
-    }
-  }
-
-  /**
-   * Shows or hides the per-table reset button based on whether that table
-   * has any active overrides.
-   * @param {string} tableId
-   */
-  function _updateTableResetButton(tableId) {
-    const btn = document.getElementById(`prefix-reset-table-${tableId}`);
-    if (!btn) return;
-    const tableHasOverrides = APINamePrefixes.getAll()
-      .filter(p => p.table === tableId)
-      .some(p => APINamePrefixes.hasOverride(p.type));
-    btn.hidden = !tableHasOverrides;
-  }
-
-  /**
-   * Shows the dirty banner if any table has an open edit row.
-   */
-  function _updateDirtyBanner() {
-    const banner = document.getElementById('prefix-dirty-banner');
-    if (!banner) return;
-    const anyDirty = Object.values(_editingRow).some(v => v !== null);
-    banner.hidden = !anyDirty;
-  }
-
-  // ----- Global button listeners -----
-
-  function _attachGlobalPrefixListeners() {
-    // Per-table reset buttons
-    PREFIX_TABLES.forEach(t => {
-      const btn = document.getElementById(`prefix-reset-table-${t.id}`);
-      if (btn) {
-        btn.addEventListener('click', () => _handleTableReset(t.id, t.label));
-      }
-    });
-
-    // Download
-    const downloadBtn = document.getElementById('prefix-download-btn');
-    if (downloadBtn) downloadBtn.addEventListener('click', _handlePrefixDownload);
-
-    // Upload
-    const uploadBtn  = document.getElementById('prefix-upload-btn');
-    const fileInput  = document.getElementById('prefix-file-input');
-    if (uploadBtn && fileInput) {
-      uploadBtn.addEventListener('click', () => { fileInput.value = ''; fileInput.click(); });
-      fileInput.addEventListener('change', _handlePrefixUpload);
-    }
-
-    // Reset All
-    const resetAllBtn = document.getElementById('prefix-reset-all-btn');
-    if (resetAllBtn) resetAllBtn.addEventListener('click', _handleResetAll);
-  }
-
-  /**
-   * Resets all overrides for a single named table after confirmation.
-   * @param {string} tableId
-   * @param {string} tableLabel
-   */
-  async function _handleTableReset(tableId, tableLabel) {
-    const confirmed = window.confirm(
-      `Reset ${tableLabel} to defaults?\n\nAll custom overrides in this table will be cleared.`
-    );
-    if (!confirmed) return;
-
-    try {
-      await APINamePrefixes.resetTable(tableId);
-      _renderPrefixTable(tableId);
-      _updatePrefixStatus();
-      _showSaveToast(`${tableLabel} reset to defaults`);
-    } catch (err) {
-      console.warn('[SFUT Settings] Table reset failed:', err);
-      _showSaveToast('Reset failed', true);
-    }
-  }
-
-  /**
-   * Resets all overrides across every table after confirmation.
-   */
-  async function _handleResetAll() {
-    const confirmed = window.confirm(
-      'Reset all prefix tables to defaults?\n\nEvery custom prefix override across all five tables will be cleared. This cannot be undone.'
-    );
-    if (!confirmed) return;
-
-    try {
-      await APINamePrefixes.resetToDefaults();
-      PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
-      _updatePrefixStatus();
-      _showSaveToast('All prefixes reset to defaults');
-    } catch (err) {
-      console.warn('[SFUT Settings] Reset all failed:', err);
-      _showSaveToast('Reset failed', true);
-    }
-  }
-
-  /**
-   * Downloads the full merged prefix configuration as a JSON file.
-   */
-  function _handlePrefixDownload() {
-    try {
-      const json = APINamePrefixes.exportAsJson();
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = APINamePrefixes.isCustom()
-        ? 'flow-api-name-prefixes-custom.json'
-        : 'flow-api-name-prefixes-default.json';
-      anchor.style.display = 'none';
-
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-
-      _showSaveToast('Configuration downloaded');
-    } catch (err) {
-      console.warn('[SFUT Settings] Prefix download failed:', err);
-      _showSaveToast('Download failed', true);
-    }
-  }
-
-  /**
-   * Handles the file picker change event for uploading a custom prefix config.
-   * Imports the file and re-renders all tables to reflect the new overrides.
-   * @param {Event} e
-   */
-  async function _handlePrefixUpload(e) {
-    const fileInput = e.target;
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      const result = await APINamePrefixes.importCustom(text);
-
-      if (result.success) {
-        PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
-        _updatePrefixStatus();
-        _showSaveToast(`Imported from ${file.name} — ${result.count} override${result.count !== 1 ? 's' : ''} applied`);
-      } else {
-        _showSaveToast(`Import failed: ${result.error}`, true);
-      }
-    } catch (err) {
-      console.warn('[SFUT Settings] Prefix import failed:', err);
-      _showSaveToast(`Import failed: ${err.message || 'unknown error'}`, true);
-    } finally {
-      fileInput.value = '';
-    }
-  }
-
-  // ===== About tab =====
-
-  /**
-   * Populates the About tab's dynamic fields (currently just version)
-   * from the manifest so the number never drifts.
-   */
-  function initAboutTab() {
-    const versionEl = document.getElementById('about-version');
-    if (!versionEl) return;
-
-    try {
-      const manifest = chrome.runtime.getManifest();
-      versionEl.textContent = `v${manifest.version}`;
-    } catch (err) {
-      console.warn('[SFUT Settings] Could not read manifest for About tab:', err);
-      versionEl.textContent = '—';
-    }
-  }
-
-  // ============================================================
-  // ===== AI Prompts tab ========================================
-  // ============================================================
-
-  /**
-   * State for the prompt form modal. When editingId is null the form
-   * is in "create" mode; when set, it's editing the custom prompt with
-   * that id.
-   */
-  const _promptForm = {
-    editingId: null
-  };
-
-  /**
-   * State for the import flow. pendingJson holds the raw file contents
-   * between preview and commit so the user can confirm before we write.
-   */
-  const _import = {
-    pendingJson: null,
-    hasConflicts: false
-  };
-
-  /**
-   * Initialises the AI Prompts tab — loads the library, renders both
-   * lists, wires up the toolbar and modal event handlers, and watches
-   * for storage changes so other tabs / contexts can trigger re-renders.
-   */
-  async function initAIPromptsTab() {
-    try {
-      await AIPromptLibrary.load();
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to load prompt library:', err);
-    }
-
-    _renderStandardPrompts();
-    _renderCustomPrompts();
-    _attachPromptToolbarListeners();
-    _attachPromptFormModalListeners();
-    _attachImportResultsModalListeners();
-    _populatePromptFormCategories();
-
-    // Re-render if library state changes from another context.
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-      chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace !== 'local') return;
-        const relevant = ['aiPromptLibrary.disabledStandardIds',
-                          'aiPromptLibrary.customPrompts',
-                          'aiPromptLibrary.defaultPromptId']
-          .some(k => Object.prototype.hasOwnProperty.call(changes, k));
-        if (!relevant) return;
-
-        // The library has its own listener that reloads cache; give it
-        // a beat to finish so our reads see the new state.
-        setTimeout(() => {
-          _renderStandardPrompts();
-          _renderCustomPrompts();
-        }, 50);
-      });
-    }
-  }
-
-  // ----- Rendering -----
-
-  function _renderStandardPrompts() {
-    const container = document.getElementById('standard-prompts-list');
-    if (!container) return;
-
-    const standards = AIPromptLibrary.getStandardPrompts();
-    container.innerHTML = '';
-    standards.forEach(p => container.appendChild(_buildPromptRow(p, 'standard')));
-  }
-
-  function _renderCustomPrompts() {
-    const container = document.getElementById('custom-prompts-list');
-    if (!container) return;
-
-    const customs = AIPromptLibrary.getCustomPrompts();
-    container.innerHTML = '';
-
-    if (customs.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'prompts-empty-state';
-      empty.innerHTML = 'You haven\'t created any custom prompts yet.<br>' +
-                        'Click <strong>+ New Prompt</strong> to get started, ' +
-                        'or <strong>Import JSON</strong> to load a shared library.';
-      container.appendChild(empty);
-      return;
-    }
-
-    customs.forEach(p => container.appendChild(_buildPromptRow(p, 'custom')));
-  }
-
-  /**
-   * Builds a single prompt row. Type is 'standard' or 'custom' — controls
-   * which action buttons appear and which toggle handler is wired up.
-   * @param {object} prompt
-   * @param {'standard'|'custom'} type
-   * @returns {HTMLElement}
-   */
-  function _buildPromptRow(prompt, type) {
-    const row = document.createElement('div');
-    row.className = 'prompt-row';
-    row.dataset.promptId = prompt.id;
-    if (!prompt.enabled) row.classList.add('is-disabled');
-
-    // Toggle
-    const toggleLabel = document.createElement('label');
-    toggleLabel.className = 'toggle-switch';
-    toggleLabel.title = prompt.enabled ? 'Active — click to deactivate' : 'Inactive — click to activate';
-
-    const toggleInput = document.createElement('input');
-    toggleInput.type = 'checkbox';
-    toggleInput.checked = !!prompt.enabled;
-    toggleInput.addEventListener('change', () => {
-      if (type === 'standard') {
-        _handleStandardToggle(prompt.id, toggleInput.checked);
-      } else {
-        _handleCustomToggle(prompt.id, toggleInput.checked);
-      }
-    });
-
-    const toggleSlider = document.createElement('span');
-    toggleSlider.className = 'toggle-slider';
-
-    toggleLabel.appendChild(toggleInput);
-    toggleLabel.appendChild(toggleSlider);
-    row.appendChild(toggleLabel);
-
-    // Main (title, description, meta)
-    const main = document.createElement('div');
-    main.className = 'prompt-main';
-
-    const title = document.createElement('div');
-    title.className = 'prompt-title';
-    title.textContent = prompt.title;
-    main.appendChild(title);
-
-    if (prompt.description) {
-      const desc = document.createElement('div');
-      desc.className = 'prompt-description';
-      desc.textContent = prompt.description;
-      main.appendChild(desc);
-    }
-
-    const meta = document.createElement('div');
-    meta.className = 'prompt-meta';
-
-    if (prompt.category) {
-      const badge = document.createElement('span');
-      badge.className = 'category-badge';
-      badge.textContent = prompt.category;
-      meta.appendChild(badge);
-    }
-
-    main.appendChild(meta);
-    row.appendChild(main);
-
-    // Actions
-    const actions = document.createElement('div');
-    actions.className = 'prompt-actions';
-
-    // Star toggle: sets this prompt as the default for the AI Assistant.
-    // Shown on both standard and custom rows. Clicking a disabled row's
-    // star also enables the prompt (single-intent action — "I want this
-    // one as my default" implies it must be active).
-    //
-    // We display the RAW stored default id rather than the resolved one
-    // so the star stays put when a prompt is temporarily disabled — the
-    // user's preference is preserved across toggles, and when they
-    // re-enable the prompt it's their default again automatically.
-    const storedDefaultId = AIPromptLibrary.getStoredDefaultPromptId();
-    const isDefault = prompt.id === storedDefaultId;
-
-    const starBtn = document.createElement('button');
-    starBtn.type = 'button';
-    starBtn.className = 'prompt-star-btn';
-    if (isDefault) starBtn.classList.add('is-default');
-    starBtn.textContent = isDefault ? '★' : '☆';
-    starBtn.setAttribute('aria-label',
-      isDefault ? 'Default prompt' : 'Set as default prompt');
-    starBtn.title = isDefault
-      ? (prompt.enabled
-          ? 'This is the default prompt for the AI Assistant.'
-          : 'This is your default prompt, but it is currently disabled. Re-enable to use it.')
-      : 'Set as default prompt for the AI Assistant.' +
-        (prompt.enabled ? '' : ' Will also enable this prompt.');
-    starBtn.addEventListener('click', () => _handleSetDefault(prompt.id));
-    actions.appendChild(starBtn);
-
-    if (type === 'standard') {
-      const cloneBtn = document.createElement('button');
-      cloneBtn.type = 'button';
-      cloneBtn.className = 'prompt-action-btn';
-      cloneBtn.textContent = 'Clone to Custom';
-      cloneBtn.title = 'Duplicate this prompt as a custom prompt you can edit. Disables the original so your clone takes its place.';
-      cloneBtn.addEventListener('click', () => _handleCloneStandard(prompt.id));
-      actions.appendChild(cloneBtn);
-    } else {
-      const editBtn = document.createElement('button');
-      editBtn.type = 'button';
-      editBtn.className = 'prompt-action-btn';
-      editBtn.textContent = 'Edit';
-      editBtn.addEventListener('click', () => _openPromptFormModal(prompt.id));
-      actions.appendChild(editBtn);
-
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'prompt-action-btn is-danger';
-      delBtn.textContent = 'Delete';
-      delBtn.addEventListener('click', () => _handleDeleteCustom(prompt.id));
-      actions.appendChild(delBtn);
-    }
-
-    row.appendChild(actions);
-    return row;
-  }
-
-  // ----- Toggle / clone / delete handlers -----
-
-  /**
-   * Stars a prompt as the default used by the AI Assistant. If the prompt
-   * is currently disabled, it's enabled as part of the same action — the
-   * user's intent ("make this my default") implies it must be available.
-   *
-   * Clicking the star of the already-default prompt is a no-op (no toast,
-   * no storage write) to avoid confusing "default re-set" feedback.
-   */
-  async function _handleSetDefault(id) {
-    const prompt = AIPromptLibrary.getById(id);
-    if (!prompt) return;
-
-    // Ignore re-clicks on a prompt that's already starred AND enabled —
-    // there's nothing meaningful to change. If it's starred but currently
-    // disabled, fall through so clicking re-enables it.
-    const storedDefaultId = AIPromptLibrary.getStoredDefaultPromptId();
-    if (storedDefaultId === id && prompt.enabled) return;
-
-    try {
-      // If the prompt is disabled, enable it first. The default write
-      // must happen while the prompt is enabled so it's a meaningful
-      // runtime pick rather than immediate fallback.
-      const wasDisabled = !prompt.enabled;
-      if (wasDisabled) {
-        if (prompt._type === 'standard') {
-          await AIPromptLibrary.setStandardEnabled(id, true);
-        } else {
-          await AIPromptLibrary.updateCustom(id, { enabled: true });
-        }
-      }
-
-      await AIPromptLibrary.setDefaultPromptId(id);
-
-      // Re-render both lists so star state updates on whichever row
-      // previously held the default.
-      _renderStandardPrompts();
-      _renderCustomPrompts();
-
-      _showSaveToast(
-        wasDisabled
-          ? 'Prompt enabled and set as default'
-          : 'Default prompt updated'
-      );
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to set default prompt:', err);
-      _showSaveToast('Could not update default prompt', true);
-      _renderStandardPrompts();
-      _renderCustomPrompts();
-    }
-  }
-
-  async function _handleStandardToggle(id, enabled) {
-    try {
-      await AIPromptLibrary.setStandardEnabled(id, enabled);
-      _renderStandardPrompts();
-      _showSaveToast(enabled ? 'Prompt enabled' : 'Prompt disabled');
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to toggle standard prompt:', err);
-      _showSaveToast('Could not update prompt', true);
-      _renderStandardPrompts();
-    }
-  }
-
-  async function _handleCustomToggle(id, enabled) {
-    try {
-      await AIPromptLibrary.updateCustom(id, { enabled });
-      _renderCustomPrompts();
-      _showSaveToast(enabled ? 'Prompt enabled' : 'Prompt disabled');
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to toggle custom prompt:', err);
-      _showSaveToast('Could not update prompt', true);
-      _renderCustomPrompts();
-    }
-  }
-
-  async function _handleCloneStandard(id) {
-    try {
-      const clone = await AIPromptLibrary.cloneToCustom(id);
-      _renderStandardPrompts();
-      _renderCustomPrompts();
-      _showSaveToast(`Cloned as "${clone.title}"`);
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to clone standard prompt:', err);
-      _showSaveToast('Could not clone prompt', true);
-    }
-  }
-
-  async function _handleDeleteCustom(id) {
-    const prompt = AIPromptLibrary.getById(id);
-    if (!prompt) return;
-
-    const confirmed = window.confirm(
-      `Delete the custom prompt "${prompt.title}"?\n\nThis cannot be undone. If you want to keep a backup, use Export JSON first.`
-    );
-    if (!confirmed) return;
-
-    try {
-      await AIPromptLibrary.deleteCustom(id);
-      _renderCustomPrompts();
-      _showSaveToast('Prompt deleted');
-    } catch (err) {
-      console.warn('[SFUT Settings] Failed to delete custom prompt:', err);
-      _showSaveToast('Could not delete prompt', true);
-    }
-  }
-
-  // ----- Toolbar buttons -----
-
-  function _attachPromptToolbarListeners() {
-    const newBtn = document.getElementById('custom-prompt-new-btn');
-    const importBtn = document.getElementById('custom-prompt-import-btn');
-    const exportBtn = document.getElementById('custom-prompt-export-btn');
-    const fileInput = document.getElementById('custom-prompt-file-input');
-
-    if (newBtn) newBtn.addEventListener('click', () => _openPromptFormModal(null));
-    if (exportBtn) exportBtn.addEventListener('click', _handleExportCustoms);
-    if (importBtn && fileInput) {
-      importBtn.addEventListener('click', () => {
-        fileInput.value = '';
-        fileInput.click();
-      });
-      fileInput.addEventListener('change', _handleImportFileSelected);
-    }
-  }
-
-  function _handleExportCustoms() {
-    try {
-      const customs = AIPromptLibrary.getCustomPrompts();
-      if (customs.length === 0) {
-        _showSaveToast('No custom prompts to export', true);
-        return;
-      }
-
-      const json = AIPromptLibrary.exportCustomsAsJson();
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = 'sf-flow-utility-toolkit-custom-prompts.json';
-      anchor.style.display = 'none';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-
-      _showSaveToast(`Exported ${customs.length} prompt(s)`);
-    } catch (err) {
-      console.warn('[SFUT Settings] Export failed:', err);
-      _showSaveToast('Export failed', true);
-    }
-  }
-
-  async function _handleImportFileSelected(e) {
-    const fileInput = e.target;
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      // Dry-run with 'skip' just to get validation + conflict counts.
-      // The actual conflictMode chosen by the user is applied on commit.
-      const preview = await AIPromptLibrary.importCustoms(text, { conflictMode: 'skip', dryRun: true });
-
-      _import.pendingJson = text;
-      _openImportResultsModal(preview);
-    } catch (err) {
-      console.warn('[SFUT Settings] Import preview failed:', err);
-      _showSaveToast(`Import failed: ${err.message || 'unknown error'}`, true);
-    } finally {
-      // Reset so re-selecting the same file re-triggers change.
-      fileInput.value = '';
-    }
-  }
-
-  // ----- New / Edit prompt form modal -----
-
-  function _populatePromptFormCategories() {
-    const select = document.getElementById('prompt-form-category-input');
-    if (!select) return;
-    select.innerHTML = '';
-
-    // Leading placeholder option nudges the user to choose explicitly.
-    const placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = '— Select a category —';
-    placeholder.disabled = true;
-    placeholder.selected = true;
-    select.appendChild(placeholder);
-
-    AIPromptLibrary.getCategories().forEach(cat => {
-      const opt = document.createElement('option');
-      opt.value = cat;
-      opt.textContent = cat;
-      select.appendChild(opt);
-    });
-  }
-
-  function _attachPromptFormModalListeners() {
-    const modal = document.getElementById('prompt-form-modal');
-    const closeBtn = document.getElementById('prompt-form-close');
-    const cancelBtn = document.getElementById('prompt-form-cancel-btn');
-    const saveBtn = document.getElementById('prompt-form-save-btn');
-    if (!modal) return;
-
-    [closeBtn, cancelBtn].forEach(btn => {
-      if (btn) btn.addEventListener('click', _closePromptFormModal);
-    });
-
-    // Close when clicking overlay (but not the dialog itself)
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) _closePromptFormModal();
-    });
-
-    if (saveBtn) saveBtn.addEventListener('click', _handlePromptFormSave);
-
-    // Wire up character counters
-    _attachCharCounter('prompt-form-title-input', 'prompt-form-title-counter', 100);
-    _attachCharCounter('prompt-form-description-input', 'prompt-form-description-counter', 500);
-    _attachCharCounter('prompt-form-prompt-input', 'prompt-form-prompt-counter', 50000);
-  }
-
-  function _attachCharCounter(inputId, counterId, max) {
-    const input = document.getElementById(inputId);
-    const counter = document.getElementById(counterId);
-    if (!input || !counter) return;
-
-    const update = () => {
-      const len = input.value.length;
-      counter.textContent = `${len.toLocaleString()} / ${max.toLocaleString()}`;
-      counter.classList.toggle('is-over', len > max);
-    };
-
-    input.addEventListener('input', update);
-    update();
-  }
-
-  function _openPromptFormModal(editingId) {
-    _promptForm.editingId = editingId;
-
-    const modal = document.getElementById('prompt-form-modal');
-    const titleEl = document.getElementById('prompt-form-title');
-    const titleInput = document.getElementById('prompt-form-title-input');
-    const descInput = document.getElementById('prompt-form-description-input');
-    const promptInput = document.getElementById('prompt-form-prompt-input');
-    const categoryInput = document.getElementById('prompt-form-category-input');
-    const enabledInput = document.getElementById('prompt-form-enabled-input');
-
-    // Reset any prior error state
-    _clearFormErrors();
-
-    if (editingId) {
-      const prompt = AIPromptLibrary.getById(editingId);
-      if (!prompt) {
-        _showSaveToast('Prompt not found', true);
-        return;
-      }
-      titleEl.textContent = 'Edit Custom Prompt';
-      titleInput.value = prompt.title;
-      descInput.value = prompt.description;
-      promptInput.value = prompt.prompt;
-      categoryInput.value = prompt.category || '';
-      enabledInput.checked = prompt.enabled !== false;
-    } else {
-      titleEl.textContent = 'New Custom Prompt';
-      titleInput.value = '';
-      descInput.value = '';
-      promptInput.value = '';
-      categoryInput.value = '';
-      enabledInput.checked = true;
-    }
-
-    // Refresh character counters to reflect pre-filled values
-    titleInput.dispatchEvent(new Event('input'));
-    descInput.dispatchEvent(new Event('input'));
-    promptInput.dispatchEvent(new Event('input'));
-
-    _openModal(modal);
-    setTimeout(() => titleInput.focus(), 50);
-  }
-
-  function _closePromptFormModal() {
-    _promptForm.editingId = null;
-    const modal = document.getElementById('prompt-form-modal');
-    _closeModal(modal);
-  }
-
-  async function _handlePromptFormSave() {
-    const data = {
-      title:       document.getElementById('prompt-form-title-input').value,
-      description: document.getElementById('prompt-form-description-input').value,
-      prompt:      document.getElementById('prompt-form-prompt-input').value,
-      category:    document.getElementById('prompt-form-category-input').value,
-      enabled:     document.getElementById('prompt-form-enabled-input').checked
-    };
-
-    const validation = AIPromptLibrary.validateCustomPrompt(data);
-    _showFormErrors(validation.errors);
-    if (!validation.valid) return;
-
-    try {
-      if (_promptForm.editingId) {
-        await AIPromptLibrary.updateCustom(_promptForm.editingId, data);
-        _showSaveToast('Prompt updated');
-      } else {
-        await AIPromptLibrary.addCustom(data);
-        _showSaveToast('Prompt created');
-      }
-      _closePromptFormModal();
-      _renderCustomPrompts();
-    } catch (err) {
-      console.warn('[SFUT Settings] Save failed:', err);
-      _showSaveToast(`Could not save: ${err.message || 'unknown error'}`, true);
-    }
-  }
-
-  function _clearFormErrors() {
-    ['title', 'description', 'prompt', 'category'].forEach(field => {
-      const errEl = document.getElementById(`prompt-form-${field}-error`);
-      const inputEl = document.getElementById(`prompt-form-${field}-input`);
-      if (errEl) {
-        errEl.textContent = '';
-        errEl.classList.remove('is-visible');
-      }
-      if (inputEl) inputEl.classList.remove('is-invalid');
-    });
-  }
-
-  /**
-   * Maps the library's validation error strings to the field they refer to
-   * and displays them inline beneath each input.
-   */
-  function _showFormErrors(errors) {
-    _clearFormErrors();
-    if (!errors || errors.length === 0) return;
-
-    // Bucket each error by the field its text mentions. Defaults to title
-    // if the error text doesn't obviously map — shouldn't happen with the
-    // library's current wording but protects against future changes.
-    const buckets = { title: [], description: [], prompt: [], category: [] };
-
-    errors.forEach(err => {
-      const lower = err.toLowerCase();
-      if (lower.startsWith('title'))            buckets.title.push(err);
-      else if (lower.startsWith('description')) buckets.description.push(err);
-      else if (lower.startsWith('prompt'))      buckets.prompt.push(err);
-      else if (lower.startsWith('category'))    buckets.category.push(err);
-      else                                      buckets.title.push(err);
-    });
-
-    Object.keys(buckets).forEach(field => {
-      if (buckets[field].length === 0) return;
-      const errEl = document.getElementById(`prompt-form-${field}-error`);
-      const inputEl = document.getElementById(`prompt-form-${field}-input`);
-      if (errEl) {
-        errEl.textContent = buckets[field].join(' ');
-        errEl.classList.add('is-visible');
-      }
-      if (inputEl) inputEl.classList.add('is-invalid');
-    });
-  }
-
-  // ----- Import results modal -----
-
-  function _attachImportResultsModalListeners() {
-    const modal = document.getElementById('import-results-modal');
-    const closeBtn = document.getElementById('import-results-close');
-    const cancelBtn = document.getElementById('import-results-cancel-btn');
-    const confirmBtn = document.getElementById('import-results-confirm-btn');
-    if (!modal) return;
-
-    [closeBtn, cancelBtn].forEach(btn => {
-      if (btn) btn.addEventListener('click', _closeImportResultsModal);
-    });
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) _closeImportResultsModal();
-    });
-
-    if (confirmBtn) confirmBtn.addEventListener('click', _commitImport);
-  }
-
-  function _openImportResultsModal(preview) {
-    const modal = document.getElementById('import-results-modal');
-    const body = document.getElementById('import-results-body');
-    const confirmBtn = document.getElementById('import-results-confirm-btn');
-    const titleEl = document.getElementById('import-results-title');
-
-    body.innerHTML = '';
-    _import.hasConflicts = false;
-
-    // Fatal error: file couldn't be parsed or had no prompts.
-    if (preview.fatal) {
-      titleEl.textContent = 'Import Failed';
-      const card = _buildSummaryCard('is-error', 'Could not read file');
-      const reason = document.createElement('div');
-      reason.textContent = preview.fatal;
-      card.appendChild(reason);
-      body.appendChild(_wrapSection(null, card));
-      if (confirmBtn) confirmBtn.hidden = true;
-      _openModal(modal);
-      return;
-    }
-
-    titleEl.textContent = 'Import Results';
-    if (confirmBtn) confirmBtn.hidden = false;
-
-    // At this point preview was run with conflictMode='skip', so imports
-    // and skips are already bucketed. The conflicts are the items in
-    // `skipped` (since skip mode produced them).
-    const conflictCount = preview.skipped.length;
-    const validCount = preview.imported.length + conflictCount;
-    const errorCount = preview.errors.length;
-
-    // Headline summary
-    const summaryCard = _buildSummaryCard(
-      validCount > 0 ? 'is-success' : 'is-warning',
-      `Found ${validCount} valid prompt(s)`
-    );
-    const summaryDetail = document.createElement('div');
-    summaryDetail.textContent =
-      `${preview.imported.length} will import cleanly. ` +
-      `${conflictCount} have id conflicts with existing prompts. ` +
-      `${errorCount} will be skipped due to validation errors.`;
-    summaryCard.appendChild(summaryDetail);
-    body.appendChild(_wrapSection(null, summaryCard));
-
-    // Errors
-    if (errorCount > 0) {
-      const card = _buildSummaryCard('is-error', `${errorCount} prompt(s) will be skipped`);
-      const list = document.createElement('ul');
-      list.className = 'import-summary-list';
-      preview.errors.forEach(e => {
-        const li = document.createElement('li');
-        const title = document.createElement('strong');
-        title.textContent = e.title;
-        li.appendChild(title);
-        const reasons = document.createElement('span');
-        reasons.className = 'reasons';
-        reasons.textContent = e.reasons.join(' ');
-        li.appendChild(reasons);
-        list.appendChild(li);
-      });
-      card.appendChild(list);
-      body.appendChild(_wrapSection('Validation errors', card));
-    }
-
-    // Conflicts
-    if (conflictCount > 0) {
-      _import.hasConflicts = true;
-      const card = _buildSummaryCard('is-warning', `${conflictCount} prompt(s) have id conflicts`);
-      const list = document.createElement('ul');
-      list.className = 'import-summary-list';
-      preview.skipped.forEach(c => {
-        const li = document.createElement('li');
-        li.textContent = c.title;
-        list.appendChild(li);
-      });
-      card.appendChild(list);
-
-      const choicesHeading = document.createElement('div');
-      choicesHeading.style.marginTop = '10px';
-      choicesHeading.style.fontWeight = '600';
-      choicesHeading.textContent = 'How should conflicts be resolved?';
-      card.appendChild(choicesHeading);
-
-      const choices = document.createElement('div');
-      choices.className = 'import-conflict-choices';
-      choices.appendChild(_buildConflictChoice('skip',      'Skip conflicts',      'Keep the existing prompts. Only non-conflicting prompts will be imported.', true));
-      choices.appendChild(_buildConflictChoice('overwrite', 'Overwrite existing',  'Replace existing prompts with the imported versions. The existing content will be lost.', false));
-      choices.appendChild(_buildConflictChoice('copy',      'Import as copies',    'Give conflicting prompts new ids so both versions are kept side-by-side.', false));
-      card.appendChild(choices);
-      body.appendChild(_wrapSection('ID conflicts', card));
-    }
-
-    // Successful imports list
-    if (preview.imported.length > 0) {
-      const card = _buildSummaryCard('is-success', `${preview.imported.length} will import cleanly`);
-      const list = document.createElement('ul');
-      list.className = 'import-summary-list';
-      preview.imported.forEach(i => {
-        const li = document.createElement('li');
-        li.textContent = i.title;
-        list.appendChild(li);
-      });
-      card.appendChild(list);
-      body.appendChild(_wrapSection('Ready to import', card));
-    }
-
-    // Disable confirm if nothing to actually import
-    if (confirmBtn) {
-      confirmBtn.disabled = (preview.imported.length + conflictCount === 0);
-      confirmBtn.textContent = conflictCount > 0 ? 'Import with chosen option' : 'Import';
-    }
-
-    _openModal(modal);
-  }
-
-  function _buildSummaryCard(severityClass, heading) {
-    const card = document.createElement('div');
-    card.className = `import-summary-card ${severityClass}`;
-    const h = document.createElement('div');
-    h.className = 'import-summary-heading';
-    h.textContent = heading;
-    card.appendChild(h);
-    return card;
-  }
-
-  function _wrapSection(heading, card) {
-    const section = document.createElement('div');
-    section.className = 'import-summary-section';
-    if (heading) {
-      const h = document.createElement('div');
-      h.className = 'import-summary-heading';
-      h.textContent = heading;
-      section.appendChild(h);
-    }
-    section.appendChild(card);
-    return section;
-  }
-
-  function _buildConflictChoice(value, label, help, checked) {
-    const wrap = document.createElement('label');
-    wrap.className = 'import-conflict-choice';
-    if (checked) wrap.classList.add('is-selected');
-
-    const input = document.createElement('input');
-    input.type = 'radio';
-    input.name = 'import-conflict-mode';
-    input.value = value;
-    if (checked) input.checked = true;
-    input.addEventListener('change', () => {
-      document.querySelectorAll('.import-conflict-choice').forEach(el => el.classList.remove('is-selected'));
-      wrap.classList.add('is-selected');
-    });
-
-    const text = document.createElement('span');
-    const labelEl = document.createElement('span');
-    labelEl.className = 'choice-label';
-    labelEl.textContent = label;
-    const helpEl = document.createElement('span');
-    helpEl.className = 'choice-help';
-    helpEl.textContent = help;
-    text.appendChild(labelEl);
-    text.appendChild(helpEl);
-
-    wrap.appendChild(input);
-    wrap.appendChild(text);
-    return wrap;
-  }
-
-  function _closeImportResultsModal() {
-    _import.pendingJson = null;
-    _import.hasConflicts = false;
-    const modal = document.getElementById('import-results-modal');
-    _closeModal(modal);
-  }
-
-  async function _commitImport() {
-    if (!_import.pendingJson) {
-      _closeImportResultsModal();
-      return;
-    }
-
-    // Figure out which conflict mode was selected (only matters if conflicts exist)
-    let conflictMode = 'skip';
-    if (_import.hasConflicts) {
-      const selected = document.querySelector('input[name="import-conflict-mode"]:checked');
-      if (selected) conflictMode = selected.value;
-    }
-
-    try {
-      const result = await AIPromptLibrary.importCustoms(_import.pendingJson, { conflictMode });
-      _closeImportResultsModal();
-      _renderCustomPrompts();
-
-      const counts = [];
-      if (result.imported.length)    counts.push(`${result.imported.length} imported`);
-      if (result.overwritten.length) counts.push(`${result.overwritten.length} overwritten`);
-      if (result.copied.length)      counts.push(`${result.copied.length} copied`);
-      if (result.skipped.length)     counts.push(`${result.skipped.length} skipped`);
-
-      _showSaveToast(counts.length ? counts.join(', ') : 'Nothing to import');
-    } catch (err) {
-      console.warn('[SFUT Settings] Import commit failed:', err);
-      _showSaveToast(`Import failed: ${err.message || 'unknown error'}`, true);
-    }
-  }
-
-  // ----- Shared modal helpers -----
-
-  /**
-   * Remembers which element had focus before a modal opened so we can
-   * restore focus there on close. Keyed by modal id to support the
-   * (rare) case of one modal opening another.
-   */
-  const _modalReturnFocus = new Map();
-
-  function _openModal(modal) {
-    if (!modal) return;
-
-    // Remember what had focus before we stole it, so we can put it back.
-    const prevFocus = document.activeElement;
-    if (prevFocus && prevFocus !== document.body) {
-      _modalReturnFocus.set(modal.id, prevFocus);
-    }
-
-    modal.classList.add('is-open');
-    modal.inert = false;
-    document.addEventListener('keydown', _handleModalEscape);
-  }
-
-  function _closeModal(modal) {
-    if (!modal) return;
-
-    // If focus is currently inside the modal, move it out before marking
-    // the subtree inert. Without this, Chromium logs an accessibility
-    // warning because focus momentarily sits on content that's becoming
-    // hidden from assistive technology.
-    const active = document.activeElement;
-    if (active && modal.contains(active) && typeof active.blur === 'function') {
-      active.blur();
-    }
-
-    modal.classList.remove('is-open');
-    modal.inert = true;
-    document.removeEventListener('keydown', _handleModalEscape);
-
-    // Restore focus to whatever triggered the modal, when possible.
-    const returnTarget = _modalReturnFocus.get(modal.id);
-    _modalReturnFocus.delete(modal.id);
-    if (returnTarget && document.contains(returnTarget) && typeof returnTarget.focus === 'function') {
-      returnTarget.focus();
-    }
-  }
-
-  function _handleModalEscape(e) {
-    if (e.key !== 'Escape') return;
-    // Close whichever modal is open (the prompt form takes precedence if both
-    // somehow end up open, though the UI flow doesn't do that).
-    const promptModal = document.getElementById('prompt-form-modal');
-    const importModal = document.getElementById('import-results-modal');
-    if (promptModal && promptModal.classList.contains('is-open')) _closePromptFormModal();
-    else if (importModal && importModal.classList.contains('is-open')) _closeImportResultsModal();
-  }
-
-  // ===== Save toast =====
-
-  /**
-   * Shows a brief save confirmation toast.
-   * @param {string} [message] - Optional override message
-   * @param {boolean} [isError] - If true, styles the toast as an error
-   */
-  function _showSaveToast(message, isError = false) {
-    const toast = document.getElementById('save-toast');
-    if (!toast) return;
-
-    if (message) {
-      toast.textContent = message;
-    } else {
-      toast.textContent = 'Settings saved';
-    }
-
-    toast.classList.toggle('is-error', !!isError);
-    toast.classList.add('visible');
-
-    setTimeout(() => {
-      toast.classList.remove('visible');
-    }, isError ? 3500 : 1500);
-  }
-
-  // Live-sync feature toggle state when changed from outside settings
-  // (e.g. clicking Hide/Show Missing Description Flags on the canvas).
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-      if (namespace !== 'sync') return;
-      const toggleMap = {
-        'setupTabs.enabled':                   'setting-setupTabs',
-        'missingDescriptions.enabled':         'setting-missingDescriptions',
-        'apiNameGenerator.enabled':            'setting-apiNameGenerator',
-        'flowListSearch.enabled':              'setting-flowListSearch',
-        'canvasSearch.enabled':               'setting-canvasSearchEnabled',
-        'flowAIAssistant.enabled':            'setting-flowAIAssistant',
-        'flowHealthCheck.enabled':            'setting-flowHealthCheck',
-        'unusedResources.enabled':            'setting-unusedResources',
-        'comparisonExporter.enabled':         'setting-comparisonExporter',
-        'flowVersionManager.enabled':         'setting-flowVersionManager',
-        'flowTriggerExplorerEnhancer.enabled':'setting-flowTriggerExplorerEnhancer',
-        'scheduledFlowExplorer.enabled':      'setting-scheduledFlowExplorer',
-      };
-      Object.entries(changes).forEach(([key, { newValue }]) => {
-        const id = toggleMap[key];
-        if (id) _setToggle(id, newValue);
-      });
-    });
-  }
-
-  // ===== Initialise =====
-
-  document.addEventListener('DOMContentLoaded', () => {
-    initTabs();
-    loadSettings();
-    attachListeners();
-    initPrefixConfig();
-    initAboutTab();
-    initAIPromptsTab();
-
-    // Set footer version from manifest so it never drifts from the declared version
-    const footer = document.getElementById('settings-footer');
-    if (footer) {
-      try {
-        const { version } = chrome.runtime.getManifest();
-        footer.textContent = `SF Flow Utility Toolkit v${version}`;
-      } catch (err) {
-        // leave default footer text
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
-  });
 
-})();
+    /* ===== Section cards ===== */
+
+    .settings-section {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .settings-section-header {
+      padding: 14px 20px;
+      background-color: #f3f3f3;
+      border-bottom: 1px solid #e5e5e5;
+      font-weight: 700;
+      font-size: 14px;
+      color: #181818;
+    }
+
+    .settings-section-body {
+      padding: 16px 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      flex: 1;
+      margin-right: 16px;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 2px;
+    }
+
+    .setting-description {
+      font-size: 12px;
+      color: #706e6b;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #c9c9c9;
+      border-radius: 24px;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #0176d3;
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* Select dropdown */
+    .setting-select {
+      padding: 6px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+      min-width: 200px;
+    }
+
+    .setting-select:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    /* Text input */
+    .setting-input {
+      padding: 6px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+      width: 140px;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    /* Colour picker */
+    .setting-colour {
+      width: 40px;
+      height: 30px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    /* Buttons */
+    .setting-button {
+      padding: 6px 12px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #181818;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .setting-button:hover {
+      background-color: #f3f3f3;
+      border-color: #a8a8a8;
+    }
+
+    .setting-button-primary {
+      background-color: #0176d3;
+      color: #ffffff;
+      border-color: #0176d3;
+    }
+
+    .setting-button-primary:hover {
+      background-color: #014486;
+      border-color: #014486;
+    }
+
+    .setting-button-danger {
+      color: #ba0517;
+      border-color: #d4a5aa;
+    }
+
+    .setting-button-danger:hover {
+      background-color: #feded8;
+      border-color: #ba0517;
+    }
+
+    .setting-button:disabled,
+    .setting-button[hidden] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Prefix config layout */
+    .prefix-status-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prefix-status-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-right: 8px;
+    }
+
+    .prefix-status-value {
+      font-size: 13px;
+      color: #706e6b;
+    }
+
+    .prefix-status-value.is-custom {
+      color: #2e844a;
+      font-weight: 600;
+    }
+
+    .prefix-buttons-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 0;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prefix-hint {
+      padding: 12px 0 4px;
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.5;
+    }
+
+    .prefix-hint code {
+      background-color: #f3f3f3;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 11px;
+    }
+
+    /* ===== About tab ===== */
+
+    .about-row {
+      display: flex;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 16px;
+    }
+
+    .about-row:last-child {
+      border-bottom: none;
+    }
+
+    .about-label {
+      flex: 0 0 200px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+    }
+
+    .about-value {
+      flex: 1;
+      font-size: 13px;
+      color: #181818;
+    }
+
+    .about-value a {
+      color: #0176d3;
+      text-decoration: none;
+    }
+
+    .about-value a:hover {
+      text-decoration: underline;
+    }
+
+    .about-value em {
+      color: #706e6b;
+      font-style: italic;
+    }
+
+    .about-value-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .about-credits {
+      padding: 14px 0 4px;
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.6;
+    }
+
+    /* ===== Placeholder note for upcoming sections ===== */
+
+    .upcoming-note {
+      padding: 12px 14px;
+      background-color: #f4f8fb;
+      border: 1px dashed #b4d3ea;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #506c82;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .upcoming-note strong {
+      color: #0176d3;
+    }
+
+    /* ===== Prompt library UI ===== */
+
+    .prompts-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-bottom: 14px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+    }
+
+    .prompt-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prompt-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .prompt-row:last-child {
+      border-bottom: none;
+    }
+
+    .prompt-row .toggle-switch {
+      margin-top: 2px;
+    }
+
+    .prompt-row.is-disabled .prompt-main {
+      opacity: 0.55;
+    }
+
+    .prompt-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .prompt-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .prompt-description {
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.5;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .prompt-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background-color: #eaf4fb;
+      color: #0176d3;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .prompt-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .prompt-action-btn {
+      padding: 4px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #181818;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .prompt-action-btn:hover {
+      background-color: #f3f3f3;
+      border-color: #a8a8a8;
+    }
+
+    .prompt-action-btn.is-danger {
+      color: #ba0517;
+      border-color: #d4a5aa;
+    }
+
+    .prompt-action-btn.is-danger:hover {
+      background-color: #feded8;
+      border-color: #ba0517;
+    }
+
+    /* Star toggle — sets the default prompt. Sits leftmost in the
+       actions cluster, visually distinct from the text buttons. */
+    .prompt-star-btn {
+      width: 30px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: #b0b0b0;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .prompt-star-btn:hover {
+      background-color: #fff8e1;
+      border-color: #f0b700;
+      color: #f0b700;
+    }
+
+    .prompt-star-btn.is-default {
+      color: #f0b700;
+      border-color: #f0b700;
+      background-color: #fff8e1;
+    }
+
+    .prompt-star-btn.is-default:hover {
+      /* Clicking the already-default star is a no-op; keep the hover
+         styling stable so it doesn't look clickable-into-something-new. */
+      background-color: #fff8e1;
+      border-color: #f0b700;
+    }
+
+    .prompts-empty-state {
+      padding: 24px 16px;
+      text-align: center;
+      color: #706e6b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .prompts-empty-state strong {
+      color: #181818;
+    }
+
+    /* ===== Modal dialog ===== */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(24, 24, 24, 0.45);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-overlay.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 640px;
+      max-height: calc(100vh - 80px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(-8px);
+      transition: transform 0.18s ease;
+    }
+
+    .modal-overlay.is-open .modal-dialog {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background-color: #f3f3f3;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #181818;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      color: #706e6b;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: color 0.15s ease;
+    }
+
+    .modal-close:hover {
+      color: #181818;
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px;
+      background-color: #fafafa;
+      border-top: 1px solid #e5e5e5;
+      flex-wrap: wrap;
+    }
+
+    /* ===== Form controls inside modals ===== */
+
+    .form-field {
+      margin-bottom: 14px;
+    }
+
+    .form-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 4px;
+    }
+
+    .form-label .required {
+      color: #ba0517;
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #c9c9c9;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #181818;
+      background-color: #ffffff;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #0176d3;
+      box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.2);
+    }
+
+    .form-control.is-invalid {
+      border-color: #ba0517;
+    }
+
+    .form-control.is-invalid:focus {
+      box-shadow: 0 0 0 2px rgba(186, 5, 23, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 180px;
+      resize: vertical;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .form-help {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #706e6b;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .form-error {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #ba0517;
+      display: none;
+    }
+
+    .form-error.is-visible {
+      display: block;
+    }
+
+    .char-counter.is-over {
+      color: #ba0517;
+      font-weight: 600;
+    }
+
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #181818;
+      cursor: pointer;
+    }
+
+    .form-check input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* ===== Import results modal ===== */
+
+    .import-summary-section {
+      margin-bottom: 12px;
+    }
+
+    .import-summary-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .import-summary-heading {
+      font-weight: 700;
+      font-size: 13px;
+      color: #181818;
+      margin-bottom: 6px;
+    }
+
+    .import-summary-card {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .import-summary-card.is-success {
+      background-color: #eaf7ee;
+      color: #1f6438;
+      border-left: 3px solid #2e844a;
+    }
+
+    .import-summary-card.is-warning {
+      background-color: #fff4e0;
+      color: #7a4f00;
+      border-left: 3px solid #c97300;
+    }
+
+    .import-summary-card.is-error {
+      background-color: #fde7e9;
+      color: #8a0413;
+      border-left: 3px solid #ba0517;
+    }
+
+    .import-summary-list {
+      list-style: none;
+      margin: 6px 0 0 0;
+      padding: 0;
+    }
+
+    .import-summary-list li {
+      padding: 3px 0;
+      font-size: 12px;
+    }
+
+    .import-summary-list li + li {
+      border-top: 1px dashed currentColor;
+      margin-top: 3px;
+      padding-top: 6px;
+    }
+
+    .import-summary-list .reasons {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .import-conflict-choices {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .import-conflict-choice {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #e5e5e5;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .import-conflict-choice:hover {
+      background-color: #fafafa;
+    }
+
+    .import-conflict-choice.is-selected {
+      border-color: #0176d3;
+      background-color: #eaf4fb;
+    }
+
+    .import-conflict-choice input[type="radio"] {
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .import-conflict-choice .choice-label {
+      font-weight: 600;
+      color: #181818;
+    }
+
+    .import-conflict-choice .choice-help {
+      display: block;
+      color: #706e6b;
+      margin-top: 2px;
+    }
+
+    /* Footer */
+    .settings-footer {
+      text-align: center;
+      padding: 16px;
+      color: #706e6b;
+      font-size: 12px;
+    }
+
+    .settings-footer a {
+      color: #0176d3;
+      text-decoration: none;
+    }
+
+    /* Save confirmation */
+    .save-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #2e844a;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .save-toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .save-toast.is-error {
+      background-color: #ba0517;
+    }
+  
+    /* ===== Reload notice ===== */
+    .reload-notice {
+      background: #fff8e1;
+      border: 1px solid #f0c14b;
+      border-radius: 6px;
+      padding: 10px 16px;
+      margin: 0 0 16px 0;
+      font-size: 13px;
+      color: #7a5c00;
+    }
+
+    /* ===== Prefix table sections ===== */
+    .prefix-table-section {
+      margin-top: 20px;
+    }
+
+    .prefix-table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #181818;
+    }
+
+    .prefix-dirty-banner {
+      background: #fff8e1;
+      border: 1px solid #f0c14b;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #7a5c00;
+    }
+
+    .prefix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .prefix-table th {
+      padding: 6px 10px;
+      background: #f4f6f9;
+      border: 1px solid #e5e5e5;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .prefix-table td {
+      padding: 6px 10px;
+      border: 1px solid #e5e5e5;
+      vertical-align: middle;
+    }
+
+    .prefix-table tr.is-custom td {
+      background: #f0f7ff;
+    }
+
+    .prefix-table tr.is-editing td {
+      background: #f8f9fb;
+    }
+
+    .col-sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .col-sortable:hover {
+      background: #e8edf3;
+    }
+
+    .col-type {
+      font-weight: 500;
+    }
+
+    .col-actions {
+      width: 80px;
+    }
+
+    .prefix-row-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .prefix-row-btn {
+      padding: 3px 8px;
+      border: 1px solid #d8dde6;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .prefix-row-btn:hover {
+      background: #f4f6f9;
+    }
+
+    .btn-revert {
+      color: #c23934;
+      border-color: #f4a4a9;
+    }
+
+    .btn-save {
+      color: #2e844a;
+      border-color: #91db8b;
+      font-weight: 600;
+    }
+
+    .prefix-custom-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #0176d3;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .prefix-edit-input {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      border: 1px solid #d8dde6;
+      border-radius: 3px;
+    }
+
+    .prefix-edit-input.is-error {
+      border-color: #c23934;
+    }
+
+    .prefix-error-msg {
+      font-size: 11px;
+      color: #c23934;
+      margin-top: 2px;
+    }
+
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
+
+    .prefix-status-value.is-custom {
+      color: #0176d3;
+      font-weight: 600;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="settings-container">
+
+    <div class="settings-header">
+      <h1>⚡ SF Flow Utility Toolkit</h1>
+      <p>Configure your toolkit preferences below. Changes are saved automatically.</p>
+    </div>
+
+    <!-- ===== Tab navigation ===== -->
+    <nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+      <button type="button"
+              class="settings-tab active"
+              role="tab"
+              data-tab="general"
+              aria-selected="true"
+              aria-controls="tab-general"
+              id="tab-btn-general">General</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="ai-prompts"
+              aria-selected="false"
+              aria-controls="tab-ai-prompts"
+              id="tab-btn-ai-prompts"
+              tabindex="-1">AI Prompts</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="api-prefixes"
+              aria-selected="false"
+              aria-controls="tab-api-prefixes"
+              id="tab-btn-api-prefixes"
+              tabindex="-1">API Name Prefixes</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
+              data-tab="about"
+              aria-selected="false"
+              aria-controls="tab-about"
+              id="tab-btn-about"
+              tabindex="-1">About</button>
+    </nav>
+
+    <!-- =========================================== -->
+    <!-- ===== GENERAL TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel active"
+         id="tab-general"
+         role="tabpanel"
+         aria-labelledby="tab-btn-general"
+         data-tab-panel="general">
+
+      <!-- Reload notice: shown by JS when a feature toggle changes -->
+      <div id="feature-reload-notice" class="reload-notice" hidden>
+        ⟳ Some changes take effect after reloading any open Salesforce tabs.
+      </div>
+
+      <!-- Feature Toggles -->
+      <div class="settings-section">
+        <div class="settings-section-header">Feature Toggles</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Setup Tabs</div>
+              <div class="setting-description">Show quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Automation Home Tab</div>
+              <div class="setting-description">Add a quick-access tab to open the Automation App home.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Group Setup Tabs</div>
+              <div class="setting-description">Collapse all Setup Tabs into a single grouped dropdown in the tab bar.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Missing Description Flags</div>
+              <div class="setting-description">Flag elements and resources in Flow Builder that have no description.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Scheduled Flow Explorer</div>
+              <div class="setting-description">View and navigate all active Schedule-Triggered Flows in the org. Adds a menu item to the side button on Setup pages.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-scheduledFlowExplorer" data-key="scheduledFlowExplorer.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Default Explorer View</div>
+              <div class="setting-description">Which view the Scheduled Flow Explorer opens with each time.</div>
+            </div>
+            <select class="setting-select"
+                    id="setting-scheduledFlowExplorerDefaultView"
+                    data-key="scheduledFlowExplorer.defaultView">
+              <option value="list">List View</option>
+              <option value="calendar">Calendar View</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Find Unused Resources</div>
+              <div class="setting-description">Analyses the open flow and identifies Manager tab resources that are not referenced anywhere in the flow logic.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-unusedResources" data-key="unusedResources.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Flow Health Check</div>
+              <div class="setting-description">Analyses the open flow for common issues such as missing fault paths, DML inside loops, and missing descriptions.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-flowHealthCheck" data-key="flowHealthCheck.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Flow List Search</div>
+              <div class="setting-description">Adds a live search and filter bar to the Salesforce Flows list page.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-flowListSearch" data-key="flowListSearch.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Canvas Search</div>
+              <div class="setting-description">Adds a search overlay to the Flow Builder canvas to find and highlight elements by name or type.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-canvasSearchEnabled" data-key="canvasSearch.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">AI Assistant</div>
+              <div class="setting-description">Provides AI-powered assistance within Flow Builder for analysis, suggestions, and documentation.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-flowAIAssistant" data-key="flowAIAssistant.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Comparison Exporter</div>
+              <div class="setting-description">Exports a side-by-side comparison of two flow versions as a formatted Word document.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-comparisonExporter" data-key="comparisonExporter.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Flow Version Manager</div>
+              <div class="setting-description">Adds version management controls to Flow Builder for viewing and activating previous flow versions.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-flowVersionManager" data-key="flowVersionManager.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Flow Trigger Explorer Enhancer</div>
+              <div class="setting-description">Adds direct links to flows from the Flow Trigger Explorer in Setup.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-flowTriggerExplorerEnhancer" data-key="flowTriggerExplorerEnhancer.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">API Name Generator</div>
+              <div class="setting-description">Suggests API names following your configured naming conventions as you create flow elements and resources.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-apiNameGenerator" data-key="apiNameGenerator.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Search & Highlight -->
+      <div class="settings-section">
+        <div class="settings-section-header">Search &amp; Highlight</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Keyboard Shortcut</div>
+              <div class="setting-description">Shortcut to open the Flow Canvas search modal.</div>
+            </div>
+            <input type="text"
+                   class="setting-input"
+                   id="setting-shortcut"
+                   data-key="canvasSearch.shortcut"
+                   readonly
+                   placeholder="Click to set...">
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Highlight Colour</div>
+              <div class="setting-description">Colour used to highlight search results and missing descriptions.</div>
+            </div>
+            <input type="color"
+                   class="setting-colour"
+                   id="setting-highlightColour"
+                   data-key="canvasSearch.highlightColour">
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =========================================== -->
+    <!-- ===== AI PROMPTS TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-ai-prompts"
+         role="tabpanel"
+         aria-labelledby="tab-btn-ai-prompts"
+         data-tab-panel="ai-prompts"
+         hidden>
+
+      <!-- Standard Prompts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Standard Prompts</div>
+        <div class="settings-section-body">
+          <div class="prompt-list" id="standard-prompts-list">
+            <div class="prompts-empty-state">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Prompts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Custom Prompts</div>
+        <div class="settings-section-body">
+
+          <div class="prompts-toolbar">
+            <button type="button"
+                    class="setting-button setting-button-primary"
+                    id="custom-prompt-new-btn"
+                    title="Create a new custom prompt">
+              + New Prompt
+            </button>
+            <button type="button"
+                    class="setting-button"
+                    id="custom-prompt-import-btn"
+                    title="Import custom prompts from a JSON file">
+              ⬆ Import JSON
+            </button>
+            <button type="button"
+                    class="setting-button"
+                    id="custom-prompt-export-btn"
+                    title="Download all custom prompts as a JSON file">
+              ⬇ Export JSON
+            </button>
+            <input type="file"
+                   id="custom-prompt-file-input"
+                   accept=".json,application/json"
+                   style="display:none">
+          </div>
+
+          <div class="prompt-list" id="custom-prompts-list">
+            <div class="prompts-empty-state">Loading…</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =========================================== -->
+    <!-- ===== API NAME PREFIXES TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-api-prefixes"
+         role="tabpanel"
+         aria-labelledby="tab-btn-api-prefixes"
+         data-tab-panel="api-prefixes"
+         hidden>
+
+      <!-- API Name Generator -->
+      <div class="settings-section">
+        <div class="settings-section-header">API Name Generator</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Naming Pattern</div>
+              <div class="setting-description">The naming convention used when generating Flow API names.</div>
+            </div>
+            <select class="setting-select"
+                    id="setting-namingPattern"
+                    data-key="apiNameGenerator.namingPattern">
+              <option value="Snake_Case">Snake_Case</option>
+              <option value="PascalCase">PascalCase</option>
+              <option value="camelCase">camelCase</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Custom Prefix Configuration -->
+      <div class="settings-section">
+        <div class="settings-section-header">Custom Prefix Configuration</div>
+        <div class="settings-section-body">
+
+          <div class="prefix-status-row">
+            <span class="prefix-status-label">Currently using:</span>
+            <span class="prefix-status-value" id="prefix-status-value">Loading…</span>
+          </div>
+
+          <div class="prefix-buttons-row">
+            <button type="button"
+                    class="setting-button"
+                    id="prefix-download-btn"
+                    title="Download the currently active prefix configuration as a JSON file">
+              ⬇ Download config
+            </button>
+            <button type="button"
+                    class="setting-button setting-button-primary"
+                    id="prefix-upload-btn"
+                    title="Upload a custom prefix configuration JSON file">
+              ⬆ Upload config
+            </button>
+            <button type="button"
+                    class="setting-button setting-button-danger"
+                    id="prefix-reset-all-btn"
+                    title="Clear all custom overrides and revert to shipped defaults"
+                    hidden>
+              ↺ Reset all to defaults
+            </button>
+            <input type="file"
+                   id="prefix-file-input"
+                   accept=".json,application/json"
+                   style="display:none">
+          </div>
+
+          <div id="prefix-dirty-banner" class="prefix-dirty-banner" hidden>
+            You have unsaved edits — click Save on each row to apply.
+          </div>
+
+          <!-- Flow API Names -->
+          <div class="prefix-table-section">
+            <div class="prefix-table-header">
+              <span>Flow API Names</span>
+              <button type="button" class="setting-button setting-button-danger btn-sm"
+                      id="prefix-reset-table-flowApi" hidden>↺ Reset table</button>
+            </div>
+            <div id="prefix-table-flowApi"></div>
+          </div>
+
+          <!-- Elements -->
+          <div class="prefix-table-section">
+            <div class="prefix-table-header">
+              <span>Elements</span>
+              <button type="button" class="setting-button setting-button-danger btn-sm"
+                      id="prefix-reset-table-element" hidden>↺ Reset table</button>
+            </div>
+            <div id="prefix-table-element"></div>
+          </div>
+
+          <!-- Variables -->
+          <div class="prefix-table-section">
+            <div class="prefix-table-header">
+              <span>Variables</span>
+              <button type="button" class="setting-button setting-button-danger btn-sm"
+                      id="prefix-reset-table-variable" hidden>↺ Reset table</button>
+            </div>
+            <div id="prefix-table-variable"></div>
+          </div>
+
+          <!-- Formulas -->
+          <div class="prefix-table-section">
+            <div class="prefix-table-header">
+              <span>Formulas</span>
+              <button type="button" class="setting-button setting-button-danger btn-sm"
+                      id="prefix-reset-table-formula" hidden>↺ Reset table</button>
+            </div>
+            <div id="prefix-table-formula"></div>
+          </div>
+
+          <!-- Resources -->
+          <div class="prefix-table-section">
+            <div class="prefix-table-header">
+              <span>Resources</span>
+              <button type="button" class="setting-button setting-button-danger btn-sm"
+                      id="prefix-reset-table-resource" hidden>↺ Reset table</button>
+            </div>
+            <div id="prefix-table-resource"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =========================================== -->
+    <!-- ===== ABOUT TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-about"
+         role="tabpanel"
+         aria-labelledby="tab-btn-about"
+         data-tab-panel="about"
+         hidden>
+
+      <div class="settings-section">
+        <div class="settings-section-header">About</div>
+        <div class="settings-section-body">
+
+          <div class="about-row">
+            <div class="about-label">Version</div>
+            <div class="about-value" id="about-version">—</div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Chrome Web Store</div>
+            <div class="about-value">
+              <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl"
+                 target="_blank"
+                 rel="noopener noreferrer">View Listing</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Microsoft Edge Add-Ons</div>
+            <div class="about-value" id="about-edge-link">
+              <em>Submission pending approval</em>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">GitHub Repository</div>
+            <div class="about-value">
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit"
+                 target="_blank"
+                 rel="noopener noreferrer">Source &amp; Documentation</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Feature Requests &amp; Bug Reports</div>
+            <div class="about-value about-value-stack">
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/discussions/categories/ideas"
+                 target="_blank"
+                 rel="noopener noreferrer">Request a Feature on GitHub</a>
+              <a href="https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/issues"
+                 target="_blank"
+                 rel="noopener noreferrer">Open an Issue on GitHub</a>
+            </div>
+          </div>
+
+           <div class="about-row">
+            <div class="about-label">Change Log</div>
+            <div class="about-value">
+              <a href="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/whats-new.html"
+              target="_blank"
+              rel="noopener noreferrer">Change Log</a>
+            </div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Privacy Policy</div>
+            <div class="about-value">
+              <a href="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/privacy-policy.html"
+              target="_blank"
+              rel="noopener noreferrer">View Privacy Policy</a>
+            </div>
+          </div>
+
+          <div class="about-credits">
+            The SF Flow Utility Toolkit is an independent browser extension designed
+            for Salesforce admins, consultants, and developers. It is not affiliated
+            with or endorsed by Salesforce, Inc.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="settings-footer" id="settings-footer">
+      SF Flow Utility Toolkit
+    </div>
+
+  </div>
+
+  <div class="save-toast" id="save-toast">Settings saved</div>
+
+  <!-- ============================================================ -->
+  <!-- ===== Custom Prompt form modal (create / edit) ============ -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay"
+       id="prompt-form-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="prompt-form-title"
+       inert>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="prompt-form-title">New Custom Prompt</div>
+        <button type="button"
+                class="modal-close"
+                id="prompt-form-close"
+                aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-title-input">
+            Title <span class="required">*</span>
+          </label>
+          <input type="text"
+                 class="form-control"
+                 id="prompt-form-title-input"
+                 maxlength="100"
+                 autocomplete="off">
+          <div class="form-help">
+            <span>A short name for the prompt.</span>
+            <span class="char-counter" id="prompt-form-title-counter">0 / 100</span>
+          </div>
+          <div class="form-error" id="prompt-form-title-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-description-input">
+            Description <span class="required">*</span>
+          </label>
+          <input type="text"
+                 class="form-control"
+                 id="prompt-form-description-input"
+                 maxlength="500"
+                 autocomplete="off">
+          <div class="form-help">
+            <span>A one-line summary shown under the title.</span>
+            <span class="char-counter" id="prompt-form-description-counter">0 / 500</span>
+          </div>
+          <div class="form-error" id="prompt-form-description-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-category-input">
+            Category <span class="required">*</span>
+          </label>
+          <select class="form-control" id="prompt-form-category-input">
+            <!-- Options populated at runtime from AIPromptLibrary.getCategories() -->
+          </select>
+          <div class="form-help">
+            <span>Used to group prompts. Request additions via GitHub.</span>
+          </div>
+          <div class="form-error" id="prompt-form-category-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="prompt-form-prompt-input">
+            Prompt text <span class="required">*</span>
+          </label>
+          <textarea class="form-control"
+                    id="prompt-form-prompt-input"
+                    rows="10"
+                    spellcheck="false"></textarea>
+          <div class="form-help">
+            <span>The instruction text prepended to the Flow metadata.</span>
+            <span class="char-counter" id="prompt-form-prompt-counter">0 / 50000</span>
+          </div>
+          <div class="form-error" id="prompt-form-prompt-error"></div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-check">
+            <input type="checkbox"
+                   id="prompt-form-enabled-input"
+                   checked>
+            <span>Active &mdash; visible in the AI Assistant when enabled</span>
+          </label>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="setting-button"
+                id="prompt-form-cancel-btn">Cancel</button>
+        <button type="button"
+                class="setting-button setting-button-primary"
+                id="prompt-form-save-btn">Save Prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ===== Import results modal ================================= -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay"
+       id="import-results-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="import-results-title"
+       inert>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="import-results-title">Import Results</div>
+        <button type="button"
+                class="modal-close"
+                id="import-results-close"
+                aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="import-results-body">
+        <!-- Populated at runtime -->
+      </div>
+      <div class="modal-footer">
+        <button type="button"
+                class="setting-button"
+                id="import-results-cancel-btn">Cancel</button>
+        <button type="button"
+                class="setting-button setting-button-primary"
+                id="import-results-confirm-btn">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../config/default-ai-prompt-templates.js"></script>
+  <script src="../config/ai-prompt-library.js"></script>
+  <script src="../config/api-name-prefixes.js"></script>
+  <script src="settings.js"></script>
+
+</body>
+</html>
