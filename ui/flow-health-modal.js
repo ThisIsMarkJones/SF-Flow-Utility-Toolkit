@@ -102,18 +102,18 @@ const FlowHealthModal = (() => {
     `;
 
     footer.querySelector('#sfut-health-copy-summary')?.addEventListener('click', async () => {
-      await _copyText(report.exports.markdownSummary, 'Summary copied to clipboard ✓');
+      await _copyText(report.exports.markdownSummary);
     });
 
     footer.querySelector('#sfut-health-copy-json')?.addEventListener('click', async () => {
-      await _copyText(report.exports.rawJson, 'JSON copied to clipboard ✓');
+      await _copyText(report.exports.rawJson);
     });
 
     footer.querySelector('#sfut-health-send-improvements')?.addEventListener('click', async () => {
       if (handlers.onSendToImprovementPrompt) {
         handlers.onSendToImprovementPrompt(report);
       } else {
-        await _copyText(report.exports.improvementPrompt, 'Improvement prompt copied to clipboard ✓');
+        await _copyText(report.exports.improvementPrompt);
       }
     });
   }
@@ -186,28 +186,12 @@ const FlowHealthModal = (() => {
     `;
   }
 
-  async function _copyText(text, label = 'Copied to clipboard ✓') {
+  async function _copyText(text) {
     try {
       await navigator.clipboard.writeText(text || '');
-      _showToast(label);
     } catch (e) {
       console.warn('[SFUT] Could not copy to clipboard:', e);
-      _showToast('Could not copy to clipboard', 'error');
     }
-  }
-
-  function _showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `sfut-toast${type === 'error' ? ' sfut-toast-error' : ''}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    requestAnimationFrame(() => {
-      toast.classList.add('sfut-toast-visible');
-      setTimeout(() => {
-        toast.classList.remove('sfut-toast-visible');
-        setTimeout(() => toast.remove(), 300);
-      }, 2500);
-    });
   }
 
   function _escapeHtml(value) {

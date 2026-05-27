@@ -18,6 +18,7 @@
  */
 
 const FlowListSearchFeature = (() => {
+  let _enabled = true; // set by init() based on settings
 
   // DOM references
   let _searchContainer = null;
@@ -102,6 +103,10 @@ const FlowListSearchFeature = (() => {
     if (context !== ContextDetector.CONTEXTS.SETUP_FLOWS) {
       return;
     }
+
+    const featureEnabled = await SettingsManager.get('flowListSearch.enabled');
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
 
     console.log('[SFUT FlowListSearch] Initialising...');
     await _waitForListView();
@@ -634,8 +639,11 @@ const FlowListSearchFeature = (() => {
     }
   }
 
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate
   };
 

@@ -165,11 +165,7 @@
   font-size: 13px;
   font-family: 'Salesforce Sans', Arial, sans-serif;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  /* Sits above all known toolkit modal overlays
-     (sfut-modal-overlay 100002, sfut-version-manager-backdrop 100003)
-     so toast confirmations remain visible when a modal is open.
-     Forward-ported from v1.2.3. */
-  z-index: 100010;
+  z-index: 100001;
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -2713,4 +2709,282 @@ tr.palette-item.sfut-canvas-highlight-focus {
 .sfut-sfe-day-list .sfut-sfe-day-name {
   flex: 1;
   font-weight: 500;
+}
+/* ===================================================================
+ * Find Unused Resources modal
+ * Mirrors the visual language of .sfut-health-modal but a touch smaller
+ * since the report is a flat grouped list with no charts or scoring.
+ * =================================================================== */
+
+.sfut-unused-modal {
+  width: min(640px, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sfut-unused-modal-body {
+  overflow: auto;
+  padding: 16px 20px 20px;
+}
+
+/* Loading + error states */
+
+.sfut-unused-loading,
+.sfut-unused-error,
+.sfut-unused-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 16px;
+}
+
+.sfut-unused-loading-title,
+.sfut-unused-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #181818;
+  margin-bottom: 6px;
+}
+
+.sfut-unused-loading-subtitle {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.sfut-unused-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e5e5;
+  border-top-color: #0070d2;
+  border-radius: 50%;
+  animation: sfut-unused-spin 0.9s linear infinite;
+}
+
+@keyframes sfut-unused-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sfut-unused-error-message {
+  font-size: 13px;
+  color: #b00020;
+  max-width: 420px;
+}
+
+/* Header block */
+
+.sfut-unused-header-block {
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.sfut-unused-flow-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #181818;
+  margin-bottom: 4px;
+}
+
+.sfut-unused-flow-meta,
+.sfut-unused-summary-line {
+  font-size: 13px;
+  color: #555;
+}
+
+.sfut-unused-count-num {
+  font-weight: 700;
+  color: #b95000;
+  font-size: 15px;
+}
+
+.sfut-unused-hint {
+  font-size: 12px;
+  color: #707070;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+/* Empty / success states */
+
+.sfut-unused-empty {
+  padding: 40px 20px;
+}
+
+.sfut-unused-empty-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.sfut-unused-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #181818;
+  margin-bottom: 6px;
+}
+
+.sfut-unused-empty-success .sfut-unused-empty-title {
+  color: #2e844a;
+}
+
+.sfut-unused-empty-message {
+  font-size: 13px;
+  color: #555;
+  max-width: 420px;
+}
+
+/* Groups */
+
+.sfut-unused-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sfut-unused-group {
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sfut-unused-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.sfut-unused-group-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #181818;
+}
+
+.sfut-unused-group-count {
+  font-size: 12px;
+  color: #555;
+  background-color: #ffffff;
+  border: 1px solid #d5d5d5;
+  border-radius: 10px;
+  padding: 1px 8px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sfut-unused-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Items */
+
+.sfut-unused-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 80ms ease;
+}
+
+.sfut-unused-item:last-child {
+  border-bottom: none;
+}
+
+.sfut-unused-item:hover,
+.sfut-unused-item:focus {
+  background-color: #f3f8fc;
+  outline: none;
+}
+
+.sfut-unused-item-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sfut-unused-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0070d2;
+  font-family: 'Salesforce Mono', Menlo, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sfut-unused-item-datatype {
+  font-size: 11px;
+  color: #707070;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+.sfut-unused-item-desc {
+  width: 100%;
+  font-size: 12px;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.sfut-unused-item-arrow {
+  font-size: 14px;
+  color: #aaaaaa;
+  flex-shrink: 0;
+}
+
+.sfut-unused-item:hover .sfut-unused-item-arrow {
+  color: #0070d2;
+}
+
+/* When the description is present, the row needs to wrap so name + datatype
+   sit on one line and the description sits below them. */
+.sfut-unused-item:has(.sfut-unused-item-desc) {
+  flex-wrap: wrap;
+}
+.sfut-unused-item:has(.sfut-unused-item-desc) .sfut-unused-item-arrow {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* Toast for navigation fallback messaging */
+
+.sfut-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background-color: #181818;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 100003;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.sfut-toast.sfut-toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.sfut-toast-warning {
+  background-color: #b95000;
 }

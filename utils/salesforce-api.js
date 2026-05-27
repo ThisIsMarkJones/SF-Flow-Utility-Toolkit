@@ -284,6 +284,16 @@ const SalesforceAPI = (() => {
     return apiGet(`/services/data/${API_VERSION}/tooling/query`, { q: soql });
   }
 
+  /**
+   * Runs a standard SOQL query via the REST API (not Tooling).
+   * Use this for sObjects like FlowDefinitionView that are not available
+   * in the Tooling API.
+   * @param {string} soql
+   */
+  async function restQuery(soql) {
+    return apiGet(`/services/data/${API_VERSION}/query`, { q: soql });
+  }
+
   async function getFlowMetadata(flowId) {
     console.log('[SFUT API] Fetching flow metadata for:', flowId);
 
@@ -347,6 +357,7 @@ const SalesforceAPI = (() => {
     apiRequest,
     apiPatch,
     toolingQuery,
+    restQuery,
     getFlowMetadata,
     getFlowIdFromUrl,
     clearSessionCache

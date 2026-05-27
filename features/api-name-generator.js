@@ -29,6 +29,7 @@
  */
 
 const APINameGenerator = (() => {
+  let _enabled = true;
 
   // State
   let _observer = null;
@@ -54,6 +55,10 @@ const APINameGenerator = (() => {
   async function init() {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.FLOW_BUILDER) return;
+
+    const featureEnabled = (await SettingsManager.get('apiNameGenerator.enabled')) ?? true;
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
 
     // Load settings
     _namingPattern = await SettingsManager.get('apiNameGenerator.namingPattern') || 'Snake_Case';
@@ -1173,8 +1178,11 @@ const APINameGenerator = (() => {
   }
 
   // ===== Public API =====
+
+  function isEnabled() { return _enabled; }
   return {
-    init
+    init,
+    isEnabled
   };
 
 })();

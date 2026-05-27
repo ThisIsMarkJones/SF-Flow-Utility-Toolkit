@@ -15,6 +15,7 @@
  */
 
 const FlowAIAssistant = (() => {
+  let _enabled = true; // set by init() based on settings
 
   // State
   let _isOpen = false;
@@ -31,6 +32,10 @@ const FlowAIAssistant = (() => {
   async function init() {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.FLOW_BUILDER) return;
+
+    const featureEnabled = await SettingsManager.get('flowAIAssistant.enabled');
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
     console.log('[SFUT] Flow AI Assistant registered.');
   }
 
@@ -511,8 +516,11 @@ const FlowAIAssistant = (() => {
   }
 
   // ===== Public API =====
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate
   };
 

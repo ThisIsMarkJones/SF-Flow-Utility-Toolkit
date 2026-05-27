@@ -153,6 +153,38 @@ const SideButton = (() => {
   }
 
   /**
+   * Returns whether the Setup Tabs are currently injected and visible in the DOM.
+   *
+   * @returns {boolean}
+   */
+  function _areSetupTabsVisible() {
+    return !!document.querySelector('.sfut-custom-tab');
+  }
+
+  /**
+   * Returns whether a feature is currently enabled, by checking its module's
+   * isEnabled() export. Defaults to true if the module isn't available yet.
+   * @param {string} featureId
+   * @returns {boolean}
+   */
+  function _isFeatureEnabled(featureId) {
+    const moduleMap = {
+      'canvas-search':               typeof CanvasSearch               !== 'undefined' ? CanvasSearch               : null,
+      'ai-assistant':                typeof FlowAIAssistant            !== 'undefined' ? FlowAIAssistant            : null,
+      'comparison-exporter':         typeof ComparisonExporter         !== 'undefined' ? ComparisonExporter         : null,
+      'flow-health-check':           typeof FlowHealthCheck            !== 'undefined' ? FlowHealthCheck            : null,
+      'unused-resources':            typeof UnusedResources             !== 'undefined' ? UnusedResources             : null,
+      'scheduled-flow-explorer':     typeof ScheduledFlowExplorer      !== 'undefined' ? ScheduledFlowExplorer      : null,
+      'missing-descriptions':        typeof MissingDescriptionFlags     !== 'undefined' ? MissingDescriptionFlags     : null,
+      'setup-tabs':                  typeof SetupTabsFeature            !== 'undefined' ? SetupTabsFeature            : null,
+      'api-name-generator':          typeof APINameGenerator            !== 'undefined' ? APINameGenerator            : null,
+    };
+    const mod = moduleMap[featureId];
+    if (!mod || typeof mod.isEnabled !== 'function') return true; // default visible
+    return mod.isEnabled();
+  }
+
+  /**
    * Returns whether Missing Description Flags are currently active.
    * Requires MissingDescriptionFlags.isActive() to exist.
    *
@@ -168,7 +200,10 @@ const SideButton = (() => {
 
   /**
    * Maps feature identifiers to menu item display properties.
-   * Restores the older Missing Descriptions actions.
+   *
+   * Note: 'flow-list-search' is intentionally excluded. The feature auto-injects
+   * its search toolbar on the Flows page without requiring a manual trigger, so a
+   * sidebar menu entry adds no value there.
    *
    * @param {string[]} features - Array of feature identifiers
    * @returns {Object[]} Array of menu item objects
@@ -178,12 +213,9 @@ const SideButton = (() => {
       'setup-tabs': {
         id: 'setup-tabs',
         icon: '📑',
-        label: 'Setup Tabs'
-      },
-      'flow-list-search': {
-        id: 'flow-list-search',
-        icon: '🔍',
-        label: 'Flow List Search'
+        label: _areSetupTabsVisible()
+          ? 'Hide Setup Tabs'
+          : 'Show Setup Tabs'
       },
       'canvas-search': {
         id: 'canvas-search',
@@ -207,20 +239,16 @@ const SideButton = (() => {
         icon: '📊',
         label: 'Comparison Exporter'
       },
-      'flow-version-manager': {
-        id: 'flow-version-manager',
-        icon: '🧾',
-        label: 'Flow Version Manager'
-      },
-      'flow-trigger-explorer-enhancer': {
-        id: 'flow-trigger-explorer-enhancer',
-        icon: '🧭',
-        label: 'Flow Trigger Explorer Enhancer'
-      },
+
       'flow-health-check': {
         id: 'flow-health-check',
         icon: '🩺',
         label: 'Run Health Check'
+      },
+      'unused-resources': {
+        id: 'unused-resources',
+        icon: '🔍',
+        label: 'Find Unused Resources'
       },
       'scheduled-flow-explorer': {
         id: 'scheduled-flow-explorer',
@@ -231,9 +259,10 @@ const SideButton = (() => {
 
     const items = features
       .filter((f) => featureMap[f])
+      .filter((f) => _isFeatureEnabled(f))
       .map((f) => featureMap[f]);
 
-    if (features.includes('missing-descriptions')) {
+    if (features.includes('missing-descriptions') && _areMissingDescriptionFlagsActive()) {
       items.push({
         id: 'missing-descriptions',
         action: 'refresh',

@@ -22,6 +22,7 @@
  */
 
 const CanvasSearch = (() => {
+  let _enabled = true; // set by init() based on settings
 
   // State
   let _isOpen = false;
@@ -45,6 +46,10 @@ const CanvasSearch = (() => {
   async function init() {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.FLOW_BUILDER) return;
+
+    const featureEnabled = await SettingsManager.get('canvasSearch.enabled');
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
 
     // Load settings
     const settings = await SettingsManager.getMultiple([
@@ -563,8 +568,11 @@ const CanvasSearch = (() => {
   }
 
   // ===== Public API =====
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate
   };
 

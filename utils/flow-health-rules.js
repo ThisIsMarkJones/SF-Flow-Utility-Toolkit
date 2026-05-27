@@ -5,8 +5,14 @@
  */
 
 const FlowHealthRules = (() => {
+  // Deterministic finding counter — reset per evaluation so IDs are
+  // stable and predictable (e.g. FLOW_DESC_MISSING-1, DML_INSIDE_LOOP-2).
+  let _findingCounter = 0;
+
+  function _resetCounter() { _findingCounter = 0; }
 
   function evaluate(normalizedFlow, config = {}) {
+    _resetCounter();
     const findings = [];
 
     findings.push(..._checkFlowDescription(normalizedFlow));
@@ -42,7 +48,7 @@ const FlowHealthRules = (() => {
     metadata
   }) {
     return {
-      id: `${ruleId}-${Math.random().toString(36).slice(2, 10)}`,
+      id: `${ruleId}-${++_findingCounter}`,
       ruleId,
       scoreFamily,
       title,

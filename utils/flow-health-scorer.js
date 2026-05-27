@@ -2,51 +2,19 @@
  * SF Flow Utility Toolkit - Flow Health Scorer
  *
  * Scores once per family using the worst severity in that family.
- * Each family contributes:
  *
- *   deduction = min( appearancePenalty + weight * log2(instanceCount + 1),  cap )
- *
- *  - The appearance penalty is a small flat cost paid by any family
- *    that appears at all. This stops "three different categories of
- *    disaster" from being cheaper than "one disaster repeated nine
- *    times": each High family pays at least 1.5 just for showing up.
- *  - The log-scaled per-instance term keeps adding pain as more
- *    instances pile up, but with rapidly diminishing returns.
- *  - 1 instance still produces the original severity weight as the
- *    log term (log2(2) = 1), so small flows with one or two findings
- *    are essentially unchanged from earlier versions.
- *  - The cap stops any single family from dominating the score and
- *    protects "big mature flow that just isn't documented" cases.
- *  - Genuinely problematic flows (many High-severity findings across
- *    multiple families) accumulate enough to land in Very Poor.
- *
- * Severity model:
- *   High    appearance 1.5  weight 5.5  cap 22
- *   Medium  appearance 0.5  weight 3.0  cap 13
- *   Low     appearance 0.0  weight 1.0  cap 6
- *   Info    appearance 0.0  weight 0.0  cap 0
+ * High = -5
+ * Medium = -3
+ * Low = -1
+ * Info = 0
  */
 
 const FlowHealthScorer = (() => {
 
-  const SCORE_APPEARANCE = {
-    high: 1.5,
-    medium: 0.5,
-    low: 0,
-    info: 0
-  };
-
   const SCORE_WEIGHTS = {
-    high: 5.5,
+    high: 5,
     medium: 3,
     low: 1,
-    info: 0
-  };
-
-  const SCORE_CAPS = {
-    high: 22,
-    medium: 13,
-    low: 6,
     info: 0
   };
 
@@ -56,17 +24,6 @@ const FlowHealthScorer = (() => {
     low: 2,
     info: 1
   };
-
-  function _computeDeduction(severity, instanceCount) {
-    const appearance = SCORE_APPEARANCE[severity] || 0;
-    const weight = SCORE_WEIGHTS[severity] || 0;
-    const cap = SCORE_CAPS[severity] || 0;
-    const safeCount = Math.max(1, Number(instanceCount) || 1);
-    const raw = appearance + (weight * Math.log2(safeCount + 1));
-    const capped = Math.min(raw, cap);
-    // Round to 1 decimal place for display ("-12.5" reads cleaner than "-12.4998...")
-    return Math.round(capped * 10) / 10;
-  }
 
   function buildIssueFamilies(findings) {
     const families = new Map();
@@ -81,8 +38,7 @@ const FlowHealthScorer = (() => {
           title: _titleFromFamily(key),
           severity: finding.severity,
           category: finding.category,
-          // scoreImpact is recomputed once instanceCount is final (see below)
-          scoreImpact: 0,
+          scoreImpact: SCORE_WEIGHTS[finding.severity] || 0,
           instanceCount: 1,
           findings: [finding],
           affectedItems: affected ? [affected] : []
@@ -100,6 +56,7 @@ const FlowHealthScorer = (() => {
 
       if ((SEVERITY_ORDER[finding.severity] || 0) > (SEVERITY_ORDER[family.severity] || 0)) {
         family.severity = finding.severity;
+        family.scoreImpact = SCORE_WEIGHTS[finding.severity] || 0;
         family.category = finding.category;
       }
     });
@@ -107,9 +64,7 @@ const FlowHealthScorer = (() => {
     return Array.from(families.values())
       .map((family) => ({
         ...family,
-        affectedItems: _uniqueAffectedItems(family.affectedItems || []),
-        // Compute the deduction *after* severity and instanceCount are final
-        scoreImpact: _computeDeduction(family.severity, family.instanceCount)
+        affectedItems: _uniqueAffectedItems(family.affectedItems || [])
       }))
       .sort((a, b) => {
         const severityCompare = (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0);
@@ -125,8 +80,7 @@ const FlowHealthScorer = (() => {
       score -= family.scoreImpact || 0;
     });
 
-    // Round the displayed score to the nearest whole number
-    const finalScore = Math.max(0, Math.min(100, Math.round(score)));
+    const finalScore = Math.max(0, Math.min(100, score));
 
     return {
       overallScore: finalScore,

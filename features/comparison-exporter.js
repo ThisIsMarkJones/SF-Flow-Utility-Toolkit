@@ -20,6 +20,7 @@
  */
 
 const ComparisonExporter = (() => {
+  let _enabled = true; // set by init() based on settings
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -31,6 +32,10 @@ const ComparisonExporter = (() => {
   async function init() {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.COMPARE_FLOWS) return;
+
+    const featureEnabled = await SettingsManager.get('comparisonExporter.enabled');
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
     console.log('[SFUT CompExport] Registered for Compare Flows page.');
   }
 
@@ -626,8 +631,11 @@ const ComparisonExporter = (() => {
   }
 
   // ===== Public API =====
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate
   };
 

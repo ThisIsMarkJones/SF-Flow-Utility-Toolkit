@@ -1,7 +1,7 @@
 /**
  * SF Flow Utility Toolkit - Flow Trigger Explorer Enhancer
  *
- * Beta feature for Salesforce Flow Trigger Explorer.
+ * Salesforce Flow Trigger Explorer enhancer.
  *
  * Adds lightweight row enrichments:
  * - inline info icon tooltip trigger next to the Flow Label
@@ -14,14 +14,14 @@
  * - Process Type
  * - Trigger
  *
- * Notes for beta:
- * - DOM-first implementation, no API calls
- * - Learns richer metadata from the right-hand Flow Details panel when available
- * - Does NOT persist Created / Updated / Deleted across views, to avoid false tagging
+ * Notes:
+ * - Learns richer metadata from the Salesforce Tooling API (batch query on load)
+ * - Falls back to DOM-based panel learning when the API is unavailable
  * - Safe to run repeatedly; rows are marked after enhancement
  */
 
 const FlowTriggerExplorerEnhancer = (() => {
+  let _enabled = true; // set by init() based on settings
   const STORAGE_KEY = 'sfut.flowTriggerExplorerEnhancer.cache.v8';
   const ROW_MARKER = 'data-sfut-fte-enhanced';
   const TOOLTIP_ID = 'sfut-fte-tooltip';
@@ -54,10 +54,27 @@ const FlowTriggerExplorerEnhancer = (() => {
       return;
     }
 
+    const featureEnabled = (await SettingsManager.get('flowTriggerExplorerEnhancer.enabled')) ?? true;
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
+
     console.log('[SFUT FTE] Initialising...');
     await _waitForExplorer();
     _ensureTooltip();
-    _learnFromDetailsPanel();
+
+    // Wait for rows to populate before collecting IDs — the explorer root
+    // renders before the row components are injected by Salesforce.
+    await _waitForRows();
+
+    // Batch-fetch metadata for all visible rows via Tooling API before enhancing.
+    // Falls back to DOM-based panel learning if the API call fails.
+    const visibleFlowIds = _collectVisibleFlowIds();
+    if (visibleFlowIds.length) {
+      await _prefetchViaApi(visibleFlowIds);
+    } else {
+      _learnFromDetailsPanel();
+    }
+
     _enhanceRows(true);
     _startObserving();
     console.log('[SFUT FTE] Active.');
@@ -72,6 +89,27 @@ const FlowTriggerExplorerEnhancer = (() => {
   function refresh() {
     _learnFromDetailsPanel();
     _enhanceRows(true);
+  }
+
+  /**
+   * Waits for flow row elements to appear in the explorer after the root
+   * has loaded. Rows are injected asynchronously by Salesforce after the
+   * root component renders.
+   * @returns {Promise<void>}
+   */
+  function _waitForRows() {
+    return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 30;
+      const timer = setInterval(() => {
+        attempts += 1;
+        const hasRows = !!document.querySelector(SELECTORS.row);
+        if (hasRows || attempts >= maxAttempts) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 300);
+    });
   }
 
   function _waitForExplorer() {
@@ -430,6 +468,168 @@ const FlowTriggerExplorerEnhancer = (() => {
     if (_tooltipEl) {
       _tooltipEl.classList.remove('sfut-fte-tooltip-visible');
     }
+  }
+
+  /**
+   * Batch-queries the Salesforce Tooling API for flow metadata for the given
+   * flow definition IDs. Populates the cache so row enhancement has full data
+   * available immediately without waiting for the user to open each details panel.
+   * @param {string[]} flowIds
+   */
+  /**
+   * Batch-queries the Salesforce Tooling API (Flow object) for active flow
+   * version metadata for the given flow definition IDs. Populates the cache
+   * so row enhancement has version/tooltip data immediately on page load.
+   *
+   * Context tags (Created/Updated/Deleted) are derived from DOM section
+   * headers rather than the API, as RecordTriggerType is not directly
+   * exposed on the Tooling API Flow object without fetching the Metadata blob.
+   *
+   * @param {string[]} flowIds  Flow Definition IDs
+   */
+  async function _prefetchViaApi(flowIds) {
+    if (!flowIds.length) return;
+
+    try {
+      const idList = flowIds.map(id => `'${id}'`).join(',');
+
+      // Query the Tooling API Flow object for active versions.
+      // This gives us ApiVersion, ProcessType, TriggerType, TriggerOrder and
+      // LastModifiedBy without needing the expensive Metadata blob.
+      const result = await SalesforceAPI.toolingQuery(
+        `SELECT DefinitionId, ApiVersion, LastModifiedBy.Name, ProcessType, TriggerType, TriggerOrder ` +
+        `FROM Flow ` +
+        `WHERE DefinitionId IN (${idList}) AND Status = 'Active'`
+      );
+
+      if (!result || !Array.isArray(result.records)) {
+        console.warn('[SFUT FTE] API prefetch returned no records, falling back to DOM.');
+        _learnFromDetailsPanel();
+        return;
+      }
+
+      result.records.forEach(record => {
+        const flowId = record.DefinitionId;
+        if (!flowId) return;
+
+        const existing = _cache[flowId] || { tooltip: {} };
+
+        _cache[flowId] = {
+          ...existing,
+          flowId,
+          apiVersion: record.ApiVersion || existing.apiVersion || null,
+          // Context tags are derived from DOM section headers — see _enrichContextsFromDom()
+          contexts: existing.contexts || [],
+          tooltip: {
+            ...existing.tooltip,
+            lastModifiedBy: record.LastModifiedBy?.Name || existing.tooltip?.lastModifiedBy || null,
+            triggerOrder:   record.TriggerOrder != null
+                              ? String(record.TriggerOrder)
+                              : existing.tooltip?.triggerOrder || null,
+            processType:    record.ProcessType || existing.tooltip?.processType || null,
+            trigger:        record.TriggerType || existing.tooltip?.trigger     || null,
+          }
+        };
+      });
+
+      // Derive context tags (Created/Updated/Deleted) from DOM section headers.
+      // The explorer already groups flows visually, so we read that grouping.
+      _enrichContextsFromDom();
+
+      _saveCache();
+      console.log(`[SFUT FTE] API prefetch complete — ${result.records.length} flow(s) enriched.`);
+    } catch (err) {
+      console.warn('[SFUT FTE] API prefetch failed, falling back to DOM learning:', err);
+      _learnFromDetailsPanel();
+    }
+  }
+
+  /**
+   * Walks the DOM to identify which trigger section (Created/Updated/Deleted)
+   * each visible row belongs to, then updates the cache accordingly.
+   *
+   * The Trigger Explorer renders rows inside named sections. Each section has
+   * a header element whose text identifies the trigger type.
+   */
+  function _enrichContextsFromDom() {
+    // Section headers contain phrases like "When a record is created",
+    // "When a record is updated", "When a record is deleted".
+    const sectionContextMap = {
+      'created': ['created', 'when a record is created'],
+      'updated': ['updated', 'when a record is updated'],
+      'deleted': ['deleted', 'when a record is deleted'],
+    };
+
+    // Walk all rows and find the nearest ancestor section heading
+    const rows = document.querySelectorAll(SELECTORS.row);
+    rows.forEach(row => {
+      const link = row.querySelector(SELECTORS.rowLink);
+      if (!link) return;
+      const href = link.getAttribute('href') || '';
+      const flowId = _getQueryParam(href, 'flowId');
+      if (!flowId || !_cache[flowId]) return;
+
+      // Walk up the DOM to find a heading element
+      let el = row.parentElement;
+      let sectionContext = null;
+      let depth = 0;
+
+      while (el && depth < 12 && !sectionContext) {
+        const headings = el.querySelectorAll('h1,h2,h3,h4,lightning-formatted-rich-text,slot');
+        headings.forEach(h => {
+          if (sectionContext) return;
+          const txt = (h.textContent || '').toLowerCase().trim();
+          for (const [ctx, phrases] of Object.entries(sectionContextMap)) {
+            if (phrases.some(p => txt.includes(p))) {
+              sectionContext = ctx;
+            }
+          }
+        });
+
+        // Also check the element's own text if it's a heading-like tag
+        if (!sectionContext) {
+          const tag = el.tagName?.toLowerCase() || '';
+          if (['h1','h2','h3','h4'].includes(tag) || el.getAttribute('role') === 'heading') {
+            const txt = (el.textContent || '').toLowerCase().trim();
+            for (const [ctx, phrases] of Object.entries(sectionContextMap)) {
+              if (phrases.some(p => txt.includes(p))) {
+                sectionContext = ctx;
+              }
+            }
+          }
+        }
+
+        el = el.parentElement;
+        depth++;
+      }
+
+      if (sectionContext) {
+        const existing = _cache[flowId];
+        if (!existing.contexts.includes(sectionContext)) {
+          _cache[flowId] = {
+            ...existing,
+            contexts: [...existing.contexts, sectionContext]
+          };
+        }
+      }
+    });
+  }
+
+  /**
+   * Collects all flow definition IDs from currently visible explorer rows.
+   * @returns {string[]}
+   */
+  function _collectVisibleFlowIds() {
+    const rows = document.querySelectorAll(SELECTORS.row);
+    const ids = [];
+    rows.forEach(row => {
+      const link = row.querySelector(SELECTORS.rowLink);
+      if (!link) return;
+      const href = link.getAttribute('href') || '';
+      const flowId = _getQueryParam(href, 'flowId');
+      if (flowId && !ids.includes(flowId)) ids.push(flowId);
+    });
+    return ids;
   }
 
   function _learnFromDetailsPanel() {
@@ -813,8 +1013,11 @@ const FlowTriggerExplorerEnhancer = (() => {
     }, 2200);
   }
 
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate,
     refresh
   };

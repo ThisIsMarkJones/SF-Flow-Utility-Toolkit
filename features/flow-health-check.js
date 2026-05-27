@@ -3,6 +3,7 @@
  */
 
 const FlowHealthCheck = (() => {
+  let _enabled = true; // set by init() based on settings
 
   let initialised = false;
 
@@ -21,6 +22,10 @@ const FlowHealthCheck = (() => {
   async function init() {
     if (initialised) return;
     initialised = true;
+
+    const featureEnabled = await SettingsManager.get('flowHealthCheck.enabled');
+    if (!featureEnabled) { _enabled = false; return; }
+    _enabled = true;
   }
 
   async function onActivate() {
@@ -71,7 +76,7 @@ const FlowHealthCheck = (() => {
         dependencies
       };
 
-      const basePrompt = _getBaseImprovementPrompt(metadata);
+      const basePrompt = _getBaseImprovementPrompt();
       report.exports = {
         markdownSummary: FlowHealthExporter.buildMarkdownReport(report),
         improvementPrompt: FlowHealthExporter.buildImprovementPrompt(report, basePrompt),
@@ -81,18 +86,6 @@ const FlowHealthCheck = (() => {
       FlowHealthModal.showReport(report, {
         onSendToImprovementPrompt: async (finalReport) => {
           await navigator.clipboard.writeText(finalReport.exports.improvementPrompt);
-          // Show confirmation toast (forward-ported from v1.2.3)
-          const toast = document.createElement('div');
-          toast.className = 'sfut-toast';
-          toast.textContent = 'Improvement prompt copied to clipboard ✓';
-          document.body.appendChild(toast);
-          requestAnimationFrame(() => {
-            toast.classList.add('sfut-toast-visible');
-            setTimeout(() => {
-              toast.classList.remove('sfut-toast-visible');
-              setTimeout(() => toast.remove(), 300);
-            }, 2500);
-          });
 
           if (typeof AIAssistant !== 'undefined' && typeof AIAssistant.onActivate === 'function') {
             await AIAssistant.onActivate();
@@ -391,40 +384,27 @@ const FlowHealthCheck = (() => {
     };
   }
 
-  /**
-   * Build the base improvement-prompt text by looking up the configured
-   * "improvements" prompt template and appending the flow metadata as JSON
-   * to it.
-   *
-   * The "improvements" template ends with the header line "Here is the Flow
-   * metadata:" expecting the JSON to follow. v2.0.0 originally dropped the
-   * metadata pass-through (a side-effect of the `assemble` → `getById`
-   * template-API swap), leaving the header dangling with no metadata under
-   * it. Metadata pass-through restored here so the AI receives the actual
-   * flow structure, not just the health-check summary.
-   *
-   * @param {object} [metadata] flow metadata JSON; appended to the template
-   * @returns {string} base prompt
-   */
-  function _getBaseImprovementPrompt(metadata) {
-    const metadataJson = metadata ? '\n' + JSON.stringify(metadata, null, 2) : '';
+  function _getBaseImprovementPrompt() {
     try {
       if (
         typeof AIPromptTemplates !== 'undefined' &&
         typeof AIPromptTemplates.getById === 'function'
       ) {
         const template = AIPromptTemplates.getById('improvements');
-        if (template && template.prompt) return template.prompt + metadataJson;
+        if (template && template.prompt) return template.prompt;
       }
     } catch (e) {
       console.warn('[SFUT] Could not retrieve base improvement prompt:', e);
     }
 
-    return 'Review this Salesforce Flow and suggest improvements in priority order.' + metadataJson;
+    return 'Review this Salesforce Flow and suggest improvements in priority order.';
   }
+
+  function isEnabled() { return _enabled; }
 
   return {
     init,
+    isEnabled,
     onActivate
   };
 

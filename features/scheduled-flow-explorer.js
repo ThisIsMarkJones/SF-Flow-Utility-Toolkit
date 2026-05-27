@@ -18,6 +18,7 @@
  */
 
 const ScheduledFlowExplorer = (() => {
+  let _enabled = true;
 
   // Settings keys
   const SETTING_ENABLED = 'scheduledFlowExplorer.enabled';
@@ -32,6 +33,7 @@ const ScheduledFlowExplorer = (() => {
     flows: [],                // Discovered flows (post-parse)
     errors: [],               // Discovery errors
     isLoading: false,
+    fatalError: null,         // Non-null string when discovery failed fatally
     loadProgress: null,       // { processed, total } during streaming load
     view: 'list',             // 'list' | 'calendar'
     listSearchTerm: '',
@@ -220,8 +222,9 @@ const ScheduledFlowExplorer = (() => {
       });
     } catch (err) {
       STATE.isLoading = false;
+      STATE.fatalError = err?.message || 'Could not load scheduled flows.';
       console.error('[SFUT ScheduledFlowExplorer] Discovery failed:', err);
-      _renderFatalError(err?.message || 'Could not load scheduled flows.');
+      _renderCurrentView();
       return;
     }
 
@@ -311,6 +314,8 @@ const ScheduledFlowExplorer = (() => {
    */
   function _resetState(defaultView = 'list') {
     STATE.flows = [];
+    STATE.fatalError = null;
+    
     STATE.errors = [];
     STATE.isLoading = false;
     STATE.loadProgress = null;
@@ -347,6 +352,10 @@ const ScheduledFlowExplorer = (() => {
     _renderTzBadge();
     if (STATE.isLoading) {
       _renderLoading();
+      return;
+    }
+    if (STATE.fatalError) {
+      _renderFatalError(STATE.fatalError);
       return;
     }
     if (STATE.flows.length === 0 && STATE.errors.length === 0) {
@@ -1120,11 +1129,14 @@ const ScheduledFlowExplorer = (() => {
 
   // ---------- Public API ----------
 
+
+  function isEnabled() { return _enabled; }
   return {
     init,
     onActivate,
     openExplorer,
-    close
+    close,
+    isEnabled
   };
 
 })();

@@ -18,6 +18,7 @@
  */
 
 const SetupTabsFeature = (() => {
+  let _enabled = true;
 
   const TAB_CLASS = 'sfut-custom-tab';
   const GROUP_LABEL = 'Automation';
@@ -417,15 +418,11 @@ const SetupTabsFeature = (() => {
       return hostname;
     }
 
-    // Extract only the org identifier (first segment) regardless of source format
-    // e.g. learningtoflow-dev-ed.lightning.force.com → learningtoflow-dev-ed
-    // e.g. learningtoflow-dev-ed.my.salesforce.com  → learningtoflow-dev-ed
-    // Forward-ported from v1.2.2: previous two-segment construction
-    // (`<org>.<seg>.my.salesforce-setup.com`) produced non-existent domains
-    // for orgs whose hostname has only one segment before the suffix
-    // (typical of newer dev-ed orgs and post-Enhanced-Domains rollouts).
-    const orgIdentifier = hostname.split('.')[0];
-    return `${orgIdentifier}.my.salesforce-setup.com`;
+    const parts = hostname.split('.');
+    const orgIdentifier = parts[0];
+    const environment = parts[1];
+
+    return `${orgIdentifier}.${environment}.my.salesforce-setup.com`;
   }
 
   function _getLightningHostname(hostname) {
@@ -433,17 +430,11 @@ const SetupTabsFeature = (() => {
       return hostname;
     }
 
-    // Extract only the org identifier (first segment) regardless of source format
-    // e.g. learningtoflow-dev-ed.my.salesforce-setup.com → learningtoflow-dev-ed
-    // e.g. learningtoflow-dev-ed.my.salesforce.com       → learningtoflow-dev-ed
-    // Forward-ported from v1.2.2: previous two-segment construction produced
-    // `<org>.my.lightning.force.com`, a non-existent hostname for many orgs
-    // (DNS_PROBE_FINISHED_NXDOMAIN). Validated in production v1.2.3 against
-    // a dev-edition org reporter.
-   const orgIdentifier = hostname.split('.')[0];
-   const knownSegments = ['sandbox', 'develop', 'scratch', 'trailblaze'];
-   const middleSegment = knownSegments.find(s => hostname.includes(`.${s}.`));
-   return `${orgIdentifier}.${middleSegment ? middleSegment + '.' : ''}lightning.force.com`;
+    const parts = hostname.split('.');
+    const orgIdentifier = parts[0];
+    const environment = parts[1];
+
+    return `${orgIdentifier}.${environment}.lightning.force.com`;
   }
 
   function _showToast(message) {
@@ -462,9 +453,12 @@ const SetupTabsFeature = (() => {
     }, 2500);
   }
 
+
+  function isEnabled() { return _enabled; }
   return {
     init,
-    onActivate
+    onActivate,
+    isEnabled
   };
 
 })();

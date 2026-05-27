@@ -10,6 +10,7 @@
  */
 
 const FlowVersionManager = (() => {
+  let _enabled = true; // set by init() based on settings
   const SELECTORS = {
     versionsTable: 'table.list[id="view:lists:versions"]',
     versionsTbody: 'tbody[id="view:lists:versions:tb"]',
@@ -65,6 +66,15 @@ const FlowVersionManager = (() => {
   };
 
   async function init() {
+    try {
+      const featureEnabled = (await SettingsManager.get('flowVersionManager.enabled')) ?? true;
+      if (!featureEnabled) { _enabled = false; return; }
+      _enabled = true;
+    } catch (e) {
+      console.warn('[SFUT FVM] Could not read feature setting, defaulting to enabled:', e);
+      _enabled = true;
+    }
+
     if (STATE.isInitialised) {
       _refresh(true);
       _resumeQueuedDeleteIfNeeded();
@@ -658,8 +668,11 @@ const FlowVersionManager = (() => {
     setTimeout(() => toast.remove(), 3500);
   }
 
+  function isEnabled() { return _enabled; }
+
   return {
     init,
+    isEnabled,
     onActivate,
     refresh
   };

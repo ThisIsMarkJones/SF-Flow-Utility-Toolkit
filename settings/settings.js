@@ -12,16 +12,29 @@
 (function () {
 
   const DEFAULTS = {
+    // Feature toggles — default off (user must enable)
     'setupTabs.enabled': false,
     'setupTabs.automationHome.enabled': false,
     'setupTabs.groupingEnabled': false,
-    'missingDescriptions.enabled': false,
+    'missingDescriptions.enabled': true,
+
+    // Feature toggles — default on (user can disable)
+    'apiNameGenerator.enabled': true,
+    'flowListSearch.enabled': true,
+    'canvasSearch.enabled': true,
+    'flowAIAssistant.enabled': true,
+    'flowHealthCheck.enabled': true,
+    'comparisonExporter.enabled': true,
+    'flowVersionManager.enabled': true,
+    'flowTriggerExplorerEnhancer.enabled': true,
+    'scheduledFlowExplorer.enabled': true,
+
+    // Other settings
     'canvasSearch.shortcut': 'Ctrl+Shift+F',
     'canvasSearch.highlightColour': '#FFD700',
     'apiNameGenerator.namingPattern': 'Snake_Case',
     'apiNameGenerator.flowRegex': null,
     'flowHealthCheck.namingConventions.flow': null,
-    'scheduledFlowExplorer.enabled': true,
     'scheduledFlowExplorer.defaultView': 'list'
   };
 
@@ -138,6 +151,14 @@
       _setToggle('setting-automationHomeTab', settings['setupTabs.automationHome.enabled']);
       _setToggle('setting-setupTabsGrouping', settings['setupTabs.groupingEnabled']);
       _setToggle('setting-missingDescriptions', settings['missingDescriptions.enabled']);
+      _setToggle('setting-apiNameGenerator', settings['apiNameGenerator.enabled']);
+      _setToggle('setting-flowListSearch', settings['flowListSearch.enabled']);
+      _setToggle('setting-canvasSearchEnabled', settings['canvasSearch.enabled']);
+      _setToggle('setting-flowAIAssistant', settings['flowAIAssistant.enabled']);
+      _setToggle('setting-flowHealthCheck', settings['flowHealthCheck.enabled']);
+      _setToggle('setting-comparisonExporter', settings['comparisonExporter.enabled']);
+      _setToggle('setting-flowVersionManager', settings['flowVersionManager.enabled']);
+      _setToggle('setting-flowTriggerExplorerEnhancer', settings['flowTriggerExplorerEnhancer.enabled']);
       _setToggle('setting-scheduledFlowExplorer', settings['scheduledFlowExplorer.enabled']);
 
       // Populate inputs
@@ -225,6 +246,17 @@
    * @param {any} value - The value to save
    */
   function _saveSetting(key, value) {
+    // Show reload notice when feature toggles change (not colour/shortcut settings)
+    const _featureKeys = [
+      'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
+      'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
+      'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled'
+    ];
+    if (_featureKeys.includes(key)) {
+      const notice = document.getElementById('feature-reload-notice');
+      if (notice) notice.hidden = false;
+    }
+
     chrome.storage.sync.set({ [key]: value }, () => {
       _showSaveToast();
     });
@@ -268,10 +300,30 @@
 
   // ===== Custom Prefix Configuration =====
 
+  // ===== Prefix tables =====
+
   /**
-   * Initialises the Custom Prefix Configuration section.
-   * Loads the current prefix state, updates the status line, and wires up
-   * the Download / Upload / Reset buttons.
+   * Table definitions: id matches the "table" field in default-prefixes.json
+   * and the container element IDs in settings.html.
+   */
+  const PREFIX_TABLES = [
+    { id: 'flowApi',  label: 'Flow API Prefixes' },
+    { id: 'element',  label: 'Element Prefixes' },
+    { id: 'variable', label: 'Variable & Collection Prefixes' },
+    { id: 'formula',  label: 'Formula Prefixes' },
+    { id: 'resource', label: 'Resource Prefixes' },
+  ];
+
+  // Per-table sort state: 'default' | 'asc' | 'desc'
+  const _tableSortState = {};
+  PREFIX_TABLES.forEach(t => { _tableSortState[t.id] = 'default'; });
+
+  // Tracks which row (by type string) is currently open for editing, per table.
+  const _editingRow = {};   // { [tableId]: typeName | null }
+  PREFIX_TABLES.forEach(t => { _editingRow[t.id] = null; });
+
+  /**
+   * Entry point: loads prefixes, renders all five tables, wires up global buttons.
    */
   async function initPrefixConfig() {
     try {
@@ -280,74 +332,550 @@
       console.warn('[SFUT Settings] Failed to load prefix config:', err);
     }
 
+    PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
     _updatePrefixStatus();
-    _attachPrefixListeners();
+    _attachGlobalPrefixListeners();
 
-    // Watch for changes made elsewhere (other settings tabs, or from within
-    // the APINamePrefixes module's internal reload) and refresh the status
-    // line when that happens. The small delay lets APINamePrefixes complete
-    // its own reload before we re-read its state.
+    // React to storage changes from other contexts (e.g. another settings page
+    // instance, or the api-name-prefixes.js live-reload).
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener((changes, namespace) => {
         if (namespace !== 'local') return;
-        if (!Object.prototype.hasOwnProperty.call(changes, 'apiNameGenerator.customPrefixes')) return;
-
-        setTimeout(_updatePrefixStatus, 100);
+        if (!Object.prototype.hasOwnProperty.call(changes, 'apiNameGenerator.prefixOverrides')) return;
+        // Re-render after the module has had time to reload.
+        setTimeout(() => {
+          PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
+          _updatePrefixStatus();
+        }, 120);
       });
     }
   }
 
+  // ----- Table rendering -----
+
   /**
-   * Updates the status line and toggles the Reset button visibility.
+   * Builds or rebuilds the table for a given tableId from current prefix data.
+   * Preserves the sort state and closes any open edit row.
+   * @param {string} tableId
+   */
+  function _renderPrefixTable(tableId) {
+    const container = document.getElementById(`prefix-table-${tableId}`);
+    if (!container) return;
+
+    _editingRow[tableId] = null;
+
+    const allPrefixes = APINamePrefixes.getAll().filter(p => p.table === tableId);
+    const sorted = _sortedPrefixes(allPrefixes, tableId);
+    const sortState = _tableSortState[tableId];
+
+    const table = document.createElement('table');
+    table.className = 'prefix-table';
+
+    // --- thead ---
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    const headers = [
+      { key: 'type',       label: 'Type',       sortable: true  },
+      { key: 'master',     label: 'Master',      sortable: false },
+      { key: 'Snake_Case', label: 'Snake_Case',  sortable: false },
+      { key: 'PascalCase', label: 'PascalCase',  sortable: false },
+      { key: 'camelCase',  label: 'camelCase',   sortable: false },
+      { key: 'actions',    label: '',            sortable: false },
+    ];
+
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.className = `col-${h.key}`;
+
+      if (h.sortable) {
+        th.classList.add('col-sortable');
+        const indicator = document.createElement('span');
+        indicator.className = 'sort-indicator';
+
+        if (sortState === 'asc')  { th.classList.add('sort-asc');  indicator.textContent = ' ▲'; }
+        if (sortState === 'desc') { th.classList.add('sort-desc'); indicator.textContent = ' ▼'; }
+        if (sortState === 'default') { indicator.textContent = ' ⇅'; }
+
+        th.textContent = h.label;
+        th.appendChild(indicator);
+
+        th.addEventListener('click', () => _handleSortClick(tableId));
+      } else {
+        th.textContent = h.label;
+      }
+
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // --- tbody ---
+    const tbody = document.createElement('tbody');
+
+    sorted.forEach(entry => {
+      const isCustom = APINamePrefixes.hasOverride(entry.type);
+      const master = entry.PascalCase; // PascalCase IS the master
+
+      const tr = document.createElement('tr');
+      tr.dataset.type = entry.type;
+      if (isCustom) tr.classList.add('is-custom');
+
+      // Type cell
+      const tdType = document.createElement('td');
+      tdType.className = 'col-type';
+      tdType.textContent = entry.type;
+      if (isCustom) {
+        const dot = document.createElement('span');
+        dot.className = 'prefix-custom-dot';
+        dot.title = 'Custom override active';
+        tdType.appendChild(dot);
+      }
+      tr.appendChild(tdType);
+
+      // Master cell
+      const tdMaster = document.createElement('td');
+      tdMaster.className = 'col-master';
+      tdMaster.textContent = master;
+      tr.appendChild(tdMaster);
+
+      // Snake_Case cell
+      const tdSnake = document.createElement('td');
+      tdSnake.className = 'col-snake';
+      tdSnake.textContent = entry.Snake_Case;
+      tr.appendChild(tdSnake);
+
+      // PascalCase cell
+      const tdPascal = document.createElement('td');
+      tdPascal.className = 'col-pascal';
+      tdPascal.textContent = entry.PascalCase;
+      tr.appendChild(tdPascal);
+
+      // camelCase cell
+      const tdCamel = document.createElement('td');
+      tdCamel.className = 'col-camel';
+      tdCamel.textContent = entry.camelCase;
+      tr.appendChild(tdCamel);
+
+      // Actions cell
+      const tdActions = document.createElement('td');
+      tdActions.className = 'col-actions';
+
+      const actions = document.createElement('div');
+      actions.className = 'prefix-row-actions';
+
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'prefix-row-btn btn-edit';
+      editBtn.title = 'Edit this prefix';
+      editBtn.textContent = '✎';
+      editBtn.addEventListener('click', () => _startRowEdit(tableId, entry.type));
+      actions.appendChild(editBtn);
+
+      if (isCustom) {
+        const revertBtn = document.createElement('button');
+        revertBtn.type = 'button';
+        revertBtn.className = 'prefix-row-btn btn-revert';
+        revertBtn.title = 'Revert to default';
+        revertBtn.textContent = '↺';
+        revertBtn.addEventListener('click', () => _handleRevertRow(tableId, entry.type));
+        actions.appendChild(revertBtn);
+      }
+
+      tdActions.appendChild(actions);
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    container.innerHTML = '';
+    container.appendChild(table);
+
+    _updateTableResetButton(tableId);
+    _updateDirtyBanner();
+  }
+
+  /**
+   * Returns prefixes for a table sorted according to the current sort state.
+   * @param {Array} prefixes
+   * @param {string} tableId
+   */
+  function _sortedPrefixes(prefixes, tableId) {
+    const state = _tableSortState[tableId];
+    if (state === 'default') return prefixes;
+    return [...prefixes].sort((a, b) => {
+      const cmp = a.type.localeCompare(b.type);
+      return state === 'asc' ? cmp : -cmp;
+    });
+  }
+
+  /**
+   * Cycles sort state: default → asc → desc → default, then re-renders.
+   * @param {string} tableId
+   */
+  function _handleSortClick(tableId) {
+    const current = _tableSortState[tableId];
+    _tableSortState[tableId] = current === 'default' ? 'asc'
+                             : current === 'asc'     ? 'desc'
+                             :                         'default';
+    _renderPrefixTable(tableId);
+  }
+
+  // ----- Inline row editing -----
+
+  /**
+   * Converts a table row to edit mode.
+   * @param {string} tableId
+   * @param {string} type
+   */
+  function _startRowEdit(tableId, type) {
+    // Cancel any open edit in this table first
+    if (_editingRow[tableId]) {
+      _cancelRowEdit(tableId, _editingRow[tableId]);
+    }
+
+    _editingRow[tableId] = type;
+
+    const container = document.getElementById(`prefix-table-${tableId}`);
+    if (!container) return;
+
+    const tr = container.querySelector(`tr[data-type="${CSS.escape(type)}"]`);
+    if (!tr) return;
+
+    const entry = APINamePrefixes.getAll().find(p => p.type === type);
+    if (!entry) return;
+
+    tr.classList.add('is-editing');
+
+    // Replace cell contents with inputs
+    const master = entry.PascalCase;
+
+    // Master input
+    tr.children[1].innerHTML = '';
+    const masterInput = _buildEditInput('master', master, type, tableId);
+    masterInput.id = `prefix-input-master-${_safeId(type)}`;
+    tr.children[1].appendChild(masterInput);
+
+    // Snake_Case input
+    tr.children[2].innerHTML = '';
+    const snakeInput = _buildEditInput('snake', entry.Snake_Case, type, tableId);
+    snakeInput.id = `prefix-input-snake-${_safeId(type)}`;
+    tr.children[2].appendChild(snakeInput);
+
+    // PascalCase input
+    tr.children[3].innerHTML = '';
+    const pascalInput = _buildEditInput('pascal', entry.PascalCase, type, tableId);
+    pascalInput.id = `prefix-input-pascal-${_safeId(type)}`;
+    tr.children[3].appendChild(pascalInput);
+
+    // camelCase input
+    tr.children[4].innerHTML = '';
+    const camelInput = _buildEditInput('camel', entry.camelCase, type, tableId);
+    camelInput.id = `prefix-input-camel-${_safeId(type)}`;
+    tr.children[4].appendChild(camelInput);
+
+    // Master input drives all three when edited
+    masterInput.addEventListener('input', () => {
+      const m = masterInput.value.trim();
+      snakeInput.value  = m ? `${m}_` : '';
+      pascalInput.value = m;
+      camelInput.value  = m ? `${m[0].toLowerCase()}${m.slice(1)}` : '';
+      _clearInputError(snakeInput);
+      _clearInputError(pascalInput);
+      _clearInputError(camelInput);
+    });
+
+    // Actions cell: Save + Cancel
+    tr.children[5].innerHTML = '';
+    const actions = document.createElement('div');
+    actions.className = 'prefix-row-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.type = 'button';
+    saveBtn.className = 'prefix-row-btn btn-save';
+    saveBtn.title = 'Save changes';
+    saveBtn.textContent = '✔ Save';
+    saveBtn.addEventListener('click', () => _saveRowEdit(tableId, type));
+    actions.appendChild(saveBtn);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'prefix-row-btn btn-cancel';
+    cancelBtn.title = 'Cancel edit';
+    cancelBtn.textContent = '✕';
+    cancelBtn.addEventListener('click', () => _cancelRowEdit(tableId, type));
+    actions.appendChild(cancelBtn);
+
+    tr.children[5].appendChild(actions);
+
+    _updateDirtyBanner();
+    masterInput.focus();
+    masterInput.select();
+  }
+
+  /**
+   * Cancels an in-progress row edit and re-renders the table.
+   * @param {string} tableId
+   * @param {string} type
+   */
+  function _cancelRowEdit(tableId, type) {
+    _editingRow[tableId] = null;
+    _renderPrefixTable(tableId);
+  }
+
+  /**
+   * Validates and persists the edited row values.
+   * @param {string} tableId
+   * @param {string} type
+   */
+  async function _saveRowEdit(tableId, type) {
+    const safeType = _safeId(type);
+    const snakeEl  = document.getElementById(`prefix-input-snake-${safeType}`);
+    const pascalEl = document.getElementById(`prefix-input-pascal-${safeType}`);
+    const camelEl  = document.getElementById(`prefix-input-camel-${safeType}`);
+
+    if (!snakeEl || !pascalEl || !camelEl) return;
+
+    const snake  = snakeEl.value.trim();
+    const pascal = pascalEl.value.trim();
+    const camel  = camelEl.value.trim();
+
+    // Per-case validation
+    let valid = true;
+    if (!_validateSnake(snake))  { _setInputError(snakeEl,  'Must be alphanumeric and end with _'); valid = false; }
+    if (!_validatePascal(pascal)) { _setInputError(pascalEl, 'Must start with an uppercase letter'); valid = false; }
+    if (!_validateCamel(camel))  { _setInputError(camelEl,  'Must start with a lowercase letter'); valid = false; }
+    if (!valid) return;
+
+    // Check whether values actually differ from the default
+    const def = APINamePrefixes.getDefaults().find(d => d.type === type);
+    const isUnchanged = def
+      && snake  === def.Snake_Case
+      && pascal === def.PascalCase
+      && camel  === def.camelCase;
+
+    if (isUnchanged) {
+      // Values match the default — remove any existing override instead of saving
+      await APINamePrefixes.resetRow(type);
+    } else {
+      await APINamePrefixes.saveRowOverride(type, { Snake_Case: snake, PascalCase: pascal, camelCase: camel });
+    }
+
+    _editingRow[tableId] = null;
+    _renderPrefixTable(tableId);
+    _updatePrefixStatus();
+
+    const overrideCount = Object.keys(APINamePrefixes.getOverrides()).length;
+    _showSaveToast(isUnchanged
+      ? `${type}: reverted to default`
+      : `${type}: prefix saved (${overrideCount} override${overrideCount !== 1 ? 's' : ''} active)`
+    );
+  }
+
+  /**
+   * Reverts a single row to its default and re-renders.
+   * @param {string} tableId
+   * @param {string} type
+   */
+  async function _handleRevertRow(tableId, type) {
+    await APINamePrefixes.resetRow(type);
+    _renderPrefixTable(tableId);
+    _updatePrefixStatus();
+    _showSaveToast(`${type}: reverted to default`);
+  }
+
+  // ----- Validation helpers -----
+
+  /** Snake_Case: alphanumeric + underscores, must end with _ */
+  function _validateSnake(val) {
+    return val.length > 0 && /^[A-Za-z][A-Za-z0-9_]*_$/.test(val);
+  }
+
+  /** PascalCase: starts with uppercase letter, alphanumeric only */
+  function _validatePascal(val) {
+    return val.length > 0 && /^[A-Z][A-Za-z0-9]*$/.test(val);
+  }
+
+  /** camelCase: starts with lowercase letter, alphanumeric only */
+  function _validateCamel(val) {
+    return val.length > 0 && /^[a-z][A-Za-z0-9]*$/.test(val);
+  }
+
+  function _setInputError(input, message) {
+    input.classList.add('is-error');
+    let msg = input.nextElementSibling;
+    if (!msg || !msg.classList.contains('prefix-error-msg')) {
+      msg = document.createElement('div');
+      msg.className = 'prefix-error-msg';
+      input.parentNode.insertBefore(msg, input.nextSibling);
+    }
+    msg.textContent = message;
+  }
+
+  function _clearInputError(input) {
+    input.classList.remove('is-error');
+    const msg = input.nextElementSibling;
+    if (msg && msg.classList.contains('prefix-error-msg')) {
+      msg.remove();
+    }
+  }
+
+  function _buildEditInput(colKey, value, type, tableId) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'prefix-edit-input';
+    input.value = value;
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')  _saveRowEdit(tableId, type);
+      if (e.key === 'Escape') _cancelRowEdit(tableId, type);
+    });
+    // Per-column live validation (except master which drives the others)
+    if (colKey === 'snake') {
+      input.addEventListener('input', () => {
+        if (_validateSnake(input.value.trim())) _clearInputError(input);
+      });
+    } else if (colKey === 'pascal') {
+      input.addEventListener('input', () => {
+        if (_validatePascal(input.value.trim())) _clearInputError(input);
+      });
+    } else if (colKey === 'camel') {
+      input.addEventListener('input', () => {
+        if (_validateCamel(input.value.trim())) _clearInputError(input);
+      });
+    }
+    return input;
+  }
+
+  /** Converts a type string to a safe DOM id fragment. */
+  function _safeId(type) {
+    return type.replace(/[^A-Za-z0-9]/g, '_');
+  }
+
+  // ----- Status + button state -----
+
+  /**
+   * Updates the "Currently using" status line and the Reset All button visibility.
    */
   function _updatePrefixStatus() {
-    const statusEl = document.getElementById('prefix-status-value');
-    const resetBtn = document.getElementById('prefix-reset-btn');
+    const statusEl  = document.getElementById('prefix-status-value');
+    const resetAll  = document.getElementById('prefix-reset-all-btn');
 
     if (!statusEl) return;
 
     const isCustom = APINamePrefixes.isCustom();
-    const count = APINamePrefixes.getAll().length;
+    const overrides = Object.keys(APINamePrefixes.getOverrides()).length;
 
     if (isCustom) {
-      statusEl.textContent = `Custom prefixes (${count} entries)`;
+      statusEl.textContent = `Custom (${overrides} override${overrides !== 1 ? 's' : ''} active)`;
       statusEl.classList.add('is-custom');
-      if (resetBtn) resetBtn.hidden = false;
+      if (resetAll) resetAll.hidden = false;
     } else {
-      statusEl.textContent = `Default prefixes (${count} entries)`;
+      statusEl.textContent = `Default prefixes`;
       statusEl.classList.remove('is-custom');
-      if (resetBtn) resetBtn.hidden = true;
+      if (resetAll) resetAll.hidden = true;
     }
   }
 
   /**
-   * Attaches click handlers to the prefix config buttons.
+   * Shows or hides the per-table reset button based on whether that table
+   * has any active overrides.
+   * @param {string} tableId
    */
-  function _attachPrefixListeners() {
+  function _updateTableResetButton(tableId) {
+    const btn = document.getElementById(`prefix-reset-table-${tableId}`);
+    if (!btn) return;
+    const tableHasOverrides = APINamePrefixes.getAll()
+      .filter(p => p.table === tableId)
+      .some(p => APINamePrefixes.hasOverride(p.type));
+    btn.hidden = !tableHasOverrides;
+  }
+
+  /**
+   * Shows the dirty banner if any table has an open edit row.
+   */
+  function _updateDirtyBanner() {
+    const banner = document.getElementById('prefix-dirty-banner');
+    if (!banner) return;
+    const anyDirty = Object.values(_editingRow).some(v => v !== null);
+    banner.hidden = !anyDirty;
+  }
+
+  // ----- Global button listeners -----
+
+  function _attachGlobalPrefixListeners() {
+    // Per-table reset buttons
+    PREFIX_TABLES.forEach(t => {
+      const btn = document.getElementById(`prefix-reset-table-${t.id}`);
+      if (btn) {
+        btn.addEventListener('click', () => _handleTableReset(t.id, t.label));
+      }
+    });
+
+    // Download
     const downloadBtn = document.getElementById('prefix-download-btn');
-    const uploadBtn = document.getElementById('prefix-upload-btn');
-    const resetBtn = document.getElementById('prefix-reset-btn');
-    const fileInput = document.getElementById('prefix-file-input');
+    if (downloadBtn) downloadBtn.addEventListener('click', _handlePrefixDownload);
 
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', _handlePrefixDownload);
-    }
-
+    // Upload
+    const uploadBtn  = document.getElementById('prefix-upload-btn');
+    const fileInput  = document.getElementById('prefix-file-input');
     if (uploadBtn && fileInput) {
-      uploadBtn.addEventListener('click', () => {
-        fileInput.value = '';
-        fileInput.click();
-      });
+      uploadBtn.addEventListener('click', () => { fileInput.value = ''; fileInput.click(); });
       fileInput.addEventListener('change', _handlePrefixUpload);
     }
 
-    if (resetBtn) {
-      resetBtn.addEventListener('click', _handlePrefixReset);
+    // Reset All
+    const resetAllBtn = document.getElementById('prefix-reset-all-btn');
+    if (resetAllBtn) resetAllBtn.addEventListener('click', _handleResetAll);
+  }
+
+  /**
+   * Resets all overrides for a single named table after confirmation.
+   * @param {string} tableId
+   * @param {string} tableLabel
+   */
+  async function _handleTableReset(tableId, tableLabel) {
+    const confirmed = window.confirm(
+      `Reset ${tableLabel} to defaults?\n\nAll custom overrides in this table will be cleared.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await APINamePrefixes.resetTable(tableId);
+      _renderPrefixTable(tableId);
+      _updatePrefixStatus();
+      _showSaveToast(`${tableLabel} reset to defaults`);
+    } catch (err) {
+      console.warn('[SFUT Settings] Table reset failed:', err);
+      _showSaveToast('Reset failed', true);
     }
   }
 
   /**
-   * Downloads the currently active prefix configuration as a JSON file.
+   * Resets all overrides across every table after confirmation.
+   */
+  async function _handleResetAll() {
+    const confirmed = window.confirm(
+      'Reset all prefix tables to defaults?\n\nEvery custom prefix override across all five tables will be cleared. This cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    try {
+      await APINamePrefixes.resetToDefaults();
+      PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
+      _updatePrefixStatus();
+      _showSaveToast('All prefixes reset to defaults');
+    } catch (err) {
+      console.warn('[SFUT Settings] Reset all failed:', err);
+      _showSaveToast('Reset failed', true);
+    }
+  }
+
+  /**
+   * Downloads the full merged prefix configuration as a JSON file.
    */
   function _handlePrefixDownload() {
     try {
@@ -375,7 +903,8 @@
   }
 
   /**
-   * Handles the file picker change event for uploading a custom config.
+   * Handles the file picker change event for uploading a custom prefix config.
+   * Imports the file and re-renders all tables to reflect the new overrides.
    * @param {Event} e
    */
   async function _handlePrefixUpload(e) {
@@ -388,8 +917,9 @@
       const result = await APINamePrefixes.importCustom(text);
 
       if (result.success) {
+        PREFIX_TABLES.forEach(t => _renderPrefixTable(t.id));
         _updatePrefixStatus();
-        _showSaveToast(`Imported ${result.count} prefix(es) from ${file.name}`);
+        _showSaveToast(`Imported from ${file.name} — ${result.count} override${result.count !== 1 ? 's' : ''} applied`);
       } else {
         _showSaveToast(`Import failed: ${result.error}`, true);
       }
@@ -397,27 +927,7 @@
       console.warn('[SFUT Settings] Prefix import failed:', err);
       _showSaveToast(`Import failed: ${err.message || 'unknown error'}`, true);
     } finally {
-      // Clear the input so uploading the same file again still triggers change.
       fileInput.value = '';
-    }
-  }
-
-  /**
-   * Clears the custom prefix configuration and reverts to defaults.
-   */
-  async function _handlePrefixReset() {
-    const confirmed = window.confirm(
-      'Reset to default prefixes?\n\nThis will clear your custom configuration and revert to the shipped defaults. You can re-import your custom config later if you still have the JSON file.'
-    );
-    if (!confirmed) return;
-
-    try {
-      await APINamePrefixes.resetToDefaults();
-      _updatePrefixStatus();
-      _showSaveToast('Reset to defaults');
-    } catch (err) {
-      console.warn('[SFUT Settings] Prefix reset failed:', err);
-      _showSaveToast('Reset failed', true);
     }
   }
 
@@ -1327,6 +1837,31 @@
     setTimeout(() => {
       toast.classList.remove('visible');
     }, isError ? 3500 : 1500);
+  }
+
+  // Live-sync feature toggle state when changed from outside settings
+  // (e.g. clicking Hide/Show Missing Description Flags on the canvas).
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace !== 'sync') return;
+      const toggleMap = {
+        'setupTabs.enabled':                   'setting-setupTabs',
+        'missingDescriptions.enabled':         'setting-missingDescriptions',
+        'apiNameGenerator.enabled':            'setting-apiNameGenerator',
+        'flowListSearch.enabled':              'setting-flowListSearch',
+        'canvasSearch.enabled':               'setting-canvasSearchEnabled',
+        'flowAIAssistant.enabled':            'setting-flowAIAssistant',
+        'flowHealthCheck.enabled':            'setting-flowHealthCheck',
+        'comparisonExporter.enabled':         'setting-comparisonExporter',
+        'flowVersionManager.enabled':         'setting-flowVersionManager',
+        'flowTriggerExplorerEnhancer.enabled':'setting-flowTriggerExplorerEnhancer',
+        'scheduledFlowExplorer.enabled':      'setting-scheduledFlowExplorer',
+      };
+      Object.entries(changes).forEach(([key, { newValue }]) => {
+        const id = toggleMap[key];
+        if (id) _setToggle(id, newValue);
+      });
+    });
   }
 
   // ===== Initialise =====
