@@ -78,6 +78,7 @@ Days with scheduled runs show a summary indicator. Clicking **+ N more** on a da
   </tbody>
 </table>
 
+
 Settings are accessible from the extension's Settings page under **Scheduled Flow Explorer**.
 
 ## Notes and limitations
