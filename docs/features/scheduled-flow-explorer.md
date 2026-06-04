@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Scheduled Flow Explorer | SF Flow Utility Toolkit
+title: Scheduled Flow Explorer | SF Flow Utility Toolkit Documentation
 ---
 
 # Scheduled Flow Explorer
