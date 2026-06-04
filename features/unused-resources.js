@@ -63,6 +63,14 @@ const UnusedResources = (() => {
       const analysis = UnusedResourcesAnalyser.analyse(metadata);
       const flowLabel = metadata.label || result?.MasterLabel || 'Current Flow';
 
+      if (analysis.totalUnused > 0) {
+        UnusedResourcesFlags.activate(
+          analysis.groups.flatMap(g => g.items)
+        );
+      } else {
+        UnusedResourcesFlags.deactivate();
+      }
+
       UnusedResourcesModal.showReport(
         {
           flowLabel,
