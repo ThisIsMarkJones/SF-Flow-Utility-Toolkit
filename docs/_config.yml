@@ -1,0 +1,11 @@
+title: SF Flow Utility Toolkit
+description: Documentation for the Salesforce Flow Builder browser extension
+baseurl: "/SF-Flow-Utility-Toolkit"
+url: "https://thisismarkjones.github.io"
+
+theme: minima
+
+plugins:
+  - jekyll-feed
+
+permalink: /:categories/:year/:month/:day/:title.html
