@@ -48,3 +48,7 @@ body { background: var(--sfut-bg); color: var(--sfut-text); }
 .footer-inner { text-align: center; font-size: 0.95rem; }
 .footer-meta { margin-top: 0.25rem; font-size: 0.88rem; }
 @media (max-width: 700px) { .brand-title { font-size: 1.6rem; } .content-container { padding: 1.25rem; } .site-nav-dropdown-menu { left: 0; right: auto; min-width: 200px; } }
+.content-container table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; }
+.content-container th { background: #f0f4f8; text-align: left; padding: 0.6rem 0.9rem; border: 1px solid var(--sfut-border); font-weight: 600; }
+.content-container td { padding: 0.6rem 0.9rem; border: 1px solid var(--sfut-border); vertical-align: top; }
+.content-container tr:nth-child(even) td { background: #f7f9fc; }
