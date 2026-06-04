@@ -13,7 +13,7 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 
 * [Flow Health Check](flow-health-check.html)
 * [Scheduled Flow Explorer](scheduled-flow-explorer.html)
-* [Unused Resources](unused-resources.html)
+* [Unused Resources Finder](unused-resources-finder.html)
 * [Flow List Search](flow-list-search.html)
 * [Canvas Search](canvas-search.html)
 * [API Name Generator](api-name-generator.html)
