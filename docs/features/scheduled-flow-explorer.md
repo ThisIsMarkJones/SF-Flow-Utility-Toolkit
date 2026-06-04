@@ -59,10 +59,24 @@ Days with scheduled runs show a summary indicator. Clicking **+ N more** on a da
 
 ## Settings
 
-| Setting | Description |
-|---|---|
-| **Enable Scheduled Flow Explorer** | Master toggle. When off, the feature does not appear in the side button menu. |
-| **Default View** | Sets whether the modal opens on List View or Calendar View. |
+<table>
+  <thead>
+    <tr>
+      <th>Setting</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Enable Scheduled Flow Explorer</strong></td>
+      <td>Master toggle. When off, the feature does not appear in the side button menu.</td>
+    </tr>
+    <tr>
+      <td><strong>Default View</strong></td>
+      <td>Sets whether the modal opens on List View or Calendar View.</td>
+    </tr>
+  </tbody>
+</table>
 
 Settings are accessible from the extension's Settings page under **Scheduled Flow Explorer**.
 
