@@ -7,11 +7,14 @@
  * 1. Waits for the Flow list view table to render
  * 2. Injects a search input above the list
  * 3. Injects Status and Type filter dropdowns
- * 4. On first focus / input / filter interaction, auto-scrolls to force Salesforce
- *    to load all lazily-rendered rows before indexing and filtering
- * 5. Searches by Flow Label and Flow API Name
- * 6. Filters by Status and Type
- * 7. Shows a count of matching / total flows
+ * 4. On page load, auto-scrolls to force Salesforce to load all lazily-rendered
+ *    rows before indexing and filtering — no longer waits for first interaction
+ * 5. Simultaneously queries FlowDefinitionView via the REST API to get accurate
+ *    status (IsActive) for all flows, keyed by ApiName — fixes status filter
+ *    inconsistencies across different org types, locales, and SF versions
+ * 6. Searches by Flow Label and Flow API Name
+ * 7. Filters by Status and Type
+ * 8. Shows a count of matching / total flows
  *
  * Designed for the Setup Flows page:
  *   https://{org}.salesforce-setup.com/lightning/setup/Flows/home
@@ -34,6 +37,8 @@ const FlowListSearchFeature = (() => {
   let _isActive = false;
   let _rowIndex = [];
   let _rowObserver = null;
+  let _apiTotal = null;      // Total flow count from FlowDefinitionView API query
+  let _apiStatusMap = null;  // Map of apiName (lowercase) → 'active'|'inactive' from API
 
   // Selectors — Salesforce list view DOM patterns
   const SELECTORS = {
@@ -135,12 +140,83 @@ const FlowListSearchFeature = (() => {
         _observeTableForNewRows(tableBody);
         _isActive = true;
         console.log('[SFUT FlowListSearch] Active.');
+
+        // Kick off API data fetch and full DOM scroll immediately on page
+        // load — don't wait for first user interaction.
+        _fetchApiData();
+        _ensureAllRowsLoaded();
+
         return;
       }
       await new Promise(r => setTimeout(r, intervalMs));
     }
 
     console.warn('[SFUT FlowListSearch] List view table not found after waiting.');
+  }
+
+  /**
+   * Queries FlowDefinitionView via the REST API to fetch the active/inactive
+   * status for every flow in the org in a single round trip. Also captures the
+   * org-wide total for the count label.
+   *
+   * Storing status here — keyed by ApiName — means the status filter works
+   * correctly regardless of how the DOM renders the Active column (locale,
+   * Lightning version, org type, missing column header attributes, etc.).
+   *
+   * Handles up to 2,000 flows per call (Salesforce REST API default page size).
+   * Logs a warning if the org has more — pagination support can be added as a
+   * follow-up for very large orgs.
+   *
+   * Runs silently — failures are non-fatal and fall back to DOM-based status
+   * reading.
+   */
+  async function _fetchApiData() {
+    try {
+      const result = await SalesforceAPI.restQuery(
+        'SELECT ApiName, IsActive FROM FlowDefinitionView ORDER BY ApiName ASC'
+      );
+
+      if (!result || !Array.isArray(result.records)) return;
+
+      _apiTotal = result.totalSize;
+
+      if (result.nextRecordsUrl) {
+        console.warn(
+          `[SFUT FlowListSearch] Org has more than 2,000 flows — ` +
+          `status filter will cover the first ${result.records.length}. ` +
+          `Full pagination support can be added in a future release.`
+        );
+      }
+
+      _apiStatusMap = new Map();
+      result.records.forEach(record => {
+        const key = (record.ApiName || '').trim().toLowerCase();
+        if (key) {
+          _apiStatusMap.set(key, record.IsActive ? 'active' : 'inactive');
+        }
+      });
+
+      console.log(
+        `[SFUT FlowListSearch] API data loaded: ${_apiStatusMap.size} flows, ` +
+        `total in org: ${_apiTotal}.`
+      );
+
+      // Update the loading label if the DOM scroll is still in progress
+      if (_isScrolling) {
+        _updateCount(0, _apiTotal, true);
+      }
+
+      // Re-index now that accurate status data is available, but only if the
+      // DOM scroll has already finished (otherwise scroll completion triggers
+      // its own re-index).
+      if (_allRowsLoaded) {
+        _indexRows();
+        _applyFilters();
+      }
+
+    } catch (e) {
+      console.warn('[SFUT FlowListSearch] Could not fetch API data — falling back to DOM status reading:', e);
+    }
   }
 
   /**
@@ -395,8 +471,19 @@ const FlowListSearchFeature = (() => {
   }
 
   function _extractRowData(row, columnMap) {
-    const rowHeader = row.querySelector('th[scope="row"]');
-    if (!rowHeader) return null;
+    // Find the flow name via a hyperlink rather than relying on th[scope="row"].
+    // When "Active" is the first column, Salesforce can assign scope="row" to
+    // the Active checkbox cell instead of the flow name cell, causing name
+    // extraction to fail and dropping all rows from the index — which breaks
+    // both the status filter and text search. Finding the first linked cell is
+    // reliable regardless of column order, since Active checkbox cells never
+    // contain a hyperlink.
+    const nameLink = row.querySelector('th a[href], td a[href]');
+    const name = nameLink
+      ? (nameLink.textContent || '').trim().replace(/\s+/g, ' ')
+      : '';
+
+    if (!name) return null;
 
     // Use the combined th + td order so cell indices align with header indices.
     const cells = Array.from(row.querySelectorAll('th, td'));
@@ -411,12 +498,20 @@ const FlowListSearchFeature = (() => {
     const triggerCell = cellByHeader('Trigger');
     const activeCell = cellByHeader('Active');
 
-    const name = _getFlowNameFromLink(row) || _getCellText(rowHeader);
     const apiName = apiNameCell ? _getCellValue(apiNameCell) : '';
     const processTypeRaw = processTypeCell ? _getCellValue(processTypeCell) : '';
     const triggerTypeRaw = triggerCell ? _getCellValue(triggerCell) : '';
     const activeRaw = activeCell ? _getCheckboxValue(activeCell) : '';
-    const statusNormalized = _normalizeStatus(activeRaw);
+
+    // Prefer the API-sourced status — it is accurate regardless of how the
+    // org renders the Active column (locale, SF release, missing header
+    // attributes, etc.). Fall back to DOM reading if the API map hasn't
+    // loaded yet or doesn't contain this flow.
+    const apiKey = (apiName || name).trim().toLowerCase();
+    const statusNormalized =
+      (_apiStatusMap && _apiStatusMap.has(apiKey))
+        ? _apiStatusMap.get(apiKey)
+        : _normalizeStatus(activeRaw);
 
     const typeRaw = (triggerTypeRaw || processTypeRaw || '').trim();
     const typeDisplay = _getTypeDisplayLabel(processTypeRaw, triggerTypeRaw);
@@ -620,22 +715,29 @@ const FlowListSearchFeature = (() => {
   function _updateCount(visible, total, loading) {
     if (!_countLabel) return;
 
+    // Use the API-sourced org total when available — it's accurate even before
+    // the DOM scroll has finished loading all rows.
+    const displayTotal = (_apiTotal !== null && _apiTotal >= total) ? _apiTotal : total;
+
     if (loading) {
-      _countLabel.textContent = 'Loading all flows...';
+      const loadingMsg = _apiTotal !== null
+        ? `Loading all flows... (${_apiTotal} in org)`
+        : 'Loading all flows...';
+      _countLabel.textContent = loadingMsg;
       _countLabel.classList.add('sfut-flow-search-loading');
       return;
     }
 
     _countLabel.classList.remove('sfut-flow-search-loading');
 
-    if (total === 0) {
+    if (displayTotal === 0) {
       _countLabel.textContent = '';
-    } else if (visible === total) {
-      _countLabel.textContent = `${total} flows`;
+    } else if (visible === displayTotal) {
+      _countLabel.textContent = `${displayTotal} flows`;
     } else if (visible === 0) {
       _countLabel.textContent = 'No matching flows';
     } else {
-      _countLabel.textContent = `${visible} of ${total} flows`;
+      _countLabel.textContent = `${visible} of ${displayTotal} flows`;
     }
   }
 

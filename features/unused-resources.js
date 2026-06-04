@@ -37,6 +37,10 @@ const UnusedResources = (() => {
   async function onActivate() {
     if (!_enabled) return;
 
+    // Activate the Manager tab early so it has time to render
+    // while the metadata fetch is in flight (fixes issue #20).
+    await _activateManagerTab();
+
     try {
       const flowId = SalesforceAPI.getFlowIdFromUrl();
       if (!flowId) {
@@ -122,14 +126,23 @@ const UnusedResources = (() => {
   }
 
   /**
-   * Attempts to activate the Manager tab in the Flow Builder left panel.
-   * Returns true on success (or if it was already active), false otherwise.
+   * Ensures the Toolbox is open and the Manager tab is active.
+   * Returns true on success, false if the Manager tab could not be found.
    */
   async function _activateManagerTab() {
+    // Ensure the Toolbox panel is open before trying to activate the Manager tab.
+    const toggleBtn = document.querySelector('button[title="Toggle Toolbox"]');
+    if (toggleBtn && toggleBtn.getAttribute('aria-pressed') === 'false') {
+      toggleBtn.click();
+      await _wait(400);
+    }
+
     // Strategy 1: Look for an explicit Manager tab control. Flow Builder uses
     // a tab pattern that varies between releases; try several known attribute
     // selectors before falling back to a text-content match.
     const candidates = [
+      '[data-label="Manager"][role="tab"]',
+      '[data-tab-value="left-panel-tabitem-resources"]',
       'a[title="Manager"]',
       'button[title="Manager"]',
       '[data-tab-id="manager"]',
@@ -173,30 +186,33 @@ const UnusedResources = (() => {
    * Searches the rendered Manager tab for the resource row matching the given
    * API name. Tries up to ~1.5s before giving up.
    *
-   * The HTML samples gathered during design show resource rows render with the
-   * API name available as a `title` attribute on the inner span, so the
-   * primary strategy is `[title="<apiName>"]`. Fallbacks cover variations.
+   * Reads text nodes only from <a role="button" class="slds-truncate"> elements
+   * within builder_platform_interaction-left-panel-resources, mirroring the
+   * approach used by unused-resources-flags.js to avoid matching child spans
+   * (e.g. the ⚠ flag injected by Missing Description Flags).
    */
   async function _findResourceRow(apiName) {
-    const escapedName = _cssEscape(apiName);
-
     const startTime = Date.now();
     while (Date.now() - startTime < 1500) {
-      // Strategy 1: Direct title attribute match (matches the rendered
-      // resource detail panel — `<span ... title="varStuff">varStuff</span>`).
-      const directMatch = document.querySelector(`[title="${escapedName}"]`);
-      if (directMatch) {
-        return _findClickableAncestor(directMatch);
-      }
 
-      // Strategy 2: Look for any element whose visible text exactly equals
-      // the API name within the manager region.
       const managerRegion = document.querySelector(
-        '.left-panel, builder_platform_interaction-left-panel, builder_platform_interaction-resource-manager'
+        'builder_platform_interaction-left-panel-resources'
       );
+
       if (managerRegion) {
-        const textMatch = Array.from(managerRegion.querySelectorAll('span, a, li, div'))
-          .find((el) => (el.textContent || '').trim() === apiName);
+        // Read text nodes only — textContent includes child spans (e.g. ⚠ flags)
+        // which would break an exact match. This mirrors _flagToolboxItems() exactly.
+        const textMatch = Array.from(
+          managerRegion.querySelectorAll('a[role="button"].slds-truncate')
+        ).find((el) => {
+          const text = Array.from(el.childNodes)
+            .filter(n => n.nodeType === Node.TEXT_NODE)
+            .map(n => n.textContent)
+            .join('')
+            .trim();
+          return text === apiName;
+        });
+
         if (textMatch) {
           return _findClickableAncestor(textMatch);
         }
@@ -253,14 +269,11 @@ const UnusedResources = (() => {
 
   /**
    * Shows a toast directing the user to open the Manager manually.
-   * Uses the existing `sfut-toast` class if available, otherwise a fresh element.
    */
   function _showNavigationFallback(resourceName, reason) {
     const message = `Couldn't open ${resourceName}. ${reason}`;
     console.info('[SFUT] Unused Resources navigation fallback:', message);
 
-    // Use an existing toast helper if the toolkit exposes one in the future,
-    // otherwise create a transient element here.
     let toast = document.getElementById('sfut-unused-toast');
     if (!toast) {
       toast = document.createElement('div');
