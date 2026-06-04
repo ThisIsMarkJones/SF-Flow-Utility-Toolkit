@@ -55,6 +55,7 @@
         "features/flow-version-manager.js",
         "features/flow-trigger-explorer-enhancer.js",
         "features/flow-health-check.js",
+        "features/unused-resources-flags.js",
         "features/unused-resources.js",
         "features/scheduled-flow-explorer.js"
       ],
