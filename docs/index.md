@@ -24,7 +24,7 @@ Analyse a Flow and identify maintainability, reliability, performance, and porta
 
 View all active Schedule-Triggered Flows across the org and see when each is next scheduled to run, in List View or Calendar View.
 
-### [Unused Resources](features/unused-resources.html)
+### [Unused Resources Finder](features/unused-resources-finder.html)
 
 Scan the currently open Flow for variables, formulas, text templates, and other resources that are defined but never used.
 

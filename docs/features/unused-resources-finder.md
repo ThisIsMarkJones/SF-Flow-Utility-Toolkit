@@ -1,17 +1,17 @@
 ---
 layout: default
-title: Unused Resources | SF Flow Utility Toolkit
+title: Unused Resources Finder | SF Flow Utility Toolkit
 ---
 
-# Unused Resources
+# Unused Resources Finder
 
 ## Overview
 
-**Unused Resources** scans the currently open Salesforce Flow and identifies user-authored resources — such as variables, formulas, and text templates — that are defined in the flow but not referenced anywhere within it. These are candidates for clean-up to reduce clutter and improve flow maintainability.
+**Unused Resources Finder** scans the currently open Salesforce Flow and identifies user-authored resources — such as variables, formulas, and text templates — that are defined in the flow but not referenced anywhere within it. These are candidates for clean-up to reduce clutter and improve flow maintainability.
 
 ## Where it appears
 
-Unused Resources is accessible from the toolkit side button menu when a Flow is open in **Salesforce Flow Builder**.
+Unused Resources Finder is accessible from the toolkit side button menu when a Flow is open in **Salesforce Flow Builder**.
 
 ## What the feature does
 
