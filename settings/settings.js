@@ -160,6 +160,8 @@
       _setToggle('setting-flowVersionManager', settings['flowVersionManager.enabled']);
       _setToggle('setting-flowTriggerExplorerEnhancer', settings['flowTriggerExplorerEnhancer.enabled']);
       _setToggle('setting-scheduledFlowExplorer', settings['scheduledFlowExplorer.enabled']);
+      _setToggle('setting-whereIsThisUsed', settings['whereIsThisUsed.enabled']);
+      _setToggle('setting-unusedResources', settings['unusedResources.enabled']);
       _setToggle('setting-autosave', settings['autosave.enabled']);
 
       // Populate inputs
@@ -266,7 +268,7 @@
       'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
       'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
       'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled',
-      'autosave.enabled'
+      'autosave.enabled','whereIsThisUsed.enabled','unusedResources.enabled'
     ];
     if (_featureKeys.includes(key)) {
       const notice = document.getElementById('feature-reload-notice');
@@ -1872,6 +1874,8 @@
         'flowVersionManager.enabled':         'setting-flowVersionManager',
         'flowTriggerExplorerEnhancer.enabled':'setting-flowTriggerExplorerEnhancer',
         'scheduledFlowExplorer.enabled':      'setting-scheduledFlowExplorer',
+        'whereIsThisUsed.enabled':            'setting-whereIsThisUsed',
+        'unusedResources.enabled':            'setting-unusedResources',
       };
       Object.entries(changes).forEach(([key, { newValue }]) => {
         const id = toggleMap[key];

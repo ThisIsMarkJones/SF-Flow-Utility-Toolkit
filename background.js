@@ -160,6 +160,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return { ok: true };
         }
 
+        case 'downloadCsv': {
+          const { csv, filename } = message;
+          if (!csv || !filename) return { ok: false, error: 'Missing csv or filename' };
+
+          const tabId = sender?.tab?.id;
+          if (!tabId) return { ok: false, error: 'No sender tab ID' };
+
+          // Inject a one-shot function into the MAIN world so the blob URL
+          // download attribute is honoured by the browser.
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            world: 'MAIN',
+            func: (csvContent, dlFilename) => {
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const url  = URL.createObjectURL(blob);
+              const a    = document.createElement('a');
+              a.href     = url;
+              a.download = dlFilename;
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              setTimeout(() => URL.revokeObjectURL(url), 60000);
+            },
+            args: [csv, filename]
+          });
+
+          return { ok: true };
+        }
+
         default:
           return { ok: false, error: 'Unknown action' };
       }

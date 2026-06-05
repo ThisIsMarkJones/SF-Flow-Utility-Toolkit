@@ -27,7 +27,7 @@ const UnusedResources = (() => {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.FLOW_BUILDER) return;
 
-    const featureEnabled = await SettingsManager.get('unusedResources.enabled');
+    const featureEnabled = (await SettingsManager.get('unusedResources.enabled')) ?? true;
     if (!featureEnabled) { _enabled = false; return; }
     _enabled = true;
   }

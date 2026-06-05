@@ -1050,6 +1050,96 @@
       font-weight: 600;
     }
 
+    /* ===== Feature card grid ===== */
+
+    .feature-group {
+      margin-bottom: 20px;
+    }
+
+    .feature-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #706e6b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+
+    .feature-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .feature-card-col {
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+    }
+
+    .feature-card-col-span-2 {
+      grid-column: span 2;
+    }
+
+    .feature-card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .feature-card.has-child {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: transparent;
+      box-shadow: none;
+    }
+
+    .feature-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .feature-card-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #181818;
+      line-height: 1.3;
+    }
+
+    .feature-card-description {
+      font-size: 12px;
+      color: #706e6b;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .feature-card-child {
+      background-color: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .feature-card-child-label {
+      font-size: 12px;
+      color: #706e6b;
+    }
+
   </style>
 </head>
 <body>
@@ -1110,213 +1200,233 @@
         ⟳ Some changes take effect after reloading any open Salesforce tabs.
       </div>
 
-      <!-- Feature Toggles -->
-      <div class="settings-section">
-        <div class="settings-section-header">Feature Toggles</div>
-        <div class="settings-section-body">
+      <!-- Feature Toggles — Setup Enhancements -->
+      <div class="feature-group">
+        <div class="feature-group-label">Setup enhancements</div>
+        <div class="feature-card-grid">
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Setup Tabs</div>
-              <div class="setting-description">Show quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
+          <!-- Row 1: Setup Tabs (with child) + Scheduled Flow Explorer (with child) -->
+          <div class="feature-card-col">
+            <div class="feature-card has-child">
+              <div class="feature-card-top">
+                <div class="feature-card-label">Setup Tabs</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="feature-card-description">Quick-access tabs for Flows, Flow Trigger Explorer, and Process Automation Settings on Setup pages.</div>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-setupTabs" data-key="setupTabs.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-child">
+              <span class="feature-card-child-label">Group into dropdown</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Automation Home Tab</div>
-              <div class="setting-description">Add a quick-access tab to open the Automation App home.</div>
+          <div class="feature-card-col">
+            <div class="feature-card has-child">
+              <div class="feature-card-top">
+                <div class="feature-card-label">Scheduled Flow Explorer</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-scheduledFlowExplorer" data-key="scheduledFlowExplorer.enabled">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="feature-card-description">View and navigate all active Schedule-Triggered Flows in the org. Adds a menu item to the Setup page side button.</div>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-child">
+              <span class="feature-card-child-label">Default view</span>
+              <select class="setting-select"
+                      id="setting-scheduledFlowExplorerDefaultView"
+                      data-key="scheduledFlowExplorer.defaultView"
+                      style="min-width: 130px;">
+                <option value="list">List View</option>
+                <option value="calendar">Calendar View</option>
+              </select>
+            </div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Group Setup Tabs</div>
-              <div class="setting-description">Collapse all Setup Tabs into a single grouped dropdown in the tab bar.</div>
+          <!-- Row 2: Automation Home Tab + Flow Trigger Explorer Enhancer -->
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Automation Home Tab</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-automationHomeTab" data-key="setupTabs.automationHome.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-setupTabsGrouping" data-key="setupTabs.groupingEnabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Adds a quick-access tab to open the Automation App home.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Missing Description Flags</div>
-              <div class="setting-description">Flag elements and resources in Flow Builder that have no description.</div>
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Flow Trigger Explorer Enhancer</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-flowTriggerExplorerEnhancer" data-key="flowTriggerExplorerEnhancer.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Adds direct links to flows from the Flow Trigger Explorer in Setup.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Scheduled Flow Explorer</div>
-              <div class="setting-description">View and navigate all active Schedule-Triggered Flows in the org. Adds a menu item to the side button on Setup pages.</div>
+          <!-- Row 3: Where Is This Used? — full width -->
+          <div class="feature-card feature-card-col-span-2">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Where Is This Used?</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-whereIsThisUsed" data-key="whereIsThisUsed.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-scheduledFlowExplorer" data-key="scheduledFlowExplorer.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Adds a "Where Is This Used?" button to the Flow details page in Setup, scanning flows, quick actions, Lightning pages, LWC components, and buttons &amp; links for references to the current flow. Results can be exported as a CSV.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Default Explorer View</div>
-              <div class="setting-description">Which view the Scheduled Flow Explorer opens with each time.</div>
+        </div>
+      </div>
+
+      <!-- Feature Toggles — Flows List -->
+      <div class="feature-group">
+        <div class="feature-group-label">Flows list</div>
+        <div class="feature-card-grid">
+
+          <!-- Lone card — full width to avoid orphan -->
+          <div class="feature-card feature-card-col-span-2">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Flow List Search</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-flowListSearch" data-key="flowListSearch.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <select class="setting-select"
-                    id="setting-scheduledFlowExplorerDefaultView"
-                    data-key="scheduledFlowExplorer.defaultView">
-              <option value="list">List View</option>
-              <option value="calendar">Calendar View</option>
-            </select>
+            <div class="feature-card-description">Adds a live search and filter bar to the Salesforce Flows list page.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Find Unused Resources</div>
-              <div class="setting-description">Analyses the open flow and identifies Manager tab resources that are not referenced anywhere in the flow logic.</div>
+        </div>
+      </div>
+
+      <!-- Feature Toggles — Flow Builder Tools -->
+      <div class="feature-group">
+        <div class="feature-group-label">Flow Builder tools</div>
+        <div class="feature-card-grid">
+
+          <!-- Row 1: Missing Description Flags + Flow Health Check -->
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Missing Description Flags</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-missingDescriptions" data-key="missingDescriptions.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-unusedResources" data-key="unusedResources.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Flags elements and resources in Flow Builder that have no description.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Flow Health Check</div>
-              <div class="setting-description">Analyses the open flow for common issues such as missing fault paths, DML inside loops, and missing descriptions.</div>
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Flow Health Check</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-flowHealthCheck" data-key="flowHealthCheck.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-flowHealthCheck" data-key="flowHealthCheck.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Analyses the open flow for common issues such as missing fault paths, DML inside loops, and missing descriptions.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Flow List Search</div>
-              <div class="setting-description">Adds a live search and filter bar to the Salesforce Flows list page.</div>
+          <!-- Row 2: Find Unused Resources + Canvas Search -->
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Find Unused Resources</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-unusedResources" data-key="unusedResources.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-flowListSearch" data-key="flowListSearch.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Analyses the open flow and identifies Manager tab resources that are not referenced anywhere in the flow logic.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Canvas Search</div>
-              <div class="setting-description">Adds a search overlay to the Flow Builder canvas to find and highlight elements by name or type.</div>
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Canvas Search</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-canvasSearchEnabled" data-key="canvasSearch.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-canvasSearchEnabled" data-key="canvasSearch.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Adds a search overlay to the Flow Builder canvas to find and highlight elements by name or type.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">AI Assistant</div>
-              <div class="setting-description">Provides AI-powered assistance within Flow Builder for analysis, suggestions, and documentation.</div>
+          <!-- Row 3: Flow Version Manager + API Name Generator -->
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Flow Version Manager</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-flowVersionManager" data-key="flowVersionManager.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-flowAIAssistant" data-key="flowAIAssistant.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Adds version management controls to Flow Builder for viewing and activating previous flow versions.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Comparison Exporter</div>
-              <div class="setting-description">Exports a side-by-side comparison of two flow versions as a formatted Word document.</div>
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">API Name Generator</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-apiNameGenerator" data-key="apiNameGenerator.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-comparisonExporter" data-key="comparisonExporter.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Suggests API names following your configured naming conventions as you create flow elements and resources.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Flow Version Manager</div>
-              <div class="setting-description">Adds version management controls to Flow Builder for viewing and activating previous flow versions.</div>
+          <!-- Row 4: Autosave (with child) + Comparison Exporter -->
+          <div class="feature-card-col">
+            <div class="feature-card has-child">
+              <div class="feature-card-top">
+                <div class="feature-card-label">Autosave</div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-autosave" data-key="autosave.enabled">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="feature-card-description">Automatically saves inactive (draft) flows in Flow Builder after a period of inactivity. A countdown timer is shown in the toolbar before saving. Off by default.</div>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-flowVersionManager" data-key="flowVersionManager.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-child">
+              <span class="feature-card-child-label">Interval (minutes)</span>
+              <input type="number"
+                     class="setting-input"
+                     id="setting-autosaveInterval"
+                     data-key="autosave.intervalMinutes"
+                     min="1"
+                     max="60"
+                     step="1"
+                     style="width: 70px; text-align: center;">
+            </div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Where Is This Used?</div>
-              <div class="setting-description">Adds a "Where Is This Used?" button to the Flow details page in Setup, showing all active flows that reference this flow as a subflow, screen action, or action button.</div>
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Comparison Exporter</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-comparisonExporter" data-key="comparisonExporter.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-whereIsThisUsed" data-key="whereIsThisUsed.enabled">
-              <span class="toggle-slider"></span>
-            </label>
+            <div class="feature-card-description">Exports a side-by-side comparison of two flow versions as a formatted Word document.</div>
           </div>
 
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Flow Trigger Explorer Enhancer</div>
-              <div class="setting-description">Adds direct links to flows from the Flow Trigger Explorer in Setup.</div>
+          <!-- Row 5: AI Assistant — full width -->
+          <div class="feature-card feature-card-col-span-2">
+            <div class="feature-card-top">
+              <div class="feature-card-label">AI Assistant</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-flowAIAssistant" data-key="flowAIAssistant.enabled">
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-flowTriggerExplorerEnhancer" data-key="flowTriggerExplorerEnhancer.enabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">API Name Generator</div>
-              <div class="setting-description">Suggests API names following your configured naming conventions as you create flow elements and resources.</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-apiNameGenerator" data-key="apiNameGenerator.enabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Autosave</div>
-              <div class="setting-description">Automatically saves inactive (draft) flows in Flow Builder after a period of inactivity. A countdown timer is shown in the toolbar before saving. Off by default.</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-autosave" data-key="autosave.enabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-
-          <div class="setting-row">
-            <div class="setting-info">
-              <div class="setting-label">Autosave Interval</div>
-              <div class="setting-description">Minutes of inactivity before the autosave countdown begins. Minimum 1 minute.</div>
-            </div>
-            <input type="number"
-                   class="setting-input"
-                   id="setting-autosaveInterval"
-                   data-key="autosave.intervalMinutes"
-                   min="1"
-                   max="60"
-                   step="1"
-                   style="width: 70px; text-align: center;">
+            <div class="feature-card-description">Provides AI-powered assistance within Flow Builder for analysis, suggestions, and documentation.</div>
           </div>
 
         </div>

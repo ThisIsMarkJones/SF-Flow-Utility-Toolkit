@@ -16,6 +16,10 @@
  * Reference types detected from other metadata:
  *   - Quick Action          (QuickActionDefinition where Type = 'Flow')
  *   - Lightning Page        (FlexiPage component properties)
+ *   - LWC Component        (LightningComponentResource HTML scanned for flow-api-name attribute;
+ *                           page locations enriched from FlexiPage itemInstances tree)
+ *   - Button / Link        (WebLink Url field scanned for flow API name; covers both
+ *                           URL-type and JavaScript-type buttons as both use the Url field)
  */
 
 const WhereIsThisUsed = (() => {
@@ -51,7 +55,12 @@ const WhereIsThisUsed = (() => {
     badgeButton:      'sfut-witu-badge--button',
     badgeFlowAction:  'sfut-witu-badge--flow-action',
     badgeQuickAction: 'sfut-witu-badge--quick-action',
-    badgeLightning:   'sfut-witu-badge--lightning-page'
+    badgeLightning:   'sfut-witu-badge--lightning-page',
+    badgeLwc:         'sfut-witu-badge--lwc',
+    locationPages:    'sfut-witu-location-pages',
+    locationToggle:   'sfut-witu-location-toggle',
+    badgeWeblink:     'sfut-witu-badge--weblink',
+    csvButton:        'sfut-witu-btn-csv'
   };
 
   // ─── State ────────────────────────────────────────────────────────────────
@@ -63,6 +72,11 @@ const WhereIsThisUsed = (() => {
   };
 
   let _enabled = true;
+
+  // Holds the most recent scan results for CSV export
+  let _lastMatches = [];
+  let _lastApiName = '';
+  let _lastLabel   = '';
 
   // ─── Batch size for parallel Metadata fetches ─────────────────────────────
 
@@ -162,6 +176,7 @@ const WhereIsThisUsed = (() => {
     _showProgress('Resolving current flow…', 0);
 
     let currentApiName;
+    let currentLabel;
     try {
       let flowId = SalesforceAPI.getFlowIdFromUrl?.();
 
@@ -191,6 +206,7 @@ const WhereIsThisUsed = (() => {
 
       const flowMeta = await SalesforceAPI.getFlowMetadata(flowId);
       currentApiName = (flowMeta.FullName || '').replace(/-\d+$/, '');
+      currentLabel   = flowMeta.MasterLabel || currentApiName;
       if (!currentApiName) throw new Error('Could not resolve flow API name.');
     } catch (e) {
       _showError(`Could not resolve the current flow: ${e.message}`);
@@ -269,6 +285,11 @@ const WhereIsThisUsed = (() => {
     // ── Phase 3: Lightning Pages ───────────────────────────────────────────
     _showProgress('Scanning Lightning pages… (this may take a moment)', 62);
 
+    // lwcPageMap: developerName (lowercase) → array of page labels that contain it.
+    // Built here during the FlexiPage walk so Phase 4 can enrich LWC matches
+    // without any additional API calls.
+    const lwcPageMap = new Map();
+
     try {
       // Step 1: fetch all FlexiPage stubs (no Metadata — can't batch Metadata)
       const listResult = await SalesforceAPI.toolingQuery(
@@ -288,8 +309,9 @@ const WhereIsThisUsed = (() => {
               `SELECT Id, Metadata FROM FlexiPage WHERE Id = '${page.Id}'`
             );
             const metadata = detail.records?.[0]?.Metadata;
+            if (!metadata) return;
 
-            if (metadata && _flexiPageReferencesFlow(metadata, currentApiName)) {
+            if (_flexiPageReferencesFlow(metadata, currentApiName)) {
               allMatches.push({
                 sourceType:         'lightning-page',
                 id:                 page.Id,
@@ -299,21 +321,116 @@ const WhereIsThisUsed = (() => {
                 references:         ['Lightning Page']
               });
             }
+
+            // Collect every LWC component name used on this page so Phase 4
+            // can map bundle → pages without extra API calls.
+            const lwcNames = _extractLwcNamesFromFlexiPage(metadata);
+            for (const name of lwcNames) {
+              const key = name.toLowerCase();
+              if (!lwcPageMap.has(key)) lwcPageMap.set(key, []);
+              lwcPageMap.get(key).push(page.MasterLabel);
+            }
           } catch (e) {
             console.warn(`[SFUT WITU] Could not fetch FlexiPage metadata for ${page.Id}:`, e);
           }
         }));
 
         processed += batch.length;
-        const pct = 62 + Math.round((processed / total) * 35);
+        const pct = 62 + Math.round((processed / total) * 28);
         _showProgress(`Scanning Lightning pages… (${processed} / ${total})`, pct);
       }
     } catch (e) {
       console.warn('[SFUT WITU] Lightning page scan failed:', e);
     }
 
+
+    // ── Phase 4: LWC Components ───────────────────────────────────────────
+    _showProgress('Scanning LWC components…', 90);
+
+    try {
+      const bundleResult = await SalesforceAPI.toolingQuery(
+        `SELECT Id, MasterLabel, DeveloperName FROM LightningComponentBundle`
+      );
+      const bundles = bundleResult.records || [];
+      const lwcTotal = bundles.length;
+      let lwcProcessed = 0;
+
+      for (let i = 0; i < bundles.length; i += BATCH_SIZE) {
+        const batch = bundles.slice(i, i + BATCH_SIZE);
+
+        await Promise.all(batch.map(async bundle => {
+          try {
+            const resourceResult = await SalesforceAPI.toolingQuery(
+              `SELECT Id, Source FROM LightningComponentResource ` +
+              `WHERE LightningComponentBundleId = '${bundle.Id}' AND Format = 'html'`
+            );
+            const htmlResource = resourceResult.records?.[0];
+            if (!htmlResource?.Source) return;
+
+            if (_lwcReferencesFlow(htmlResource.Source, currentApiName)) {
+              // Enrich with Lightning page locations collected during Phase 3.
+              // Match on developerName (case-insensitive) — that is what
+              // FlexiPage metadata stores as the component reference name.
+              const devNameKey = (bundle.DeveloperName || '').toLowerCase();
+              const pages = lwcPageMap.get(devNameKey) || [];
+
+              allMatches.push({
+                sourceType:    'lwc',
+                id:            bundle.Id,
+                label:         bundle.MasterLabel || bundle.DeveloperName,
+                developerName: bundle.DeveloperName,
+                pages:         pages,
+                references:    ['LWC Component']
+              });
+            }
+          } catch (e) {
+            console.warn(`[SFUT WITU] Could not fetch LWC resources for ${bundle.Id}:`, e);
+          }
+        }));
+
+        lwcProcessed += batch.length;
+        const pct = 90 + Math.round((lwcProcessed / lwcTotal) * 9);
+        _showProgress(`Scanning LWC components… (${lwcProcessed} / ${lwcTotal})`, pct);
+      }
+    } catch (e) {
+      console.warn('[SFUT WITU] LWC scan failed:', e);
+    }
+
+    // ── Phase 5: Buttons & Links (WebLink) ───────────────────────────────────
+    _showProgress('Scanning buttons and links…', 97);
+
+    try {
+      const wlResult = await SalesforceAPI.toolingQuery(
+        `SELECT Id, Name, MasterLabel, EntityDefinitionId, DisplayType, Url
+         FROM WebLink`
+      );
+      const webLinks = wlResult.records || [];
+
+      for (const wl of webLinks) {
+        const refType = _webLinkReferencesFlow(wl, currentApiName);
+        if (!refType) continue;
+
+        allMatches.push({
+          sourceType:        'weblink',
+          id:                wl.Id,
+          label:             wl.MasterLabel || wl.Name,
+          entityDefinitionId: wl.EntityDefinitionId || 'Global',
+          references:        [refType]
+        });
+      }
+    } catch (e) {
+      console.warn('[SFUT WITU] WebLink scan failed:', e);
+    }
+
     _showProgress('Done.', 100);
     _renderResults(allMatches, currentApiName);
+
+    // Store matches for CSV export and reveal the Download CSV button
+    _lastMatches = allMatches;
+    _lastApiName = currentApiName;
+    _lastLabel   = currentLabel;
+    const csvBtn = document.getElementById('sfut-witu-csv-btn');
+    if (csvBtn && allMatches.length > 0) csvBtn.style.display = 'inline-flex';
   }
 
   // ─── Fetch one flow's Metadata and check for references ───────────────────
@@ -404,11 +521,14 @@ const WhereIsThisUsed = (() => {
 
   function _searchComponentsForFlow(regions, targetApiName) {
     for (const region of regions) {
-      const components = region.components || [];
-      for (const component of components) {
-        if (_componentReferencesFlow(component, targetApiName)) return true;
+      // FlexiPage metadata uses "itemInstances" — fall back to "components"
+      // for any older or alternate structures.
+      const items = region.itemInstances || region.components || [];
+      for (const item of items) {
+        const component = item.componentInstance ? item : item;
+        if (_componentReferencesFlow(item, targetApiName)) return true;
         // Recurse into nested regions
-        const nested = component.regions || [];
+        const nested = item.componentInstance?.regions || item.regions || [];
         if (_searchComponentsForFlow(nested, targetApiName)) return true;
       }
     }
@@ -450,6 +570,90 @@ const WhereIsThisUsed = (() => {
       }
     }
     return false;
+  }
+
+
+  // ─── LWC name extraction from FlexiPage ──────────────────────────────────
+
+  function _extractLwcNamesFromFlexiPage(metadata) {
+    // Returns a Set of LWC developer names (without namespace) referenced
+    // anywhere in the page's component tree.
+    //
+    // FlexiPage structure (confirmed from Tooling API):
+    //   flexiPageRegions[]
+    //     .itemInstances[]            <-- NOT .components[]
+    //       .componentInstance
+    //         .componentName          e.g. "c:lwcGeneratePDFFlowWrapper"
+    //
+    // Component name formats observed:
+    //   "c:localName"                 (colon-separated, default org namespace)
+    //   "ns__localName"               (double-underscore, managed namespace)
+    //   "force:highlightsPanel"       (standard Salesforce components)
+    const names = new Set();
+    const regions = metadata.flexiPageRegions || metadata.regions || [];
+    _collectLwcNames(regions, names);
+    return names;
+  }
+
+  function _collectLwcNames(regions, names) {
+    for (const region of regions) {
+      // FlexiPage metadata uses "itemInstances", not "components"
+      const items = region.itemInstances || region.components || [];
+      for (const item of items) {
+        const componentName = item.componentInstance?.componentName || '';
+        if (componentName) {
+          let local = componentName;
+          if (componentName.includes(':'))       local = componentName.split(':').pop();
+          else if (componentName.includes('__')) local = componentName.split('__').pop();
+          if (local) names.add(local.toLowerCase());
+        }
+
+        // Recurse into nested regions if present
+        const nestedRegions = item.componentInstance?.regions || [];
+        if (nestedRegions.length) _collectLwcNames(nestedRegions, names);
+      }
+    }
+  }
+
+  // ─── Reference detection: LWC components ──────────────────────────────────
+
+  function _lwcReferencesFlow(htmlSource, targetApiName) {
+    if (!htmlSource) return false;
+    // Matches: flow-api-name="sfGeneratePDFDocument" (with optional whitespace around =)
+    // Note: dynamic bindings (flow-api-name={prop}) cannot be detected statically.
+    const pattern = new RegExp(
+      `flow-api-name\\s*=\\s*["']${targetApiName}["']`, 'i'
+    );
+    return pattern.test(htmlSource);
+  }
+
+  // ─── Reference detection: WebLink buttons and links ─────────────────────────
+
+  function _webLinkReferencesFlow(webLink, targetApiName) {
+    // Returns the reference type label if this WebLink references the flow,
+    // or null if it does not.
+    //
+    // Both URL-type and JavaScript-type buttons store their content in the
+    // Url field in the Tooling API — there is no separate Markup field.
+    //
+    // Word-boundary check prevents "sfGeneratePDF" matching "sfGeneratePDFDocument".
+    // We look for the name preceded and followed by non-alphanumeric / non-underscore chars.
+    const pattern = new RegExp(`(?<![A-Za-z0-9_])${_escapeRegex(targetApiName)}(?![A-Za-z0-9_])`);
+
+    const url = webLink.Url || '';
+    if (!pattern.test(url)) return null;
+
+    // Determine badge label from DisplayType (confirmed values from Tooling API):
+    //   'B' = detail page button
+    //   'M' = list view button (not 'L' as Metadata API docs suggest)
+    const dt = (webLink.DisplayType || '').toUpperCase();
+    if (dt === 'M') return 'List Button';
+    if (dt === 'B') return 'Detail Button';
+    return 'Button / Link';
+  }
+
+  function _escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   // ─── Modal ────────────────────────────────────────────────────────────────
@@ -496,11 +700,19 @@ const WhereIsThisUsed = (() => {
     const footer = document.createElement('div');
     footer.className = CLASS_NAMES.modalFooter;
 
+    const csvFooterBtn = document.createElement('button');
+    csvFooterBtn.className   = CLASS_NAMES.csvButton;
+    csvFooterBtn.textContent = 'Download CSV';
+    csvFooterBtn.type        = 'button';
+    csvFooterBtn.style.display = 'none'; // hidden until results are ready
+    csvFooterBtn.id = 'sfut-witu-csv-btn';
+
     const closeFooterBtn = document.createElement('button');
     closeFooterBtn.className   = CLASS_NAMES.closeButton;
     closeFooterBtn.textContent = 'Close';
     closeFooterBtn.type        = 'button';
 
+    footer.appendChild(csvFooterBtn);
     footer.appendChild(closeFooterBtn);
 
     modal.appendChild(header);
@@ -511,6 +723,7 @@ const WhereIsThisUsed = (() => {
 
     closeBtn.addEventListener('click', _removeModal);
     closeFooterBtn.addEventListener('click', _removeModal);
+    csvFooterBtn.addEventListener('click', () => _exportCsv());
 
     document.addEventListener('keydown', _onEscapeKey);
   }
@@ -622,7 +835,7 @@ const WhereIsThisUsed = (() => {
 
         // Location column
         const tdLoc = document.createElement('td');
-        tdLoc.textContent = _formatLocation(match);
+        _renderLocation(tdLoc, match);
 
         tr.appendChild(tdLabel);
         tr.appendChild(tdType);
@@ -646,6 +859,57 @@ const WhereIsThisUsed = (() => {
     body.appendChild(err);
   }
 
+  // ─── Location cell renderer ─────────────────────────────────────────────────
+
+  // Threshold above which a "show more" toggle is rendered instead of the
+  // full comma-separated list.
+  const LOCATION_SHOW_LIMIT = 2;
+
+  function _renderLocation(td, match) {
+    const text = _formatLocation(match);
+
+    // For LWC matches with multiple pages, render a collapsible list.
+    if (match.sourceType === 'lwc' && match.pages && match.pages.length > LOCATION_SHOW_LIMIT) {
+      const pages   = match.pages;
+      const visible = pages.slice(0, LOCATION_SHOW_LIMIT);
+      const hidden  = pages.slice(LOCATION_SHOW_LIMIT);
+
+      const wrap = document.createElement('span');
+      wrap.className = CLASS_NAMES.locationPages;
+
+      // Always-visible portion
+      const visibleSpan = document.createElement('span');
+      visibleSpan.textContent = visible.join(', ') + ', ';
+      wrap.appendChild(visibleSpan);
+
+      // Hidden overflow portion
+      const hiddenSpan = document.createElement('span');
+      hiddenSpan.textContent = hidden.join(', ');
+      hiddenSpan.style.display = 'none';
+      wrap.appendChild(hiddenSpan);
+
+      // Toggle link
+      const toggle = document.createElement('a');
+      toggle.href      = 'javascript:void(0)';
+      toggle.className = CLASS_NAMES.locationToggle;
+      toggle.textContent = `+${hidden.length} more`;
+      toggle.addEventListener('click', () => {
+        const expanded = hiddenSpan.style.display !== 'none';
+        hiddenSpan.style.display = expanded ? 'none' : 'inline';
+        // Patch the visible prefix to remove trailing comma when expanded
+        visibleSpan.textContent = expanded
+          ? visible.join(', ') + ', '
+          : visible.join(', ') + ', ';
+        toggle.textContent = expanded ? `+${hidden.length} more` : 'show less';
+      });
+      wrap.appendChild(toggle);
+
+      td.appendChild(wrap);
+    } else {
+      td.textContent = text;
+    }
+  }
+
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
   function _buildUrl(match) {
@@ -659,6 +923,16 @@ const WhereIsThisUsed = (() => {
     if (match.sourceType === 'lightning-page') {
       return `${base}/lightning/setup/FlexiPageList/home`;
     }
+    if (match.sourceType === 'lwc') {
+      return `${base}/lightning/setup/LightningComponentBundles/home`;
+    }
+    if (match.sourceType === 'weblink') {
+      const obj = match.entityDefinitionId && match.entityDefinitionId !== 'Global'
+        ? match.entityDefinitionId : null;
+      return obj
+        ? `${base}/lightning/setup/ObjectManager/${obj}/ButtonsLinksActions/home`
+        : `${base}/lightning/setup/GlobalActions/home`;
+    }
     return '#';
   }
 
@@ -666,6 +940,8 @@ const WhereIsThisUsed = (() => {
     if (match.sourceType === 'flow')          return _formatProcessType(match.processType);
     if (match.sourceType === 'quick-action')  return 'Quick Action';
     if (match.sourceType === 'lightning-page') return _formatPageType(match.pageType);
+    if (match.sourceType === 'lwc')          return 'LWC Component';
+    if (match.sourceType === 'weblink')      return 'Button / Link';
     return '';
   }
 
@@ -677,6 +953,16 @@ const WhereIsThisUsed = (() => {
     }
     if (match.sourceType === 'lightning-page') {
       return match.entityDefinitionId || '—';
+    }
+    if (match.sourceType === 'lwc') {
+      return match.pages && match.pages.length > 0
+        ? match.pages.join(', ')
+        : '—';
+    }
+    if (match.sourceType === 'weblink') {
+      return match.entityDefinitionId && match.entityDefinitionId !== 'Global'
+        ? match.entityDefinitionId
+        : 'Global';
     }
     return '—';
   }
@@ -719,9 +1005,92 @@ const WhereIsThisUsed = (() => {
       'Action Button': CLASS_NAMES.badgeButton,
       'Flow Action':   CLASS_NAMES.badgeFlowAction,
       'Quick Action':  CLASS_NAMES.badgeQuickAction,
-      'Lightning Page':CLASS_NAMES.badgeLightning
+      'Lightning Page':CLASS_NAMES.badgeLightning,
+      'LWC Component': CLASS_NAMES.badgeLwc,
+      'Detail Button': CLASS_NAMES.badgeWeblink,
+      'List Button':   CLASS_NAMES.badgeWeblink,
+      'Button / Link': CLASS_NAMES.badgeWeblink
     };
     return map[refType] || CLASS_NAMES.badgeAction; // Screen Action fallback
+  }
+
+  // ─── CSV export ──────────────────────────────────────────────────────────────
+
+  function _exportCsv() {
+    if (!_lastMatches.length) return;
+
+    const headers = ['Name', 'Type', 'Referenced As', 'Location'];
+
+    const rows = [];
+    for (const match of _lastMatches) {
+      for (const refType of match.references) {
+        rows.push([
+          match.label,
+          _formatType(match),
+          refType,
+          _formatLocationPlain(match)
+        ]);
+      }
+    }
+
+    const escape = val => `"${String(val ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      headers.map(escape).join(','),
+      ...rows.map(row => row.map(escape).join(','))
+    ].join('\r\n');
+
+    const safeName = (_lastLabel || _lastApiName).replace(/[^a-zA-Z0-9 _-]/g, '').trim();
+    const filename  = `${safeName} - Where Is This Used ${_isoDate()}.csv`;
+
+    // Content scripts run in an isolated world where Chrome ignores the
+    // `download` attribute on blob URLs. To honour the filename we inject
+    // a one-shot function into the MAIN world via the background service
+    // worker — the same technique used by comparison-exporter.js.
+    chrome.runtime.sendMessage(
+      { action: 'downloadCsv', csv, filename },
+      (response) => {
+        if (chrome.runtime.lastError || !response?.ok) {
+          console.warn('[SFUT WITU] CSV download via background failed, falling back:',
+            chrome.runtime.lastError?.message || response?.error);
+          // Fallback: blob anchor in isolated world (browser may ignore filename)
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = url;
+          a.download = filename;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        }
+      }
+    );
+  }
+
+  function _formatLocationPlain(match) {
+    // Plain-text version of location for CSV — no DOM, no toggle widget.
+    if (match.sourceType === 'quick-action') {
+      return match.objectType && match.objectType !== 'Global'
+        ? match.objectType : 'Global';
+    }
+    if (match.sourceType === 'lightning-page') {
+      return match.entityDefinitionId || '—';
+    }
+    if (match.sourceType === 'lwc') {
+      return match.pages && match.pages.length > 0
+        ? match.pages.join('; ')
+        : '—';
+    }
+    if (match.sourceType === 'weblink') {
+      return match.entityDefinitionId && match.entityDefinitionId !== 'Global'
+        ? match.entityDefinitionId : 'Global';
+    }
+    return '—';
+  }
+
+  function _isoDate() {
+    return new Date().toISOString().slice(0, 10);
   }
 
   // ─── Public API ───────────────────────────────────────────────────────────

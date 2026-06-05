@@ -3256,6 +3256,61 @@ a.sfut-witu-trigger-btn:hover {
   color: #023248;
   border: 1px solid #90d0fe;
 }
+.sfut-witu-badge--lwc {
+  background-color: #f0f9f9;
+  color: #044e52;
+  border: 1px solid #83d4d4;
+}
+
+.sfut-witu-badge--weblink {
+  background-color: #fdf6e3;
+  color: #574300;
+  border: 1px solid #f0c950;
+}
+
+/* Download CSV button in modal footer */
+.sfut-witu-btn-csv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  min-height: 36px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  line-height: 1.2;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #181818;
+  border: 1px solid #0176d3;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+
+.sfut-witu-btn-csv:hover {
+  background-color: #f0f7ff;
+  border-color: #014486;
+  color: #014486;
+}
+
+/* Location pages — show more/less toggle */
+.sfut-witu-location-pages {
+  display: inline;
+}
+
+.sfut-witu-location-toggle {
+  font-size: 11px;
+  color: #0176d3;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-left: 2px;
+}
+
+.sfut-witu-location-toggle:hover {
+  text-decoration: underline;
+}
 /* ===== Autosave ===== */
 
 /* Pill injected into the Flow Builder toolbar */
