@@ -2988,3 +2988,332 @@ tr.palette-item.sfut-canvas-highlight-focus {
 .sfut-toast-warning {
   background-color: #b95000;
 }
+
+/* ─── Where Is This Used ──────────────────────────────────────────────────── */
+
+/* Trigger button — uses native Salesforce VF 'btn' class for consistent
+   appearance with other injected buttons (e.g. FVM's Delete Selected Versions).
+   Override needed because <a> renders differently to <input type=button>.
+   Exact values measured from native Edit/Open/Run/Delete buttons:
+   height: 22px, padding: 4px 3px, font-size: 10.224px */
+a.sfut-witu-trigger-btn {
+  margin-left: 4px;
+  text-decoration: none !important;
+  vertical-align: middle;
+  display: inline-block;
+  height: 22px !important;
+  padding: 4px 3px !important;
+  font-size: 10.224px !important;
+  line-height: normal !important;
+  box-sizing: border-box;
+}
+
+a.sfut-witu-trigger-btn:hover {
+  text-decoration: none !important;
+}
+
+/* Backdrop */
+.sfut-witu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(24, 24, 24, 0.45);
+}
+
+/* Modal */
+.sfut-witu-modal {
+  width: min(672px, calc(100vw - 32px));
+  max-width: 100%;
+  height: min(520px, calc(100vh - 32px));
+  max-height: min(520px, calc(100vh - 32px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  font-size: 13px;
+  color: #181818;
+}
+
+/* Modal header */
+.sfut-witu-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #e5e5e5;
+  border-radius: 8px 8px 0 0;
+  flex-shrink: 0;
+}
+
+.sfut-witu-modal-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 15px;
+  color: #0176d3;
+}
+
+.sfut-witu-modal-close {
+  background: none;
+  border: none;
+  color: #706e6b;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sfut-witu-modal-close:hover {
+  color: #181818;
+  background-color: #e5e5e5;
+}
+
+/* Modal body */
+.sfut-witu-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Modal footer */
+.sfut-witu-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid #e5e5e5;
+  background-color: #ffffff;
+  border-radius: 0 0 8px 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Close button in footer */
+.sfut-witu-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  min-height: 36px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  line-height: 1.2;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #181818;
+  border: 1px solid #c9c9c9;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+
+.sfut-witu-btn-secondary:hover {
+  background-color: #f3f3f3;
+  border-color: #0176d3;
+}
+
+/* Progress bar */
+.sfut-witu-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sfut-witu-progress-text {
+  font-size: 13px;
+  color: #3e3e3c;
+}
+
+.sfut-witu-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e5e5;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sfut-witu-progress-fill {
+  height: 100%;
+  background-color: #0176d3;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+/* Empty state */
+.sfut-witu-empty {
+  font-size: 13px;
+  color: #706e6b;
+  font-style: italic;
+}
+
+/* Error state */
+.sfut-witu-error {
+  font-size: 13px;
+  color: #ba0517;
+  font-weight: 600;
+}
+
+/* Results table */
+.sfut-witu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.sfut-witu-table thead tr {
+  background-color: #f3f3f3;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.sfut-witu-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  color: #3e3e3c;
+  white-space: nowrap;
+}
+
+.sfut-witu-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e5e5e5;
+  vertical-align: middle;
+  color: #181818;
+}
+
+.sfut-witu-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sfut-witu-table tbody tr:hover td {
+  background-color: #f8f8f8;
+}
+
+.sfut-witu-table a {
+  color: #0176d3;
+  text-decoration: none;
+}
+
+.sfut-witu-table a:hover {
+  text-decoration: underline;
+}
+
+/* Reference type badges */
+.sfut-witu-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.sfut-witu-badge--subflow {
+  background-color: #e8f4fd;
+  color: #0b5cab;
+  border: 1px solid #aacbff;
+}
+
+.sfut-witu-badge--action {
+  background-color: #ebf7e6;
+  color: #194e31;
+  border: 1px solid #91db8b;
+}
+
+.sfut-witu-badge--button {
+  background-color: #f6f2fb;
+  color: #401075;
+  border: 1px solid #d7bff2;
+}
+
+.sfut-witu-badge--flow-action {
+  background-color: #fef1ed;
+  color: #7e2600;
+  border: 1px solid #feb9a5;
+}
+
+.sfut-witu-badge--quick-action {
+  background-color: #fff1ea;
+  color: #5f3e02;
+  border: 1px solid #ffba90;
+}
+
+.sfut-witu-badge--lightning-page {
+  background-color: #eaf5fe;
+  color: #023248;
+  border: 1px solid #90d0fe;
+}
+/* ===== Autosave ===== */
+
+/* Pill injected into the Flow Builder toolbar */
+.sfut-autosave-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  height: 32px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: default;
+  user-select: none;
+}
+
+/* Idle state: Save is disabled (Active flow or no changes yet) */
+.sfut-autosave-pill--idle {
+  background-color: transparent;
+  color: #706e6b;
+  border-color: transparent;
+}
+
+/* Armed state: Save is enabled, inactivity timer running */
+.sfut-autosave-pill--armed {
+  background-color: #f3f3f3;
+  color: #3e3e3c;
+  border-color: #e5e5e5;
+}
+
+/* Countdown state: actively counting down to save */
+.sfut-autosave-pill--countdown {
+  background-color: #fff3e0;
+  color: #a06000;
+  border-color: #ffb300;
+  font-weight: 600;
+}
+
+/* Post-save: briefly shows "Saved" confirmation */
+.sfut-autosave-pill--saved {
+  background-color: #ebf7e6;
+  color: #194e31;
+  border-color: #91db8b;
+}
+
+/* Icon within the pill */
+.sfut-autosave-pill__icon {
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Text label within the pill */
+.sfut-autosave-pill__label {
+  line-height: 1;
+}

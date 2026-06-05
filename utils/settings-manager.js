@@ -34,11 +34,16 @@ const SettingsManager = (() => {
     'flowHealthCheck.enabled': true,
     'comparisonExporter.enabled': true,
     'flowVersionManager.enabled': true,
+    'whereIsThisUsed.enabled': true,
     'flowTriggerExplorerEnhancer.enabled': true,
     'flowListSearch.enabled': true,
     'unusedResources.enabled': true,
     'scheduledFlowExplorer.enabled': true,             // Master toggle for the feature
-    'scheduledFlowExplorer.defaultView': 'list'        // 'list' | 'calendar'
+    'scheduledFlowExplorer.defaultView': 'list',       // 'list' | 'calendar'
+
+    // Autosave
+    'autosave.enabled': false,                         // Off by default — user must opt in
+    'autosave.intervalMinutes': 3                      // Minutes of inactivity before countdown starts
   };
 
   /**

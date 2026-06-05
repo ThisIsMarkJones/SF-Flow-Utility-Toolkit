@@ -87,7 +87,7 @@ const ContextDetector = (() => {
         return ['setup-tabs', 'flow-list-search', 'scheduled-flow-explorer'];
 
       case CONTEXTS.FLOW_DETAILS:
-        return ['flow-version-manager'];
+        return ['flow-version-manager', 'where-is-this-used'];
 
       case CONTEXTS.FLOW_BUILDER:
         return [
@@ -96,7 +96,8 @@ const ContextDetector = (() => {
           'ai-assistant',
           'api-name-generator',
           'flow-health-check',
-          'unused-resources'
+          'unused-resources',
+          'autosave'
         ];
 
       case CONTEXTS.COMPARE_FLOWS:

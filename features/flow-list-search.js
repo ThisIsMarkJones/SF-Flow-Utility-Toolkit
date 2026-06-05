@@ -45,7 +45,7 @@ const FlowListSearchFeature = (() => {
     listViewManager: '.forceListViewManager, .forceListViewManagerGrid, [data-aura-class="forceListViewManager"]',
     tableBody: 'table tbody, .uiVirtualDataTable tbody, .slds-table tbody',
     tableRow: 'table tbody tr, .uiVirtualDataTable tbody tr, .slds-table tbody tr',
-    scrollContainer: '.uiScroller .scroller-inner, .uiScroller, .slds-scrollable_y, .listViewContent, [data-aura-class="uiScroller"]',
+    scrollContainer: '.forceListViewManagerGrid .uiScroller.scroller-wrapper, .forceListViewManagerGrid .uiScroller, .listViewContent .uiScroller',
     listHeader: '.listViewContent .slds-page-header, .forceListViewManagerHeader, .slds-page-header',
     flowNameCell: 'th[scope="row"] a, td:first-child a, th a'
   };
@@ -230,7 +230,7 @@ const FlowListSearchFeature = (() => {
     let debounceTimer = null;
 
     _rowObserver = new MutationObserver(() => {
-      if (_isScrolling || _allRowsLoaded) return;
+      if (_allRowsLoaded) return;
 
       // Debounce: SF may add rows in batches
       clearTimeout(debounceTimer);
@@ -396,23 +396,49 @@ const FlowListSearchFeature = (() => {
       _isScrolling = false;
       _indexRows();
       _populateFilterOptions();
-      _updateRowCount();
+      _applyFilters();
       return;
+    }
+
+    // Wait for the uiVirtualDataTable indicator div to reach its full height.
+    // Salesforce sets indicator height = totalRows * rowHeight (~31px/row).
+    // Until it's taller than a single row, the scroller has nothing to scroll
+    // and our scrollTop changes have no effect. We scope to the flow list
+    // manager to avoid matching unrelated virtual tables elsewhere on the page.
+    const maxWaitMs = 10000;
+    const pollMs = 200;
+    let waited = 0;
+    while (waited < maxWaitMs) {
+      const indicator = scroller.querySelector('.uiVirtualDataTable.indicator');
+      if (indicator && indicator.offsetHeight > 100) {
+        console.log(`[SFUT FlowListSearch] Virtual table indicator ready: ${indicator.offsetHeight}px`);
+        break;
+      }
+      await new Promise(r => setTimeout(r, pollMs));
+      waited += pollMs;
+    }
+
+    if (waited >= maxWaitMs) {
+      console.warn('[SFUT FlowListSearch] Timed out waiting for virtual table indicator — proceeding anyway.');
     }
 
     let previousRowCount = 0;
     let stableCount = 0;
-    const maxScrollAttempts = 100;
+    const maxScrollAttempts = 120;
 
     for (let i = 0; i < maxScrollAttempts; i++) {
       scroller.scrollTop = scroller.scrollHeight;
-      await new Promise(r => setTimeout(r, 300));
+      scroller.dispatchEvent(new Event('scroll', { bubbles: true, cancelable: false }));
+
+      // Yield to the browser rendering pipeline before measuring
+      await new Promise(r => requestAnimationFrame(r));
+      await new Promise(r => setTimeout(r, 350));
 
       const currentRowCount = _getAllRows().length;
 
       if (currentRowCount === previousRowCount) {
         stableCount++;
-        if (stableCount >= 3) {
+        if (stableCount >= 4) {
           break;
         }
       } else {
@@ -422,16 +448,17 @@ const FlowListSearchFeature = (() => {
     }
 
     scroller.scrollTop = 0;
+    scroller.dispatchEvent(new Event('scroll', { bubbles: true, cancelable: false }));
 
     _allRowsLoaded = true;
     _isScrolling = false;
 
     _indexRows();
     _populateFilterOptions();
+    _applyFilters();
 
     const totalRows = _rowIndex.length;
     console.log(`[SFUT FlowListSearch] All rows loaded: ${totalRows} flows found.`);
-    _updateCount(totalRows, totalRows, false);
   }
 
   function _indexRows() {

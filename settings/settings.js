@@ -160,10 +160,12 @@
       _setToggle('setting-flowVersionManager', settings['flowVersionManager.enabled']);
       _setToggle('setting-flowTriggerExplorerEnhancer', settings['flowTriggerExplorerEnhancer.enabled']);
       _setToggle('setting-scheduledFlowExplorer', settings['scheduledFlowExplorer.enabled']);
+      _setToggle('setting-autosave', settings['autosave.enabled']);
 
       // Populate inputs
       _setInput('setting-shortcut', settings['canvasSearch.shortcut']);
       _setInput('setting-highlightColour', settings['canvasSearch.highlightColour']);
+      _setInput('setting-autosaveInterval', settings['autosave.intervalMinutes']);
 
       // Populate selects
       _setSelect('setting-namingPattern', settings['apiNameGenerator.namingPattern']);
@@ -196,6 +198,19 @@
         _saveSetting(colourPicker.dataset.key, colourPicker.value);
       });
     }
+
+    // Number inputs (e.g. autosave interval)
+    document.querySelectorAll('input[type="number"][data-key]').forEach((numInput) => {
+      numInput.addEventListener('change', () => {
+        const min = parseInt(numInput.min, 10) || 1;
+        const max = parseInt(numInput.max, 10) || 9999;
+        let val = parseInt(numInput.value, 10);
+        if (isNaN(val) || val < min) val = min;
+        if (val > max) val = max;
+        numInput.value = val;
+        _saveSetting(numInput.dataset.key, val);
+      });
+    });
 
     // Keyboard shortcut capture
     const shortcutInput = document.getElementById('setting-shortcut');
@@ -250,7 +265,8 @@
     const _featureKeys = [
       'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
       'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
-      'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled'
+      'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled',
+      'autosave.enabled'
     ];
     if (_featureKeys.includes(key)) {
       const notice = document.getElementById('feature-reload-notice');

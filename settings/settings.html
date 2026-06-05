@@ -1262,6 +1262,17 @@
 
           <div class="setting-row">
             <div class="setting-info">
+              <div class="setting-label">Where Is This Used?</div>
+              <div class="setting-description">Adds a "Where Is This Used?" button to the Flow details page in Setup, showing all active flows that reference this flow as a subflow, screen action, or action button.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-whereIsThisUsed" data-key="whereIsThisUsed.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
               <div class="setting-label">Flow Trigger Explorer Enhancer</div>
               <div class="setting-description">Adds direct links to flows from the Flow Trigger Explorer in Setup.</div>
             </div>
@@ -1280,6 +1291,32 @@
               <input type="checkbox" id="setting-apiNameGenerator" data-key="apiNameGenerator.enabled">
               <span class="toggle-slider"></span>
             </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Autosave</div>
+              <div class="setting-description">Automatically saves inactive (draft) flows in Flow Builder after a period of inactivity. A countdown timer is shown in the toolbar before saving. Off by default.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-autosave" data-key="autosave.enabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Autosave Interval</div>
+              <div class="setting-description">Minutes of inactivity before the autosave countdown begins. Minimum 1 minute.</div>
+            </div>
+            <input type="number"
+                   class="setting-input"
+                   id="setting-autosaveInterval"
+                   data-key="autosave.intervalMinutes"
+                   min="1"
+                   max="60"
+                   step="1"
+                   style="width: 70px; text-align: center;">
           </div>
 
         </div>
