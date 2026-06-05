@@ -90,7 +90,7 @@ Feature ideas and suggestions are welcome via GitHub Discussions:
 
 ## Current version
 
-**v3.0.2**
+**v3.0.3**
 
 See [What's New](https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/whats-new.html) for recent updates.
 
