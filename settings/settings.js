@@ -28,6 +28,7 @@
     'flowVersionManager.enabled': true,
     'flowTriggerExplorerEnhancer.enabled': true,
     'scheduledFlowExplorer.enabled': true,
+    'keyboardShortcuts.enabled': true,
 
     // Other settings
     'canvasSearch.shortcut': 'Ctrl+Shift+F',
@@ -163,6 +164,7 @@
       _setToggle('setting-whereIsThisUsed', settings['whereIsThisUsed.enabled']);
       _setToggle('setting-unusedResources', settings['unusedResources.enabled']);
       _setToggle('setting-autosave', settings['autosave.enabled']);
+      _setToggle('setting-keyboardShortcuts', settings['keyboardShortcuts.enabled']);
 
       // Populate inputs
       _setInput('setting-shortcut', settings['canvasSearch.shortcut']);
@@ -268,7 +270,8 @@
       'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
       'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
       'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled',
-      'autosave.enabled','whereIsThisUsed.enabled','unusedResources.enabled'
+      'autosave.enabled','whereIsThisUsed.enabled','unusedResources.enabled',
+      'keyboardShortcuts.enabled'
     ];
     if (_featureKeys.includes(key)) {
       const notice = document.getElementById('feature-reload-notice');
@@ -1876,12 +1879,41 @@
         'scheduledFlowExplorer.enabled':      'setting-scheduledFlowExplorer',
         'whereIsThisUsed.enabled':            'setting-whereIsThisUsed',
         'unusedResources.enabled':            'setting-unusedResources',
+        'keyboardShortcuts.enabled':          'setting-keyboardShortcuts',
       };
       Object.entries(changes).forEach(([key, { newValue }]) => {
         const id = toggleMap[key];
         if (id) _setToggle(id, newValue);
       });
     });
+  }
+
+  // ============================================================
+  // ===== Keyboard Shortcuts tab ================================
+  // ============================================================
+
+  /**
+   * Populates the OS-dependent shortcut displays on the Keyboard Shortcuts tab.
+   * Detects whether the user is on a Mac and renders the appropriate modifier key.
+   * Falls back to displaying both variants if detection is inconclusive.
+   */
+  function initKeyboardShortcutsTab() {
+    const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+
+    const sidebarEl = document.getElementById('shortcut-sidebar-display');
+    const saveAsEl  = document.getElementById('shortcut-saveas-display');
+
+    if (sidebarEl) {
+      sidebarEl.innerHTML = isMac
+        ? '<kbd class="sfut-kbd">⌘ Cmd</kbd> + <kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">U</kbd>'
+        : '<kbd class="sfut-kbd">Ctrl</kbd> + <kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">U</kbd>';
+    }
+
+    if (saveAsEl) {
+      saveAsEl.innerHTML = isMac
+        ? '<kbd class="sfut-kbd">⌘ Cmd</kbd> + <kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">S</kbd>'
+        : '<kbd class="sfut-kbd">Ctrl</kbd> + <kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">S</kbd>';
+    }
   }
 
   // ===== Initialise =====
@@ -1893,6 +1925,7 @@
     initPrefixConfig();
     initAboutTab();
     initAIPromptsTab();
+    initKeyboardShortcutsTab();
 
     // Set footer version from manifest so it never drifts from the declared version
     const footer = document.getElementById('settings-footer');

@@ -97,6 +97,7 @@ const ContextDetector = (() => {
           'api-name-generator',
           'flow-health-check',
           'unused-resources',
+          'keyboard-shortcuts',
           'autosave'
         ];
 

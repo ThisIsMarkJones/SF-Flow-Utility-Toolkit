@@ -15,6 +15,9 @@
  * 6. Searches by Flow Label and Flow API Name
  * 7. Filters by Status and Type
  * 8. Shows a count of matching / total flows
+ * 9. Detects SPA hash-based navigation back to the Flows list (e.g. via the
+ *    "Back to List: Flows" breadcrumb link) and fully reinitialises the feature,
+ *    resetting all state and re-triggering the lazy load scroll
  *
  * Designed for the Setup Flows page:
  *   https://{org}.salesforce-setup.com/lightning/setup/Flows/home
@@ -103,6 +106,9 @@ const FlowListSearchFeature = (() => {
     Workflow: 'Workflow'
   };
 
+  // URL pattern that identifies the Flows list page across org domains
+  const FLOWS_LIST_URL_PATTERN = /\/lightning\/setup\/Flows\/home/i;
+
   async function init() {
     const context = ContextDetector.detectContext();
     if (context !== ContextDetector.CONTEXTS.SETUP_FLOWS) {
@@ -115,6 +121,76 @@ const FlowListSearchFeature = (() => {
 
     console.log('[SFUT FlowListSearch] Initialising...');
     await _waitForListView();
+    _observeSpaNavigation();
+  }
+
+  /**
+   * Watches for hash-based SPA navigation back to the Flows list page.
+   * Salesforce uses hash changes (e.g. #/alohaRedirect/lightning/setup/Flows/home)
+   * when navigating via links such as "Back to List: Flows", which does not
+   * trigger a full page reload or re-run the feature's init(). This observer
+   * detects when the URL settles on the Flows list pattern and re-initialises
+   * the feature from scratch if it was previously active on a different page.
+   */
+  function _observeSpaNavigation() {
+    if (document.body.dataset.sfutFlowListSpaWatcher) return;
+    document.body.dataset.sfutFlowListSpaWatcher = 'true';
+
+    let lastUrl = window.location.href;
+
+    const observer = new MutationObserver(async () => {
+      const currentUrl = window.location.href;
+      if (currentUrl === lastUrl) return;
+
+      const wasOnFlowsList = FLOWS_LIST_URL_PATTERN.test(lastUrl);
+      const isOnFlowsList  = FLOWS_LIST_URL_PATTERN.test(currentUrl);
+      lastUrl = currentUrl;
+
+      // Only act when navigating TO the Flows list from somewhere else.
+      // If we were already on the list (e.g. column sort click), skip.
+      if (!isOnFlowsList || wasOnFlowsList) return;
+
+      console.log('[SFUT FlowListSearch] SPA navigation back to Flows list detected — reinitialising.');
+      _reset();
+      await _waitForListView();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  /**
+   * Resets all module state and removes the injected search bar so the
+   * feature can be fully reinitialised on the next _waitForListView() call.
+   */
+  function _reset() {
+    // Remove the injected search bar if present
+    const existing = document.getElementById('sfut-flow-search-container');
+    if (existing) existing.remove();
+
+    // Disconnect the row observer so it doesn't fire during reinitialisation
+    if (_rowObserver) {
+      _rowObserver.disconnect();
+      _rowObserver = null;
+    }
+
+    // Reset all DOM references
+    _searchContainer = null;
+    _searchInput     = null;
+    _statusFilter    = null;
+    _typeFilter      = null;
+    _countLabel      = null;
+    _clearBtn        = null;
+
+    // Reset all state flags so _ensureAllRowsLoaded() and _autoScrollToLoadAll()
+    // run fresh rather than returning early
+    _allRowsLoaded = false;
+    _isScrolling   = false;
+    _isActive      = false;
+    _rowIndex      = [];
+    _apiTotal      = null;
+    _apiStatusMap  = null;
+
+    console.log('[SFUT FlowListSearch] State reset complete.');
   }
 
   function onActivate() {
@@ -400,18 +476,18 @@ const FlowListSearchFeature = (() => {
       return;
     }
 
-    // Wait for the uiVirtualDataTable indicator div to reach its full height.
-    // Salesforce sets indicator height = totalRows * rowHeight (~31px/row).
-    // Until it's taller than a single row, the scroller has nothing to scroll
-    // and our scrollTop changes have no effect. We scope to the flow list
-    // manager to avoid matching unrelated virtual tables elsewhere on the page.
+    // Wait for the scroller to have scrollable content before attempting to
+    // scroll. We check whether scrollHeight exceeds clientHeight, which is a
+    // reliable signal that the list has rendered enough rows to scroll through.
+    // This replaces the previous uiVirtualDataTable.indicator height check,
+    // which was timing out on orgs where that element is absent or undersized.
     const maxWaitMs = 10000;
-    const pollMs = 200;
-    let waited = 0;
+    const pollMs    = 200;
+    let waited      = 0;
+
     while (waited < maxWaitMs) {
-      const indicator = scroller.querySelector('.uiVirtualDataTable.indicator');
-      if (indicator && indicator.offsetHeight > 100) {
-        console.log(`[SFUT FlowListSearch] Virtual table indicator ready: ${indicator.offsetHeight}px`);
+      if (scroller.scrollHeight > scroller.clientHeight) {
+        console.log(`[SFUT FlowListSearch] Scroller ready (scrollHeight: ${scroller.scrollHeight}px).`);
         break;
       }
       await new Promise(r => setTimeout(r, pollMs));
@@ -419,7 +495,7 @@ const FlowListSearchFeature = (() => {
     }
 
     if (waited >= maxWaitMs) {
-      console.warn('[SFUT FlowListSearch] Timed out waiting for virtual table indicator — proceeding anyway.');
+      console.log('[SFUT FlowListSearch] Scroller did not become scrollable — list may be short or already fully loaded. Proceeding.');
     }
 
     let previousRowCount = 0;
