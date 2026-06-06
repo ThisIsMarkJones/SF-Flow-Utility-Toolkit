@@ -338,6 +338,23 @@
       font-size: 11px;
     }
 
+    /* ===== Keyboard shortcut key display ===== */
+
+    .sfut-kbd {
+      display: inline-block;
+      padding: 2px 7px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #181818;
+      background-color: #f3f3f3;
+      border: 1px solid #c9c9c9;
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
     /* ===== About tab ===== */
 
     .about-row {
@@ -1179,6 +1196,14 @@
       <button type="button"
               class="settings-tab"
               role="tab"
+              data-tab="keyboard-shortcuts"
+              aria-selected="false"
+              aria-controls="tab-keyboard-shortcuts"
+              id="tab-btn-keyboard-shortcuts"
+              tabindex="-1">Keyboard Shortcuts</button>
+      <button type="button"
+              class="settings-tab"
+              role="tab"
               data-tab="about"
               aria-selected="false"
               aria-controls="tab-about"
@@ -1417,8 +1442,8 @@
             <div class="feature-card-description">Exports a side-by-side comparison of two flow versions as a formatted Word document.</div>
           </div>
 
-          <!-- Row 5: AI Assistant — full width -->
-          <div class="feature-card feature-card-col-span-2">
+          <!-- Row 5: AI Assistant + Keyboard Shortcuts -->
+          <div class="feature-card">
             <div class="feature-card-top">
               <div class="feature-card-label">AI Assistant</div>
               <label class="toggle-switch">
@@ -1427,6 +1452,17 @@
               </label>
             </div>
             <div class="feature-card-description">Provides AI-powered assistance within Flow Builder for analysis, suggestions, and documentation.</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-card-top">
+              <div class="feature-card-label">Keyboard Shortcuts</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-keyboardShortcuts" data-key="keyboardShortcuts.enabled">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="feature-card-description">Adds keyboard shortcuts to Flow Builder for common actions including Activate, Save, Debug, New Resource, New Element, and more. A global shortcut (Cmd/Ctrl+Shift+U) opens the Utility Sidebar from any supported page.</div>
           </div>
 
         </div>
@@ -1645,6 +1681,146 @@
                       id="prefix-reset-table-resource" hidden>↺ Reset table</button>
             </div>
             <div id="prefix-table-resource"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =========================================== -->
+    <!-- ===== KEYBOARD SHORTCUTS TAB ===== -->
+    <!-- =========================================== -->
+    <div class="settings-tab-panel"
+         id="tab-keyboard-shortcuts"
+         role="tabpanel"
+         aria-labelledby="tab-btn-keyboard-shortcuts"
+         data-tab-panel="keyboard-shortcuts"
+         hidden>
+
+      <!-- Canvas Shortcuts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Canvas Shortcuts</div>
+        <div class="settings-section-body">
+
+          <div class="about-row">
+            <div class="about-label" style="flex: 0 0 220px; color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Action</div>
+            <div class="about-value" style="color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Shortcut</div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Save</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">S</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Debug</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">D</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Run</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">R</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Create New Element</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">E</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Create New Resource</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">V</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Open Manager (Toolbox)</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">M</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Open Errors Panel → Errors Tab</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">F</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Open Errors Panel → Warnings Tab</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">W</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Open Settings</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">X</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Show / Hide Advanced</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">H</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Select Elements</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">A</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Undo</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">Z</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Redo</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">Y</kbd></div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Activate / Deactivate</div>
+            <div class="about-value"><kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">T</kbd></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Global Shortcuts -->
+      <div class="settings-section">
+        <div class="settings-section-header">Global Shortcuts</div>
+        <div class="settings-section-body">
+
+          <div class="about-row">
+            <div class="about-label" style="flex: 0 0 220px; color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Action</div>
+            <div class="about-value" style="color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Shortcut</div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Open Utility Sidebar</div>
+            <div class="about-value" id="shortcut-sidebar-display">
+              <!-- Populated by JS based on detected OS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Native Shortcuts (documented, not implemented) -->
+      <div class="settings-section">
+        <div class="settings-section-header">Native Salesforce Shortcuts</div>
+        <div class="settings-section-body">
+
+          <p style="font-size: 12px; color: #706e6b; margin-bottom: 12px; line-height: 1.5;">
+            These shortcuts are built into Salesforce Flow Builder and work without the toolkit.
+            They are listed here for reference.
+          </p>
+
+          <div class="about-row">
+            <div class="about-label" style="flex: 0 0 220px; color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Action</div>
+            <div class="about-value" style="color: #706e6b; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Shortcut</div>
+          </div>
+
+          <div class="about-row">
+            <div class="about-label">Save As New Version</div>
+            <div class="about-value" id="shortcut-saveas-display">
+              <!-- Populated by JS based on detected OS -->
+            </div>
           </div>
 
         </div>

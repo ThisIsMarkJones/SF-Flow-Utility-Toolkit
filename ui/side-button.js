@@ -15,6 +15,8 @@
  * - Prevents the side button from rendering inside iframes / VF frames.
  * - Adds a "Run Health Check" menu item for Flow Builder.
  * - Adds the "Scheduled Flow Explorer" menu entry for Setup pages.
+ * - Adds global Cmd/Ctrl+Shift+U keyboard shortcut to toggle the sidebar
+ *   from any page where the side button is present.
  */
 
 const SideButton = (() => {
@@ -366,6 +368,24 @@ const SideButton = (() => {
       });
 
       document.body.dataset.sfutSideButtonDocBound = 'true';
+    }
+
+    // Global keyboard shortcut: Cmd/Ctrl+Shift+U — Toggle Utility Sidebar.
+    // Attached here rather than in keyboard-shortcuts.js so it works on all
+    // pages where the side button is present, not just the Flow Builder canvas.
+    if (!document.body.dataset.sfutSideButtonKeyBound) {
+      document.addEventListener('keydown', async (e) => {
+        const key = e.key.toUpperCase();
+        const cmdShift = e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey;
+        if (cmdShift && key === 'U') {
+          const enabled = (await SettingsManager.get('keyboardShortcuts.enabled')) ?? true;
+          if (!enabled) return;
+          e.preventDefault();
+          _toggleMenu();
+        }
+      });
+
+      document.body.dataset.sfutSideButtonKeyBound = 'true';
     }
 
     _observeUrlChanges();
