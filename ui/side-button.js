@@ -180,6 +180,8 @@ const SideButton = (() => {
       'missing-descriptions':        typeof MissingDescriptionFlags     !== 'undefined' ? MissingDescriptionFlags     : null,
       'setup-tabs':                  typeof SetupTabsFeature            !== 'undefined' ? SetupTabsFeature            : null,
       'api-name-generator':          typeof APINameGenerator            !== 'undefined' ? APINameGenerator            : null,
+      'flow-error-explorer':         typeof FlowErrorExplorer           !== 'undefined' ? FlowErrorExplorer           : null,
+      'flow-error-dictionary':       typeof FlowErrorDictionaryFeature  !== 'undefined' ? FlowErrorDictionaryFeature  : null,
     };
     const mod = moduleMap[featureId];
     if (!mod || typeof mod.isEnabled !== 'function') return true; // default visible
@@ -256,13 +258,31 @@ const SideButton = (() => {
         id: 'scheduled-flow-explorer',
         icon: '⏰',
         label: 'Scheduled Flow Explorer'
+      },
+
+      'flow-error-explorer': (
+        typeof ContextDetector !== 'undefined' &&
+        typeof ContextDetector.isErrorDebugSession === 'function' &&
+        ContextDetector.isErrorDebugSession()
+      ) ? {
+        id: 'flow-error-explorer',
+        icon: '🚫',
+        label: 'Flow Error Explorer'
+      } : null,
+
+      'flow-error-dictionary': {
+        id: 'flow-error-dictionary',
+        icon: '🚫',
+        label: 'Flow Error Dictionary'
       }
     };
 
     const items = features
       .filter((f) => featureMap[f])
+      .filter((f) => featureMap[f] !== null)
       .filter((f) => _isFeatureEnabled(f))
-      .map((f) => featureMap[f]);
+      .map((f) => featureMap[f])
+      .filter(Boolean);
 
     if (features.includes('missing-descriptions') && _areMissingDescriptionFlagsActive()) {
       items.push({

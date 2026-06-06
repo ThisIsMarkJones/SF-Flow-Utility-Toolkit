@@ -84,7 +84,7 @@ const ContextDetector = (() => {
 
     switch (context) {
       case CONTEXTS.SETUP_FLOWS:
-        return ['setup-tabs', 'flow-list-search', 'scheduled-flow-explorer'];
+        return ['setup-tabs', 'flow-list-search', 'scheduled-flow-explorer', 'flow-error-dictionary'];
 
       case CONTEXTS.FLOW_DETAILS:
         return ['flow-version-manager', 'where-is-this-used'];
@@ -96,6 +96,7 @@ const ContextDetector = (() => {
           'ai-assistant',
           'api-name-generator',
           'flow-health-check',
+          'flow-error-explorer',
           'unused-resources',
           'keyboard-shortcuts',
           'autosave'
@@ -108,7 +109,7 @@ const ContextDetector = (() => {
         return ['setup-tabs', 'flow-trigger-explorer-enhancer'];
 
       case CONTEXTS.SETUP_OTHER:
-        return ['setup-tabs', 'scheduled-flow-explorer'];
+        return ['setup-tabs', 'scheduled-flow-explorer', 'flow-error-dictionary'];
 
       default:
         return [];
@@ -170,12 +171,22 @@ const ContextDetector = (() => {
     return url.includes('lightning/setup/');
   }
 
+  /**
+   * Returns true if the current Flow Builder session was opened via a fault
+   * debug link — detected by the presence of the `guid` query parameter.
+   * @returns {boolean}
+   */
+  function isErrorDebugSession() {
+    return !!new URLSearchParams(window.location.search).get('guid');
+  }
+
   // --- Public API ---
   return {
     CONTEXTS,
     detectContext,
     shouldShowSideButton,
-    getAvailableFeatures
+    getAvailableFeatures,
+    isErrorDebugSession
   };
 
 })();

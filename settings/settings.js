@@ -24,6 +24,7 @@
     'canvasSearch.enabled': true,
     'flowAIAssistant.enabled': true,
     'flowHealthCheck.enabled': true,
+    'flowErrorExplorer.enabled': true,
     'comparisonExporter.enabled': true,
     'flowVersionManager.enabled': true,
     'flowTriggerExplorerEnhancer.enabled': true,
@@ -157,6 +158,7 @@
       _setToggle('setting-canvasSearchEnabled', settings['canvasSearch.enabled']);
       _setToggle('setting-flowAIAssistant', settings['flowAIAssistant.enabled']);
       _setToggle('setting-flowHealthCheck', settings['flowHealthCheck.enabled']);
+      _setToggle('setting-flowErrorExplorer', settings['flowErrorExplorer.enabled']);
       _setToggle('setting-comparisonExporter', settings['comparisonExporter.enabled']);
       _setToggle('setting-flowVersionManager', settings['flowVersionManager.enabled']);
       _setToggle('setting-flowTriggerExplorerEnhancer', settings['flowTriggerExplorerEnhancer.enabled']);
@@ -268,7 +270,7 @@
     // Show reload notice when feature toggles change (not colour/shortcut settings)
     const _featureKeys = [
       'apiNameGenerator.enabled','flowListSearch.enabled','canvasSearch.enabled',
-      'flowAIAssistant.enabled','flowHealthCheck.enabled','comparisonExporter.enabled',
+      'flowAIAssistant.enabled','flowHealthCheck.enabled','flowErrorExplorer.enabled','comparisonExporter.enabled',
       'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled',
       'autosave.enabled','whereIsThisUsed.enabled','unusedResources.enabled',
       'keyboardShortcuts.enabled'
@@ -1873,6 +1875,7 @@
         'canvasSearch.enabled':               'setting-canvasSearchEnabled',
         'flowAIAssistant.enabled':            'setting-flowAIAssistant',
         'flowHealthCheck.enabled':            'setting-flowHealthCheck',
+        'flowErrorExplorer.enabled':          'setting-flowErrorExplorer',
         'comparisonExporter.enabled':         'setting-comparisonExporter',
         'flowVersionManager.enabled':         'setting-flowVersionManager',
         'flowTriggerExplorerEnhancer.enabled':'setting-flowTriggerExplorerEnhancer',
