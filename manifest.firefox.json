@@ -95,11 +95,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "sf-flow-utility-toolkit@thisismarkjones",
-      "strict_min_version": "126.0",
-      "data_collection_permissions": {
-        "required": [],
-        "optional": []
-      }
+      "strict_min_version": "126.0"
     }
   }
 }
