@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
   "version": "5.0.0",
-  "description": "A comprehensive toolkit for Salesforce Flow Builder \u2014 search, analyse, generate, and manage Flows with ease.",
+  "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",
     "clipboardWrite",
@@ -16,8 +16,9 @@
     "https://*.my.salesforce.com/*"
   ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
+    "scripts": [
+      "background.js"
+    ]
   },
   "content_scripts": [
     {
@@ -94,7 +95,11 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "sf-flow-utility-toolkit@thisismarkjones",
-      "strict_min_version": "109.0"
+      "strict_min_version": "126.0",
+      "data_collection_permissions": {
+        "required": [],
+        "optional": []
+      }
     }
   }
 }
