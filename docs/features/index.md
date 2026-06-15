@@ -18,18 +18,21 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 * [Canvas Search](canvas-search.html)
 * [API Name Generator](api-name-generator.html)
 * [Flow Version Manager](flow-version-manager.html)
+* [Where Is This Used?](where-is-this-used.html)
 * [Comparison Exporter](comparison-exporter.html)
 * [Missing Description Flags](missing-description-flags.html)
 * [Setup Tabs](setup-tabs.html)
 * [Flow Trigger Explorer Enhancer](flow-trigger-explorer-enhancer.html)
 * [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.html)
+* [Autosave](autosave.html)
+* [Keyboard Shortcuts](keyboard-shortcuts.html)
 
 ## Feature groups
 
 ### Flow Builder analysis and documentation
 
 * [Flow Health Check](flow-health-check.html)
-* [Unused Resources](unused-resources.html)
+* [Unused Resources Finder](unused-resources-finder.html)
 * [Comparison Exporter](comparison-exporter.html)
 * [Missing Description Flags](missing-description-flags.html)
 * [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.html)
@@ -44,7 +47,13 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 ### Build and admin utilities
 
 * [API Name Generator](api-name-generator.html)
+* [Autosave](autosave.html)
+* [Keyboard Shortcuts](keyboard-shortcuts.html)
+
+### Flow administration
+
 * [Flow Version Manager](flow-version-manager.html)
+* [Where Is This Used?](where-is-this-used.html)
 * [Scheduled Flow Explorer](scheduled-flow-explorer.html)
 
 ## Notes
