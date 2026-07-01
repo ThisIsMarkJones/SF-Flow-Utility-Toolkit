@@ -96,6 +96,20 @@ See [What's New](https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/whats
 
 ---
 
+## Build
+
+The extension is packaged into two separate ZIPs for distribution — one for Chrome/Edge and one for Firefox.
+
+`manifest.json` is a development convenience file used when loading the extension unpacked locally. It is not used in builds.
+
+The browser-specific manifests are the source of truth:
+- `manifest.chrome.json` — used for Chrome Web Store and Edge Add-ons submissions
+- `manifest.firefox.json` — used for Firefox Add-ons (AMO) submissions
+
+The ZIP job renames the appropriate browser manifest to `manifest.json` before packaging. The other browser manifest and `manifest.json` are excluded from the ZIP entirely.
+
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

@@ -12,7 +12,7 @@ SF Flow Utility Toolkit is a browser extension designed to enhance Salesforce Fl
 
 The toolkit is intended to support Flow builders, administrators, and consultants by adding practical utilities directly into the Salesforce experience.
 
-*Please be aware that if you use the extension may see times where the Chrome version is more up-to-date than the Microsoft Edge version. This is due to Microsoft Edge taking up to 7 business days to review and approve changes.*
+*Please be aware that the Chrome version may be more up-to-date than the Firefox and Microsoft Edge versions. Chrome updates are typically available within the hour, while Firefox and Microsoft Edge can take several business days to review and approve updates.*
 
 ## Before you begin
 
@@ -31,6 +31,8 @@ Some features are designed for Flow Builder specifically, while others are inten
 Should you need to install the extension, you can do so on the following browsers:
 
 - [Google Chrome](https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl)
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/)
+- [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo)
 
 
 ## Supported environments

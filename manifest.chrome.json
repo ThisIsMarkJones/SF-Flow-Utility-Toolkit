@@ -1,13 +1,9 @@
 {
+  "_comment": "Chrome/Edge build manifest. Used by the ZIP job — rename to manifest.json when packaging for the Chrome Web Store or Edge Add-ons. Do not use manifest.json for builds.",
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
-<<<<<<< HEAD:manifest.json
   "version": "6.0.0",
-  "description": "A comprehensive toolkit for Salesforce Flow Builder \u2014 search, analyse, generate, and manage Flows with ease.",
-=======
-  "version": "5.0.0",
   "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
->>>>>>> main:manifest.chrome.json
   "permissions": [
     "storage",
     "clipboardWrite",

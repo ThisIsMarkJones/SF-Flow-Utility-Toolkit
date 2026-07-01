@@ -346,8 +346,8 @@ const FlowHealthRules = (() => {
   }
 
   function _checkOutdatedApiVersion(flow, config) {
-    const threshold = Number(config.outdatedApiVersionThreshold || 6);
-    const currentTarget = Number(config.currentApiVersion || 65);
+    const threshold = Number(config.outdatedApiVersionThreshold || 3);
+    const currentTarget = Number(config.currentApiVersion || 67);
 
     if (!flow.meta.apiVersion) return [];
 

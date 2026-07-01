@@ -1,21 +1,84 @@
 /**
  * SF Flow Utility Toolkit - Flow Health Scorer
  *
- * Scores once per family using the worst severity in that family.
+ * Follows the same deduct-from-100 model as the standard Salesforce Health Check.
+ * A perfect flow scores 100. Violations reduce the score based on severity and
+ * instance count. The score is floored at 0 and can never go negative.
  *
- * High = -5
- * Medium = -3
- * Low = -1
- * Info = 0
+ * --- Scoring model ---
+ *
+ * Deductions are calculated per issue family, not per individual finding.
+ * Each family pays a base cost for its worst severity, plus a per-instance
+ * scaling charge for every violation beyond the first. A per-family cap
+ * prevents any single family from dominating the score unfairly while still
+ * ensuring that many violations in one family hurt more than one.
+ *
+ *   deduction = min( baseWeight + instanceScale × (instanceCount − 1), familyCap )
+ *
+ * Severity weights and scaling:
+ *
+ *   Severity  Base  Per-extra-instance  Family cap
+ *   --------  ----  ------------------  ----------
+ *   High        10                   4          30
+ *   Medium       5                   1          12
+ *   Low          1                   0           5   (flat — volume doesn't compound)
+ *   Info         0                   0           0
+ *
+ * Rationale:
+ *   - High-severity families (DML in loops, missing fault paths on DML) compound
+ *     aggressively because each additional instance represents a real production risk.
+ *   - Medium families compound gently — 4 queries missing fault paths is worse than
+ *     1, but not catastrophically so.
+ *   - Low families are flat — 10 missing descriptions is not 10× worse than 1;
+ *     it reflects the same underlying habit, not 10 independent failures.
+ *   - Family caps ensure no single category can push the score below 0 on its own.
+ *
+ * Example — Bad Practice Screen Flow (designed to demonstrate violations):
+ *   3× DML missing fault paths   (high,   3 instances) → min(10 + 4×2, 30) = 18
+ *   2× DML inside loops          (high,   2 instances) → min(10 + 4×1, 30) = 14
+ *   2× Queries inside loops      (high,   2 instances) → min(10 + 4×1, 30) = 14
+ *   4× Query missing fault paths (medium, 4 instances) → min( 5 + 1×3, 12) =  8
+ *   1× Outdated API version      (medium, 1 instance)  → min( 5 + 0×0, 12) =  5
+ *   10× Missing descriptions     (low,   10 instances) → min( 1 + 0×9,  5) =  1
+ *   1× Missing flow description  (low,    1 instance)  → min( 1 + 0×0,  5) =  1
+ *                                                         Total deducted     = 61
+ *   Final score: 100 − 61 = 39 ("Very Poor") ✓
+ *
+ * A flow with a single high-severity finding scores 90 ("Excellent" boundary).
  */
 
 const FlowHealthScorer = (() => {
 
+  /**
+   * Base deduction per issue family at each severity level.
+   */
   const SCORE_WEIGHTS = {
-    high: 5,
-    medium: 3,
-    low: 1,
-    info: 0
+    high:   10,
+    medium:  5,
+    low:     1,
+    info:    0
+  };
+
+  /**
+   * Additional deduction per instance beyond the first, per severity level.
+   * Low and Info are 0 — volume does not compound for cosmetic issues.
+   */
+  const INSTANCE_SCALE = {
+    high:   4,
+    medium: 1,
+    low:    0,
+    info:   0
+  };
+
+  /**
+   * Maximum deduction any single issue family can contribute, per severity.
+   * Prevents a single family from dominating the score.
+   */
+  const FAMILY_CAPS = {
+    high:   30,
+    medium: 12,
+    low:     5,
+    info:    0
   };
 
   const SEVERITY_ORDER = {
@@ -38,7 +101,6 @@ const FlowHealthScorer = (() => {
           title: _titleFromFamily(key),
           severity: finding.severity,
           category: finding.category,
-          scoreImpact: SCORE_WEIGHTS[finding.severity] || 0,
           instanceCount: 1,
           findings: [finding],
           affectedItems: affected ? [affected] : []
@@ -56,7 +118,6 @@ const FlowHealthScorer = (() => {
 
       if ((SEVERITY_ORDER[finding.severity] || 0) > (SEVERITY_ORDER[family.severity] || 0)) {
         family.severity = finding.severity;
-        family.scoreImpact = SCORE_WEIGHTS[finding.severity] || 0;
         family.category = finding.category;
       }
     });
@@ -77,7 +138,13 @@ const FlowHealthScorer = (() => {
     let score = 100;
 
     issueFamilies.forEach((family) => {
-      score -= family.scoreImpact || 0;
+      const base      = SCORE_WEIGHTS[family.severity]  || 0;
+      const scale     = INSTANCE_SCALE[family.severity] || 0;
+      const cap       = FAMILY_CAPS[family.severity]    ?? Infinity;
+      const raw       = base + scale * (family.instanceCount - 1);
+      const deduction = Math.min(raw, cap);
+      family.scoreDeduction = deduction;
+      score -= deduction;
     });
 
     const finalScore = Math.max(0, Math.min(100, score));
@@ -90,11 +157,22 @@ const FlowHealthScorer = (() => {
     };
   }
 
+  /**
+   * Maps a numeric score to a human-readable rating.
+   *
+   * Thresholds are calibrated against the new scoring model:
+   *   100        — perfect, no violations found
+   *   90–99      — Excellent: at most one minor issue
+   *   80–89      — Very Good: a few low/medium issues, no high-severity
+   *   65–79      — Good: some issues present but no critical patterns
+   *   45–64      — Poor: notable high-severity violations
+   *   0–44       — Very Poor: multiple high-severity violations or systemic problems
+   */
   function getScoreRating(score) {
     if (score >= 90) return 'Excellent';
     if (score >= 80) return 'Very Good';
-    if (score >= 70) return 'Good';
-    if (score >= 55) return 'Poor';
+    if (score >= 65) return 'Good';
+    if (score >= 45) return 'Poor';
     return 'Very Poor';
   }
 

@@ -174,7 +174,7 @@ const FlowHealthModal = (() => {
           <span class="sfut-health-family-count">(${family.instanceCount})</span>
         </summary>
         <div class="sfut-health-family-body">
-          <div class="sfut-health-family-impact">Score impact: -${family.scoreImpact}</div>
+          <div class="sfut-health-family-impact">Score impact: -${family.scoreDeduction}</div>
           <ul class="sfut-health-affected-list">
             ${family.affectedItems.length
               ? family.affectedItems.map((item) => `<li>${_escapeHtml(item.label)}</li>`).join('')

@@ -27,8 +27,16 @@ const FlowHealthNormalizer = (() => {
       }
     });
 
+    // Standard action types introduced in Summer '26 (and other known built-in
+    // actions) that do not expose a fault path connector in the Flow canvas.
+    const ACTION_TYPES_WITHOUT_FAULT_PATH = new Set([
+      'showToast',    // Summer '26 — Show Toast standard action
+      'openPage'      // Summer '26 — Open a Page standard action
+    ]);
+
     (metadata.actionCalls || []).forEach((item) => {
       const isApex = item.actionType === 'apex';
+      const actionSupportsFaultPath = !ACTION_TYPES_WITHOUT_FAULT_PATH.has(item.actionType);
 
       nodes.push({
         id: item.name,
@@ -36,7 +44,7 @@ const FlowHealthNormalizer = (() => {
         label: item.label || item.name,
         apiName: item.name,
         description: item.description,
-        supportsFaultPath: true,
+        supportsFaultPath: actionSupportsFaultPath,
         hasFaultPath: !!item.faultConnector?.targetReference,
         metadata: {
           actionType: item.actionType || null,

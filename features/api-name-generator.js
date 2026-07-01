@@ -404,7 +404,14 @@ const APINameGenerator = (() => {
       if (typeKey) return typeKey;
     }
 
-    // Method 3: Check for specific editor components
+    // Method 3: Check for specific editor components.
+    // Note: screen-editor is intentionally excluded from this map. In Summer '26,
+    // screen-properties-editor-container wraps both the screen-editor AND the
+    // component property editors in the same panel scope. Including screen-editor
+    // here would match via panel.querySelector() and return 'screen' before the
+    // more-specific closest() checks below can run, misclassifying Text inputs,
+    // Radio Button Groups, and other screen components. The screen-editor case is
+    // handled precisely at the end via labelDescContainer.closest().
     const editorMap = {
       'builder_platform_interaction-record-lookup-editor': 'get records',
       'builder_platform_interaction-record-create-editor': 'create records',
@@ -412,7 +419,6 @@ const APINameGenerator = (() => {
       'builder_platform_interaction-record-delete-editor': 'delete records',
       'builder_platform_interaction-decision-editor': 'decision',
       'builder_platform_interaction-assignment-editor': 'assignment',
-      'builder_platform_interaction-screen-editor': 'screen',
       'builder_platform_interaction-loop-editor': 'loop',
       'builder_platform_interaction-subflow-editor': 'subflow',
       'builder_platform_interaction-wait-editor': 'wait'
@@ -439,8 +445,25 @@ const APINameGenerator = (() => {
     // because .closest() follows the ACTUAL DOM ancestry, not an arbitrary scope.
     if (
       labelDescContainer.closest('builder_platform_interaction-screen-field-properties-editor') ||
-      labelDescContainer.closest('builder_platform_interaction-screen-component-properties-editor')
+      labelDescContainer.closest('builder_platform_interaction-screen-component-properties-editor') ||
+      labelDescContainer.closest('builder_platform_interaction-screen-input-field-properties-editor')
     ) {
+      return 'input';
+    }
+
+    // Choice-based screen components (Radio Button Group, Picklist, etc.) use
+    // screen-choice-field-properties-editor. Distinguish between them using the
+    // Component Type combobox value, falling back to 'input' if unresolvable.
+    const choiceEditor = labelDescContainer.closest(
+      'builder_platform_interaction-screen-choice-field-properties-editor'
+    );
+    if (choiceEditor) {
+      const componentTypeBtn = choiceEditor.querySelector(
+        'lightning-combobox button[aria-label="Component Type"]'
+      );
+      const componentType = (componentTypeBtn?.getAttribute('data-value') || '').trim().toLowerCase();
+      if (componentType === 'radio button group') return 'radio button group';
+      // Other component types (Picklist, Multi-Select Picklist) fall through to 'input'
       return 'input';
     }
 
@@ -784,8 +807,36 @@ const APINameGenerator = (() => {
       return headerValue ? 'section' : 'screen';
     }
 
-    // Custom LWC / Screen Extension component
+    // Datatable — detected before the generic extension fallback via its custom editor
+    if (panel.querySelector('flowruntime-datatable-editor')) {
+      return 'datatable';
+    }
+
+    // Standard Salesforce screen extension components that have no unique editor
+    // tag are identified by their panel header title. These are known built-in
+    // components listed under the Input Components section of the Flow Builder
+    // component palette. They use Input_ prefix for consistency with other
+    // screen input components rather than the LWC_ prefix used for custom LWCs.
     if (panel.querySelector('builder_platform_interaction-screen-extension-properties-editor')) {
+      const headerTitle = panel.querySelector(
+        'h2.slds-panel__header-title, h2.header-title'
+      );
+      const headerText = (headerTitle?.textContent || '').trim().toLowerCase();
+
+      const STANDARD_INPUT_COMPONENTS = new Set([
+        'display image',
+        'file upload',
+        'lookup',
+        'name',
+        'address',
+        'location'
+      ]);
+
+      if (STANDARD_INPUT_COMPONENTS.has(headerText)) {
+        return 'input';
+      }
+
+      // True custom LWC component
       return 'lwc';
     }
 

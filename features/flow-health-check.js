@@ -8,8 +8,8 @@ const FlowHealthCheck = (() => {
   let initialised = false;
 
   const DEFAULT_CONFIG = {
-    outdatedApiVersionThreshold: 6,
-    currentApiVersion: 65,
+    outdatedApiVersionThreshold: 3,
+    currentApiVersion: 67,
     highDataOperationThreshold: 8,
     namingConventions: {
       variable: /^var[A-Z].*/,
