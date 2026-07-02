@@ -17,7 +17,7 @@
  */
 
 const SalesforceAPI = (() => {
-  const API_VERSION = 'v62.0';
+  const API_VERSION = 'v67.0';
   let _sessionCache = null; // { candidates: Array<{baseUrl, sid}> }
 
   // ---------

@@ -42,6 +42,7 @@
         "utils/scheduled-flow-calculator.js",
         "utils/scheduled-flow-discovery.js",
         "utils/unused-resources-analyser.js",
+        "utils/flow-xml-converter.js",
         "config/default-ai-prompt-templates.js",
         "config/ai-prompt-library.js",
         "config/api-name-prefixes.js",
@@ -66,6 +67,7 @@
         "features/unused-resources-flags.js",
         "features/unused-resources.js",
         "features/scheduled-flow-explorer.js",
+        "features/flow-import-export.js",
         "features/keyboard-shortcuts.js",
         "features/autosave.js"
       ],

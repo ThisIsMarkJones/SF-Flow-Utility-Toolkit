@@ -177,6 +177,7 @@ const SideButton = (() => {
       'flow-health-check':           typeof FlowHealthCheck            !== 'undefined' ? FlowHealthCheck            : null,
       'unused-resources':            typeof UnusedResources             !== 'undefined' ? UnusedResources             : null,
       'scheduled-flow-explorer':     typeof ScheduledFlowExplorer      !== 'undefined' ? ScheduledFlowExplorer      : null,
+      'flow-import-export':          typeof FlowImportExport            !== 'undefined' ? FlowImportExport            : null,
       'missing-descriptions':        typeof MissingDescriptionFlags     !== 'undefined' ? MissingDescriptionFlags     : null,
       'setup-tabs':                  typeof SetupTabsFeature            !== 'undefined' ? SetupTabsFeature            : null,
       'api-name-generator':          typeof APINameGenerator            !== 'undefined' ? APINameGenerator            : null,
@@ -253,6 +254,11 @@ const SideButton = (() => {
         id: 'unused-resources',
         icon: '🔍',
         label: 'Find Unused Resources'
+      },
+      'flow-import-export': {
+        id: 'flow-import-export',
+        icon: '📦',
+        label: 'Export Flow'
       },
       'scheduled-flow-explorer': {
         id: 'scheduled-flow-explorer',

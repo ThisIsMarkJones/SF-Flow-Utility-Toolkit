@@ -165,6 +165,7 @@
       _setToggle('setting-scheduledFlowExplorer', settings['scheduledFlowExplorer.enabled']);
       _setToggle('setting-whereIsThisUsed', settings['whereIsThisUsed.enabled']);
       _setToggle('setting-unusedResources', settings['unusedResources.enabled']);
+      _setToggle('setting-flowImportExport', settings['flowImportExport.enabled']);
       _setToggle('setting-autosave', settings['autosave.enabled']);
       _setToggle('setting-keyboardShortcuts', settings['keyboardShortcuts.enabled']);
 
@@ -273,7 +274,7 @@
       'flowAIAssistant.enabled','flowHealthCheck.enabled','flowErrorExplorer.enabled','comparisonExporter.enabled',
       'flowVersionManager.enabled','flowTriggerExplorerEnhancer.enabled','scheduledFlowExplorer.enabled',
       'autosave.enabled','whereIsThisUsed.enabled','unusedResources.enabled',
-      'keyboardShortcuts.enabled'
+      'flowImportExport.enabled','keyboardShortcuts.enabled'
     ];
     if (_featureKeys.includes(key)) {
       const notice = document.getElementById('feature-reload-notice');

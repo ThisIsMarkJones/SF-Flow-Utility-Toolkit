@@ -575,6 +575,57 @@
   background-color: #e5e5e5;
 }
 
+/* ===== Import / Export Flows ===== */
+
+/* Floating "Export Flow" button injected onto the Flow Builder canvas.
+   Absolutely positioned within the canvas container (a positioned ancestor);
+   the -fixed modifier is the body-level fallback when the canvas is absent. */
+.sfut-fie-export-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 10000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background-color: #0176d3;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Salesforce Sans', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sfut-fie-export-btn:hover:not(:disabled) {
+  background-color: #014486;
+}
+
+.sfut-fie-export-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* Body-level fallback position — kept clear of the right-centre side button. */
+.sfut-fie-export-btn-fixed {
+  position: fixed;
+  top: 70px;
+  right: 60px;
+}
+
+.sfut-fie-export-btn-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sfut-fie-export-btn-busy {
+  opacity: 0.8;
+}
+
 /* ===== AI Assistant & Metadata Panel ===== */
 
 /* Overlay */

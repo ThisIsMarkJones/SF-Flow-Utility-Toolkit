@@ -38,6 +38,7 @@ const SettingsManager = (() => {
     'flowTriggerExplorerEnhancer.enabled': true,
     'flowListSearch.enabled': true,
     'unusedResources.enabled': true,
+    'flowImportExport.enabled': true,                  // Import / Export Flows feature
     'scheduledFlowExplorer.enabled': true,             // Master toggle for the feature
     'scheduledFlowExplorer.defaultView': 'list',       // 'list' | 'calendar'
 

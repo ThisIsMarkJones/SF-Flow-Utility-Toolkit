@@ -98,6 +98,7 @@ const ContextDetector = (() => {
           'flow-health-check',
           'flow-error-explorer',
           'unused-resources',
+          'flow-import-export',
           'keyboard-shortcuts',
           'autosave'
         ];
