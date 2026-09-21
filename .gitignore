@@ -4,3 +4,6 @@ __MACOSX
 .AppleDouble
 .LSOverride
 manifest.json
+
+# Build output — release ZIPs are generated, not committed
+dist/

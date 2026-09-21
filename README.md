@@ -1,8 +1,10 @@
 # SF Flow Utility Toolkit
 
-A browser extension for Google Chrome that adds productivity, navigation, analysis, and documentation utilities to Salesforce Flow Builder and related Salesforce automation pages.
+A browser extension for Chrome, Edge, and Firefox that adds productivity, navigation, analysis, and documentation utilities to Salesforce Flow Builder and related Salesforce automation pages.
 
 [![Install on Chrome](https://img.shields.io/badge/Chrome%20Web%20Store-Install-blue?logo=googlechrome)](https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl)
+[![Install on Edge](https://img.shields.io/badge/Edge%20Add--ons-Install-blue?logo=microsoftedge)](https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo)
+[![Install on Firefox](https://img.shields.io/badge/Firefox%20Add--ons-Install-blue?logo=firefoxbrowser)](https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/)
 [![Documentation](https://img.shields.io/badge/Documentation-Visit-blue)](https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -15,17 +17,23 @@ SF Flow Utility Toolkit enhances the Salesforce Flow Builder experience with a s
 Current features include:
 
 - **Flow Health Check** — analyse a Flow and identify maintainability, reliability, performance, and portability concerns
+- **Flow Error Explorer** — translate Flow error debug output into plain-English explanations with suggested fixes
+- **Flow Error Dictionary** — browse the full catalogue of Flow error messages and their explanations from anywhere in Setup
+- **Import / Export Flows** — export a Flow to a `.flow-meta.xml` file and import one back into the org, without SFDX or the Metadata API
 - **Scheduled Flow Explorer** — view all active Schedule-Triggered Flows across the org and see when each is next scheduled to run
 - **Unused Resources** — scan the currently open Flow for variables, formulas, text templates, and other resources that are defined but never used
 - **Flow List Search** — search and filter the Salesforce Setup Flows list by label, API name, status, and type
 - **Canvas Search** — search the Flow canvas, connector labels, and toolbox items
 - **API Name Generator** — generate standardised API names for Flow elements and resources using configurable naming patterns and prefixes
 - **Flow Version Manager** — bulk-select and delete eligible Flow versions more safely
+- **Where Is This Used?** — find every subflow, action, quick action, and Lightning page that references the current Flow
 - **Comparison Exporter** — export Flow version comparison results into an Excel workbook
 - **Missing Description Flags** — highlight elements, resources, and Flow-level items that are missing descriptions
 - **Setup Tabs** — add quick-access Setup tabs for key Flow and automation destinations
 - **Flow Trigger Explorer Enhancer** — enrich Flow Trigger Explorer rows with inline metadata and tooltips
 - **Flow Metadata & AI Assistant** — work with Flow metadata and generate prompt-ready content for AI-assisted workflows
+- **Autosave** — save draft Flows automatically after a configurable period of inactivity, with a countdown you can cancel
+- **Keyboard Shortcuts** — drive common Flow Builder canvas actions from the keyboard
 
 ---
 
@@ -36,6 +44,18 @@ Current features include:
 Install SF Flow Utility Toolkit from the Chrome Web Store:
 
 [Install on Chrome](https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl)
+
+### Microsoft Edge
+
+Install SF Flow Utility Toolkit from Edge Add-ons:
+
+[Install on Edge](https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo)
+
+### Firefox
+
+Install SF Flow Utility Toolkit from Firefox Add-ons:
+
+[Install on Firefox](https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/)
 
 ---
 
@@ -90,7 +110,7 @@ Feature ideas and suggestions are welcome via GitHub Discussions:
 
 ## Current version
 
-**v3.0.3**
+**v7.0.0**
 
 See [What's New](https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/whats-new.html) for recent updates.
 
