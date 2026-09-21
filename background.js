@@ -160,6 +160,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return { ok: true };
         }
 
+        case 'injectJsZipLib': {
+          const tabId = sender?.tab?.id;
+          if (!tabId) {
+            return { ok: false, error: 'No sender tab ID available' };
+          }
+
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: ['lib/jszip.bundle.js'],
+            world: 'ISOLATED'
+          });
+
+          return { ok: true };
+        }
+
         case 'downloadCsv': {
           const { csv, filename } = message;
           if (!csv || !filename) return { ok: false, error: 'Missing csv or filename' };

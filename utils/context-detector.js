@@ -84,7 +84,7 @@ const ContextDetector = (() => {
 
     switch (context) {
       case CONTEXTS.SETUP_FLOWS:
-        return ['setup-tabs', 'flow-list-search', 'scheduled-flow-explorer', 'flow-error-dictionary'];
+        return ['setup-tabs', 'flow-list-search', 'scheduled-flow-explorer', 'flow-error-dictionary', 'flow-import-export'];
 
       case CONTEXTS.FLOW_DETAILS:
         return ['flow-version-manager', 'where-is-this-used'];
@@ -98,6 +98,7 @@ const ContextDetector = (() => {
           'flow-health-check',
           'flow-error-explorer',
           'unused-resources',
+          'flow-import-export',
           'keyboard-shortcuts',
           'autosave'
         ];

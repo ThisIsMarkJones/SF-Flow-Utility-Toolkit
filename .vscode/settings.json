@@ -1,0 +1,8 @@
+{
+  // This repo is a browser extension, not a Salesforce (SFDX/LWC/Aura) project, so
+  // its stylesheet has its own --sfut-* token system rather than SLDS components.
+  // The two advisory SLDS rule families below suggest design tokens and mobile
+  // layout changes that don't apply here; the remaining SLDS checks stay on.
+  "salesforcedx-vscode-slds.basic.designToken": false,
+  "salesforcedx-vscode-slds.basic.mobileValidation": false
+}
