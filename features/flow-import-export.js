@@ -4,13 +4,14 @@
  * Lets Salesforce admins export and import Flow metadata without SFDX or the
  * Metadata API SOAP endpoints.
  *
- * Context: Flow Builder (/builder_platform_interaction/flowBuilder.app)
+ * Contexts: Flow Builder (/builder_platform_interaction/flowBuilder.app) and the
+ * Setup Flows list page.
  *
- * ENTRY POINTS
- *   - Floating "Export Flow" button on the canvas — quick single-flow export
- *     (Phase 1). Always available.
+ * ENTRY POINT
  *   - Side-panel modal ("Import / Export Flows"), opened from the side-button
- *     menu — home for Import (Phase 2) and, later, multi-flow Export (Phase 3).
+ *     menu. The Import tab is hidden in Flow Builder, where an open flow makes
+ *     importing another an invalid context — only Export applies there. Import
+ *     (Phase 2) and, later, multi-flow Export (Phase 3) live in this panel.
  *
  * PHASE 2 (this file): Single-flow import.
  *   1. Pick a `.flow-meta.xml` file.
@@ -88,6 +89,7 @@ const FlowImportExport = (() => {
     overlay: null,
     isOpen: false,
     view: 'import',      // 'import' | 'export'
+    importAllowed: true, // false in Flow Builder — the open flow makes import an invalid context
     jsZipLoaded: false,
     // Import wizard state (reset on each open / new file)
     imp: null
@@ -134,7 +136,7 @@ const FlowImportExport = (() => {
     _openPanel();
   }
 
-  // ---------- Export helpers (used by the Phase 3 Export tab) ----------
+  // ---------- Export (single flow — Canvas Export tab) ----------
 
   async function _exportCurrentFlow() {
     if (STATE.isExporting) {
@@ -244,11 +246,27 @@ const FlowImportExport = (() => {
   function _openPanel() {
     _ensurePanel();
     STATE.imp = _freshImportState();
-    STATE.view = 'import';
+
+    // Import is only offered where there is no open flow. In Flow Builder the
+    // canvas already holds a flow, so importing another is an invalid context —
+    // only export applies there.
+    const context = ContextDetector.detectContext();
+    STATE.importAllowed = context !== ContextDetector.CONTEXTS.FLOW_BUILDER;
+
+    _applyTabVisibility();
+    STATE.view = STATE.importAllowed ? 'import' : 'export';
     _syncTabs();
     STATE.overlay.classList.remove('sfut-hidden');
     STATE.isOpen = true;
     _renderView();
+  }
+
+  /**
+   * Shows or hides the Import tab based on the current context.
+   */
+  function _applyTabVisibility() {
+    const importTab = STATE.overlay.querySelector(`.${C.tab}[data-view="import"]`);
+    if (importTab) importTab.hidden = !STATE.importAllowed;
   }
 
   function _closePanel() {
@@ -261,6 +279,7 @@ const FlowImportExport = (() => {
 
   function _switchTab(view) {
     if (view !== 'import' && view !== 'export') return;
+    if (view === 'import' && !STATE.importAllowed) return;
     STATE.view = view;
     _syncTabs();
     _renderView();
@@ -279,25 +298,58 @@ const FlowImportExport = (() => {
 
   function _renderView() {
     if (STATE.view === 'export') {
-      _renderExportPlaceholder();
+      _renderExport();
     } else {
       _renderImport();
     }
   }
 
-  function _renderExportPlaceholder() {
+  function _renderExport() {
     const body = _getBody();
+
+    // Setup context (import allowed): multi-flow selection + ZIP export is a
+    // Phase 3 placeholder — there is no single open flow to export here.
+    if (STATE.importAllowed) {
+      body.innerHTML = `
+        <div class="${C.step}">
+          <div style="font-size:40px;">📤</div>
+          <div class="${C.stepTitle}">Multi-flow export</div>
+          <p class="${C.stepText}">
+            Selecting and exporting multiple flows as a ZIP is coming in a later release.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    // Canvas context: working single-flow export of the open flow.
     body.innerHTML = `
       <div class="${C.step}">
         <div style="font-size:40px;">📤</div>
-        <div class="${C.stepTitle}">Multi-flow export</div>
+        <div class="${C.stepTitle}">Export this flow</div>
         <p class="${C.stepText}">
-          Selecting and exporting multiple flows as a ZIP is coming in a later release.
-          For now, use the <strong>Export Flow</strong> button on the canvas to export the
-          open flow as a single <code>.flow-meta.xml</code> file.
+          Download the flow currently open in the canvas as a <code>.flow-meta.xml</code> file.
         </p>
+        <div>
+          <button type="button" class="sfut-btn sfut-btn-primary" id="sfut-fie-export-flow-btn">
+            Export Flow
+          </button>
+        </div>
       </div>
     `;
+
+    const btn = body.querySelector('#sfut-fie-export-flow-btn');
+    btn.addEventListener('click', async () => {
+      const original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Exporting…';
+      try {
+        await _exportCurrentFlow();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    });
   }
 
   // ---------- Import wizard ----------
