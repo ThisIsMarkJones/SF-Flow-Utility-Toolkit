@@ -124,10 +124,33 @@ const FlowXmlConverter = (() => {
     return `${XML_DECLARATION}\n<Flow xmlns="${FLOW_NAMESPACE}">${body}</Flow>\n`;
   }
 
+  /**
+   * Builds a Metadata API `package.xml` manifest for deploying a single Flow.
+   *
+   * @param {string} developerName - The Flow's API name (a single Flow member).
+   * @param {string} [apiVersion='67.0'] - Numeric API version, no leading "v".
+   * @returns {string} A well-formed package.xml document string.
+   */
+  function buildFlowPackageXml(developerName, apiVersion = '67.0') {
+    const member = _escapeXml(developerName);
+    const version = _escapeXml(apiVersion);
+    return (
+      `${XML_DECLARATION}\n` +
+      `<Package xmlns="${FLOW_NAMESPACE}">\n` +
+      `${INDENT_UNIT}<types>\n` +
+      `${INDENT_UNIT}${INDENT_UNIT}<members>${member}</members>\n` +
+      `${INDENT_UNIT}${INDENT_UNIT}<name>Flow</name>\n` +
+      `${INDENT_UNIT}</types>\n` +
+      `${INDENT_UNIT}<version>${version}</version>\n` +
+      `</Package>\n`
+    );
+  }
+
   // --- Public API ---
   return {
     flowMetadataToXml,
-    _escapeXml // exposed for reuse by later phases (package.xml assembly)
+    buildFlowPackageXml,
+    _escapeXml // exposed for reuse by later phases
   };
 
 })();

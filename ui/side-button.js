@@ -258,7 +258,7 @@ const SideButton = (() => {
       'flow-import-export': {
         id: 'flow-import-export',
         icon: '📦',
-        label: 'Export Flow'
+        label: 'Import / Export Flows'
       },
       'scheduled-flow-explorer': {
         id: 'scheduled-flow-explorer',

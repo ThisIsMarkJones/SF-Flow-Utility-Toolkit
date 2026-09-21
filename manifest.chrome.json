@@ -43,6 +43,7 @@
         "utils/scheduled-flow-discovery.js",
         "utils/unused-resources-analyser.js",
         "utils/flow-xml-converter.js",
+        "utils/flow-deploy-diff.js",
         "config/default-ai-prompt-templates.js",
         "config/ai-prompt-library.js",
         "config/api-name-prefixes.js",
@@ -83,6 +84,7 @@
     {
       "resources": [
         "lib/xlsx.bundle.js",
+        "lib/jszip.bundle.js",
         "assets/Flow Comparison Documentation Template.xlsx",
         "config/default-prefixes.json"
       ],
