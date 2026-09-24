@@ -77,6 +77,7 @@
     { "table": "resource", "type": "Text Template",                            "Snake_Case": "Template_",       "PascalCase": "Template",       "camelCase": "template"       },
     { "table": "resource", "type": "Choice",                                   "Snake_Case": "Choice_",         "PascalCase": "Choice",         "camelCase": "choice"         },
     { "table": "resource", "type": "Collection Choice Set",                    "Snake_Case": "CollChoice_",     "PascalCase": "CollChoice",     "camelCase": "collchoice"     },
+    { "table": "resource", "type": "Collection Filter Criteria",               "Snake_Case": "CollFilter_",     "PascalCase": "CollFilter",     "camelCase": "collfilter"     },
     { "table": "resource", "type": "Record Choice Set",                        "Snake_Case": "RecChoice_",      "PascalCase": "RecChoice",      "camelCase": "recchoice"      },
     { "table": "resource", "type": "Picklist Choice Set",                      "Snake_Case": "PickList_",       "PascalCase": "PickList",       "camelCase": "picklist"       },
     { "table": "resource", "type": "Stage",                                    "Snake_Case": "Stage_",          "PascalCase": "Stage",          "camelCase": "stage"          },

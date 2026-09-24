@@ -244,7 +244,8 @@ const MissingDescriptionFlags = (() => {
       { key: 'constants', type: 'Constant' },
       { key: 'textTemplates', type: 'Text Template' },
       { key: 'choices', type: 'Choice' },
-      { key: 'dynamicChoiceSets', type: 'Dynamic Choice Set' }
+      { key: 'dynamicChoiceSets', type: 'Dynamic Choice Set' },
+      { key: 'collectionFilterCriteria', type: 'Collection Filter Criteria' }
     ];
 
     for (const { key, type } of elementTypes) {
