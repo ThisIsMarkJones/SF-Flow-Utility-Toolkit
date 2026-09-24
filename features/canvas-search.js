@@ -14,7 +14,8 @@
  *   Flow container:       .flow-container (child of .canvas, has CSS transform for pan/zoom)
  *   Element cards:        .element-card
  *   Element labels:       span.text-element-label[title]
- *   Element type labels:  span.element-type-label[title]
+ *   Element type labels:  span.element-type-label[title] (before Winter '27),
+ *                         else the card icon's icon-name via ICON_TO_TYPE
  *   Connector badges:     .connector-badge span.slds-truncate[title]
  *   Base card (visible):  .base-card
  * 
@@ -287,8 +288,7 @@ const CanvasSearch = (() => {
       const label = labelEl ? labelEl.getAttribute('title') : '';
 
       // Element type
-      const typeEl = card.querySelector('span.element-type-label[title]');
-      const type = typeEl ? typeEl.getAttribute('title') : '';
+      const type = _getCardType(card);
 
       const labelMatch = label.toLowerCase().includes(lowerQuery);
       const typeMatch = type.toLowerCase().includes(lowerQuery);
@@ -376,6 +376,31 @@ const CanvasSearch = (() => {
   }
 
   // ===== Navigation =====
+
+  /**
+   * Returns the element type shown on a canvas card, or '' if unknown.
+   *
+   * Before Winter '27 the card had span.element-type-label[title]; it is still
+   * tried first for orgs that haven't upgraded. Winter '27 cards dropped it, so
+   * the type is derived from the card's icon via ICON_TO_TYPE
+   * (config/api-name-prefixes.js), the same mapping the API Name Generator uses.
+   * UNCONFIRMED until the Phase 3 DOM check: the icon element's selector on
+   * Winter '27 cards, and the icon names for types not yet in ICON_TO_TYPE.
+   *
+   * @param {Element} card
+   * @returns {string}
+   */
+  function _getCardType(card) {
+    const legacy = card.querySelector('span.element-type-label[title]');
+    if (legacy) return legacy.getAttribute('title') || '';
+
+    const icon = card.querySelector('lightning-icon[icon-name], [icon-name]');
+    const typeKey = icon && typeof APINamePrefixes !== 'undefined'
+      ? APINamePrefixes.getTypeFromIconName(icon.getAttribute('icon-name'))
+      : null;
+    // ICON_TO_TYPE values are lowercase keys ('get records'); show them as labels.
+    return typeKey ? typeKey.replace(/\b\w/g, (c) => c.toUpperCase()) : '';
+  }
 
   function _navigateNext() {
     if (_matches.length === 0) return;
@@ -575,7 +600,8 @@ const CanvasSearch = (() => {
   return {
     init,
     isEnabled,
-    onActivate
+    onActivate,
+    _getCardType // exposed for testing
   };
 
 })();
