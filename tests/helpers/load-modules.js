@@ -25,7 +25,13 @@ const quietConsole = { log() {}, info() {}, debug() {}, warn() {}, error() {} };
  * @returns {{context: vm.Context, get: (name: string) => any, window?: any}}
  */
 function loadModules(files, options = {}) {
-  const sandbox = { console: quietConsole, setTimeout, clearTimeout, setInterval, clearInterval, ...options.globals };
+  // Feature modules self-register with main.js; a no-op stub stands in for it.
+  const registry = { registerFeature() {} };
+  const sandbox = {
+    console: quietConsole, setTimeout, clearTimeout, setInterval, clearInterval,
+    SFFlowUtilityToolkit: registry,
+    ...options.globals
+  };
   let dom;
 
   if (options.dom) {
