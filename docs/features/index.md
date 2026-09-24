@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Features | SF Flow Utility Toolkit
+meta-description: The full feature set of SF Flow Utility Toolkit, grouped by what each feature is for.
 ---
 
 # Features Overview
@@ -11,52 +12,54 @@ The toolkit is designed to improve navigation, documentation, analysis, and day-
 
 ## Available features
 
-* [Flow Health Check](flow-health-check.md)
-* [Flow Error Explorer](flow-error-explorer.md)
-* [Scheduled Flow Explorer](scheduled-flow-explorer.md)
-* [Unused Resources Finder](unused-resources-finder.md)
-* [Flow List Search](flow-list-search.md)
-* [Canvas Search](canvas-search.md)
-* [API Name Generator](api-name-generator.md)
-* [Flow Version Manager](flow-version-manager.md)
-* [Where Is This Used?](where-is-this-used.md)
-* [Comparison Exporter](comparison-exporter.md)
-* [Missing Description Flags](missing-description-flags.md)
-* [Setup Tabs](setup-tabs.md)
-* [Flow Trigger Explorer Enhancer](flow-trigger-explorer-enhancer.md)
-* [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.md)
-* [Autosave](autosave.md)
-* [Keyboard Shortcuts](keyboard-shortcuts.md)
+* [Flow Health Check](flow-health-check.html)
+* [Flow Error Explorer](flow-error-explorer.html)
+* [Import / Export Flows](import-export-flows.html)
+* [Scheduled Flow Explorer](scheduled-flow-explorer.html)
+* [Unused Resources Finder](unused-resources-finder.html)
+* [Flow List Search](flow-list-search.html)
+* [Canvas Search](canvas-search.html)
+* [API Name Generator](api-name-generator.html)
+* [Flow Version Manager](flow-version-manager.html)
+* [Where Is This Used?](where-is-this-used.html)
+* [Comparison Exporter](comparison-exporter.html)
+* [Missing Description Flags](missing-description-flags.html)
+* [Setup Tabs](setup-tabs.html)
+* [Flow Trigger Explorer Enhancer](flow-trigger-explorer-enhancer.html)
+* [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.html)
+* [Autosave](autosave.html)
+* [Keyboard Shortcuts](keyboard-shortcuts.html)
 
 ## Feature groups
 
 ### Flow Builder analysis and documentation
 
-* [Flow Health Check](flow-health-check.md)
-* [Flow Error Explorer](flow-error-explorer.md)
-* [Unused Resources Finder](unused-resources-finder.md)
-* [Comparison Exporter](comparison-exporter.md)
-* [Missing Description Flags](missing-description-flags.md)
-* [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.md)
+* [Flow Health Check](flow-health-check.html)
+* [Flow Error Explorer](flow-error-explorer.html)
+* [Unused Resources Finder](unused-resources-finder.html)
+* [Comparison Exporter](comparison-exporter.html)
+* [Missing Description Flags](missing-description-flags.html)
+* [Flow Metadata & AI Assistant](flow-metadata-ai-assistant.html)
 
 ### Search and navigation
 
-* [Flow List Search](flow-list-search.md)
-* [Canvas Search](canvas-search.md)
-* [Setup Tabs](setup-tabs.md)
-* [Flow Trigger Explorer Enhancer](flow-trigger-explorer-enhancer.md)
+* [Flow List Search](flow-list-search.html)
+* [Canvas Search](canvas-search.html)
+* [Setup Tabs](setup-tabs.html)
+* [Flow Trigger Explorer Enhancer](flow-trigger-explorer-enhancer.html)
 
 ### Build and admin utilities
 
-* [API Name Generator](api-name-generator.md)
-* [Autosave](autosave.md)
-* [Keyboard Shortcuts](keyboard-shortcuts.md)
+* [API Name Generator](api-name-generator.html)
+* [Autosave](autosave.html)
+* [Keyboard Shortcuts](keyboard-shortcuts.html)
 
 ### Flow administration
 
-* [Flow Version Manager](flow-version-manager.md)
-* [Where Is This Used?](where-is-this-used.md)
-* [Scheduled Flow Explorer](scheduled-flow-explorer.md)
+* [Flow Version Manager](flow-version-manager.html)
+* [Where Is This Used?](where-is-this-used.html)
+* [Scheduled Flow Explorer](scheduled-flow-explorer.html)
+* [Import / Export Flows](import-export-flows.html)
 
 ## Notes
 

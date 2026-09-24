@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Autosave | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Automatically save inactive draft Flows in Flow Builder after a configurable period of inactivity.
 ---
 
 # Autosave

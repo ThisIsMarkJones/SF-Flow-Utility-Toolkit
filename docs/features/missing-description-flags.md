@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Missing Description Flags | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Highlight Flow elements, resources, and Flow-level items that are missing descriptions.
 ---
 
 # Missing Description Flags

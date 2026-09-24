@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Feature Requests | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: How to suggest new features and enhancements for SF Flow Utility Toolkit.
 ---
 
 # Feature Requests

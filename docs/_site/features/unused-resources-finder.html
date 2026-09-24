@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Unused Resources Finder | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Find variables, formulas, and text templates that are defined in a Flow but never used.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="unused-resources-finder">Unused Resources Finder</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Unused Resources Finder</strong> scans the currently open Salesforce Flow and identifies user-authored resources — such as variables, formulas, and text templates — that are defined in the flow but not referenced anywhere within it. These are candidates for clean-up to reduce clutter and improve flow maintainability.</p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Unused Resources Finder is accessible from the toolkit side button menu when a Flow is open in <strong>Salesforce Flow Builder</strong>.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<p>When activated, the feature:</p>
+
+<ol>
+  <li>Opens the Manager tab in Flow Builder (to ensure resources are loaded).</li>
+  <li>Retrieves the current flow’s metadata via the Salesforce Tooling API.</li>
+  <li>Scans all resource definitions and all element references throughout the flow.</li>
+  <li>Identifies resources that are not referenced by any element or other resource.</li>
+  <li>Displays the findings in a modal, grouped by resource type.</li>
+  <li>Injects warning indicators (⚠) on unused resources in the Manager tab toolbox.</li>
+</ol>
+
+<h2 id="supported-resource-types">Supported resource types</h2>
+
+<p>The scanner checks the following resource types, which correspond to standalone Manager-tab resources:</p>
+
+<ul>
+  <li>Variables</li>
+  <li>Constants</li>
+  <li>Formulas</li>
+  <li>Text Templates</li>
+  <li>Choices</li>
+  <li>Choice Sets</li>
+  <li>Stages</li>
+</ul>
+
+<p>Element-derived items (such as Get Records output variables or loop iteration variables) are not in scope — they live on their parent elements and are excluded automatically.</p>
+
+<h2 id="the-report-modal">The report modal</h2>
+
+<p>The modal shows:</p>
+
+<ul>
+  <li>The flow label and a summary count (e.g. “3 of 12 resources are unused”)</li>
+  <li>Results grouped by resource type</li>
+  <li>Each unused resource listed with its name, data type, and description (where available)</li>
+  <li>A clickable row for each resource — clicking attempts to open that resource in the Flow Builder Manager tab</li>
+</ul>
+
+<p>If there are no unused resources, the modal displays a confirmation message.</p>
+
+<h2 id="manager-tab-indicators">Manager tab indicators</h2>
+
+<p>After the scan completes, unused resources are highlighted in the Flow Builder Manager tab toolbox with a ⚠ indicator. These indicators are cleared when the modal is closed or when the feature is re-run.</p>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The feature runs against the currently open flow version.</li>
+  <li>Reference detection covers: fields ending in <code class="language-plaintext highlighter-rouge">Reference</code> or <code class="language-plaintext highlighter-rouge">References</code>, and merge field syntax (<code class="language-plaintext highlighter-rouge">{!ResourceName}</code>) in string values.</li>
+  <li>Connector target references (<code class="language-plaintext highlighter-rouge">targetReference</code>) are excluded — these point to elements, not resources.</li>
+  <li>A resource that is defined but only referenced by another unused resource will still be flagged as unused.</li>
+  <li>Click-to-navigate in the Manager tab is best-effort. Salesforce’s Flow Builder left panel is a Lightning Web Component tree with no published API. If navigation fails, a toast message directs you to open the Manager tab manually.</li>
+  <li>The feature requires Tooling API access to retrieve flow metadata. If metadata cannot be fetched, an error is displayed in the modal.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

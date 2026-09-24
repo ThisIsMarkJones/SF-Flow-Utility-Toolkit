@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Search | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search the Flow canvas, connector labels, and toolbox items, and move between matches.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="canvas-search">Canvas Search</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Canvas Search</strong> adds a search overlay to Salesforce Flow Builder, allowing users to search across the current Flow and move through matches more easily.</p>
+
+<p>The feature helps users work more efficiently in larger or more complex Flows by providing a quick way to locate:</p>
+
+<ul>
+  <li>Flow elements by label</li>
+  <li>Flow elements by type</li>
+  <li>connector labels such as decision outcomes</li>
+  <li>toolbox and resource items in the left panel</li>
+</ul>
+
+<p>Canvas Search highlights matching items and allows users to move between results using either the keyboard or on-screen navigation controls.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/canvas-search/flow-canvas-search-module.png" alt="Canvas Search Module" /></p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Canvas Search is intended for <strong>Salesforce Flow Builder</strong>. It displays a search bar overlay positioned within the canvas area.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<ol>
+  <li>Detects that the user is in Flow Builder.</li>
+  <li>Loads the configured shortcut and highlight colour settings.</li>
+  <li>Opens a search overlay on demand.</li>
+  <li>Searches Flow elements by label and type.</li>
+  <li>Searches connector badges, such as labelled decision outcomes.</li>
+  <li>Searches items in the left-hand toolbox panel, including resources and palette items.</li>
+  <li>Highlights all matching items.</li>
+  <li>Focuses the first match automatically.</li>
+  <li>Allows navigation forwards and backwards through the result set.</li>
+  <li>Attempts to bring the currently focused result into view.</li>
+</ol>
+
+<h2 id="search-behaviour">Search behaviour</h2>
+
+<p>Searches are case-insensitive and check several areas of the Flow Builder UI — element cards (by label and type), connector badge labels, and the left-panel toolbox and resources.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/canvas-search/flow-canvas-search-canvas-highlight.png" alt="Canvas Search Canvas Highlight" /></p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/canvas-search/flow-canvas-search-toolbox-highlight.png" alt="Canvas Search Toolbox Highlight" /></p>
+
+<h2 id="navigation-behaviour">Navigation behaviour</h2>
+
+<p>When matches are found, all matches are highlighted, the first match is focused automatically, and the result counter shows the current match position (e.g. <code class="language-plaintext highlighter-rouge">1 of 5</code>). If no matches are found, the overlay shows <code class="language-plaintext highlighter-rouge">No matches</code>.</p>
+
+<h2 id="keyboard-controls">Keyboard controls</h2>
+
+<h3 id="open-search">Open search</h3>
+
+<p>Default shortcut: <strong>Ctrl + Shift + F</strong> (configurable in settings)</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/canvas-search/flow-canvas-search-settings-config.png" alt="Canvas Search Settings Config" /></p>
+
+<h3 id="navigate-matches">Navigate matches</h3>
+
+<ul>
+  <li><strong>Enter</strong> — next match</li>
+  <li><strong>Shift + Enter</strong> — previous match</li>
+  <li><strong>Arrow Down</strong> — next match</li>
+  <li><strong>Arrow Up</strong> — previous match</li>
+  <li><strong>Escape</strong> — close overlay</li>
+</ul>
+
+<h2 id="highlighting-behaviour">Highlighting behaviour</h2>
+
+<p>The highlight colour is configurable through settings and defaults to <code class="language-plaintext highlighter-rouge">#FFD700</code>.</p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<ol>
+  <li>Open a Flow in Salesforce Flow Builder.</li>
+  <li>Launch Canvas Search using the configured shortcut or the extension menu.</li>
+  <li>Enter a search term.</li>
+  <li>Review the highlighted matches.</li>
+  <li>Use Enter, Shift+Enter, or the navigation buttons to move through results.</li>
+  <li>Press Escape or use the close button to dismiss the overlay.</li>
+</ol>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The feature is designed specifically for Salesforce Flow Builder.</li>
+  <li>The feature depends on Salesforce DOM structure and selectors remaining compatible.</li>
+  <li>Highlight colour and shortcut behaviour depend on settings being available.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

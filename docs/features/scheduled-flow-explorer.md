@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Scheduled Flow Explorer | SF Flow Utility Toolkit Documentation
+title: Scheduled Flow Explorer | SF Flow Utility Toolkit
+meta-description: View all active Schedule-Triggered Flows across the org and when each is next scheduled to run.
 ---
 
 # Scheduled Flow Explorer

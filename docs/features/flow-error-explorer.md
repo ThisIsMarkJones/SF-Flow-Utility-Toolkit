@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Flow Error Explorer | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Translate Salesforce Flow runtime errors into plain English with causes, remediation steps, and AI-ready prompts.
 ---
 
 # Flow Error Explorer

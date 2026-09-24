@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Keyboard Shortcuts | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Keyboard shortcuts for common Flow Builder canvas actions including Save, Debug, and Activate.
 ---
 
 # Keyboard Shortcuts

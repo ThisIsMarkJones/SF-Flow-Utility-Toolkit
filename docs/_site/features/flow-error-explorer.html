@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow Error Explorer | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Translate Salesforce Flow runtime errors into plain English with causes, remediation steps, and AI-ready prompts.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="flow-error-explorer">Flow Error Explorer</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Flow Error Explorer</strong> is a two-part feature that helps Salesforce administrators and developers understand, diagnose, and resolve runtime errors in Salesforce Flows.</p>
+
+<p>The first part activates automatically when Flow Builder is opened via a fault debug link. It detects the error state in the debug panel, injects an <strong>Explore Error</strong> button into the debug toolbar, and opens a structured error analysis modal that translates the raw Salesforce fault string into plain English with actionable remediation guidance.</p>
+
+<p>The second part provides standalone access to the <strong>Error Dictionary</strong> from Salesforce Setup, allowing developers to look up any known Flow error code proactively — without needing an active error session.</p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p><strong>Flow Error Explorer</strong> — activates in <strong>Salesforce Flow Builder</strong> when the page is opened via a fault debug link (a URL containing a <code class="language-plaintext highlighter-rouge">guid</code> parameter). The <strong>Explore Error</strong> button is injected into the debug panel toolbar. The feature is also accessible from the toolkit side button menu when an error context has been detected.</p>
+
+<p><strong>Error Dictionary</strong> — accessible from the toolkit side button on Salesforce Setup pages at any time, regardless of whether a debug session is active.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<h3 id="flow-error-explorer-debug-sessions">Flow Error Explorer (debug sessions)</h3>
+
+<ol>
+  <li>Detects whether the current Flow Builder session was opened via a fault debug link by checking for a <code class="language-plaintext highlighter-rouge">guid</code> parameter in the URL.</li>
+  <li>Observes the debug panel DOM for the error state to finish rendering.</li>
+  <li>Extracts the structured error context from the debug panel, including the raw fault string, faulted element type and label, and any record IDs mentioned in the fault message.</li>
+  <li>Translates the raw fault string using the Error Translator, which identifies the Salesforce ExceptionCode, strips boilerplate text, extracts record IDs, and detects cascade failures.</li>
+  <li>Matches the ExceptionCode against the Error Dictionary to retrieve a plain-English description, common causes, and recommended remediations.</li>
+  <li>Injects an <strong>Explore Error</strong> button into the debug panel toolbar.</li>
+  <li>Refreshes the toolkit side button menu to surface the <strong>Explore Error</strong> menu item.</li>
+  <li>On activation, retrieves the Flow metadata via the Salesforce Tooling API and resolves the faulted element’s API name where possible.</li>
+  <li>Opens the error analysis modal with the fully enriched error context.</li>
+</ol>
+
+<h3 id="error-dictionary-setup-pages">Error Dictionary (Setup pages)</h3>
+
+<p>Opens the Error Dictionary modal in standalone mode, providing access to the full reference catalogue of known Salesforce Flow error codes without requiring an active debug session.</p>
+
+<h2 id="error-analysis-modal">Error analysis modal</h2>
+
+<p>The modal presents a structured breakdown of the detected error:</p>
+
+<h3 id="error-summary">Error summary</h3>
+
+<ul>
+  <li><strong>Error code</strong> — the Salesforce ExceptionCode extracted from the fault string</li>
+  <li><strong>Error category</strong> — the category from the Error Dictionary (e.g. Validation, Governor Limits, Data Operations)</li>
+  <li><strong>Severity</strong> — High, Medium, or Low</li>
+  <li><strong>Human-readable message</strong> — the fault string cleaned of Salesforce boilerplate text</li>
+  <li><strong>Cascade indicator</strong> — flags if the error appears to be a secondary failure caused by another flow or action</li>
+  <li><strong>Affected record IDs</strong> — any Salesforce record IDs extracted from the fault message</li>
+  <li><strong>Faulted element</strong> — the element type and label where the fault occurred</li>
+</ul>
+
+<h3 id="dictionary-entry">Dictionary entry</h3>
+
+<p>The modal displays the matching Error Dictionary entry for the detected error code, including:</p>
+
+<ul>
+  <li>A plain-English description of what the error means</li>
+  <li>Common causes in a Flow context</li>
+  <li>Actionable remediation recommendations</li>
+  <li>Related error codes to be aware of</li>
+</ul>
+
+<h3 id="ai-prompt">AI prompt</h3>
+
+<p>The modal provides a <strong>Copy AI Prompt</strong> action that assembles a structured prompt including the flow label, faulted element, error code, error message, and raw fault string. The prompt requests a plain-English explanation, step-by-step remediation instructions, fault path guidance, and relevant best practice recommendations. The prompt can be pasted directly into any AI tool.</p>
+
+<h3 id="error-dictionary-tab">Error Dictionary tab</h3>
+
+<p>The modal includes an <strong>Error Dictionary</strong> tab listing the full catalogue of known error codes, grouped by category, so developers can browse related errors while diagnosing the current one.</p>
+
+<h2 id="error-dictionary">Error Dictionary</h2>
+
+<p>The Error Dictionary covers the following categories and error codes:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Error Codes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validation</td>
+      <td>FIELD_CUSTOM_VALIDATION_EXCEPTION, REQUIRED_FIELD_MISSING, FIELD_INTEGRITY_EXCEPTION</td>
+    </tr>
+    <tr>
+      <td>Governor Limits</td>
+      <td>APEX_CPU_TIME_LIMIT_EXCEEDED, TOO_MANY_SOQL_QUERIES, TOO_MANY_DML_ROWS, TOO_MANY_DML_STATEMENTS</td>
+    </tr>
+    <tr>
+      <td>Data Operations</td>
+      <td>CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY, ENTITY_IS_DELETED</td>
+    </tr>
+    <tr>
+      <td>Access &amp; Permissions</td>
+      <td>INSUFFICIENT_ACCESS_OR_READONLY, INSUFFICIENT_ACCESS, INVALID_SESSION_ID</td>
+    </tr>
+    <tr>
+      <td>Apex &amp; Actions</td>
+      <td>INVALID_FIELD, INVALID_TYPE</td>
+    </tr>
+    <tr>
+      <td>Duplicate Rules</td>
+      <td>DUPLICATES_DETECTED</td>
+    </tr>
+    <tr>
+      <td>Cascade Failures</td>
+      <td>Detected via pattern matching against cascade language in the fault string</td>
+    </tr>
+    <tr>
+      <td>Unknown</td>
+      <td>Catch-all fallback for unrecognised error codes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Each entry in the dictionary includes a description, causes, recommendations, a fault string example, and related error codes.</p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<h3 id="exploring-a-runtime-error">Exploring a runtime error</h3>
+
+<ol>
+  <li>When a Flow fails at runtime, open the fault debug link from the failed Flow interview or email notification.</li>
+  <li>Flow Builder opens in debug mode. The toolkit detects the error and injects the <strong>Explore Error</strong> button into the debug panel toolbar.</li>
+  <li>Click <strong>Explore Error</strong> in the toolbar, or select it from the toolkit side button menu.</li>
+  <li>The error analysis modal opens, displaying the translated error, dictionary entry, and AI prompt.</li>
+  <li>Review the causes and recommendations to identify the remediation path.</li>
+  <li>Use <strong>Copy AI Prompt</strong> to copy a ready-made prompt to your clipboard for use in an AI tool.</li>
+</ol>
+
+<h3 id="accessing-the-error-dictionary-proactively">Accessing the Error Dictionary proactively</h3>
+
+<ol>
+  <li>Navigate to any Salesforce Setup page.</li>
+  <li>Open the toolkit side button.</li>
+  <li>Select <strong>Error Dictionary</strong> from the menu.</li>
+  <li>Browse the full catalogue of known Flow error codes by category.</li>
+</ol>
+
+<h2 id="settings">Settings</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Setting</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Flow Error Explorer enabled</td>
+      <td>On</td>
+      <td>Enables or disables both the Flow Error Explorer and Error Dictionary features</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The Flow Error Explorer only activates when Flow Builder is opened via a fault debug link containing a <code class="language-plaintext highlighter-rouge">guid</code> URL parameter. It does not activate on standard Flow Builder sessions.</li>
+  <li>The error context is extracted from the debug panel DOM. If the debug panel has not fully rendered when the feature is activated, the feature will attempt a fresh extraction.</li>
+  <li>Record ID extraction from fault strings is pattern-based and covers standard 15 and 18 character Salesforce IDs.</li>
+  <li>Element API name resolution is a best-effort lookup based on matching the faulted element label against the Flow metadata. Label collisions in edge cases may result in an unresolved API name.</li>
+  <li>Cascade failure detection is based on language patterns in the fault string and may not identify all cascade scenarios.</li>
+  <li>The Error Dictionary covers known Salesforce Flow exception codes. Error codes not in the dictionary are handled by a generic catch-all entry.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

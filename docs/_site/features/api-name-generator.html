@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>API Name Generator | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Generate standardised API names for Flow elements and resources using configurable naming patterns and prefixes.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="api-name-generator">API Name Generator</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>API Name Generator</strong> helps users generate standardised API names for Salesforce Flow elements and resources based on configured prefixes and naming conventions.</p>
+
+<p>The feature improves naming consistency within Flow Builder by reducing manual entry and applying reusable naming rules across common Flow components.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/api-name-generator/api-name-generator-inline-tag-button.png" alt="API Name Generator Inline Tag Button" /></p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>API Name Generator is intended for <strong>Salesforce Flow Builder</strong>. It injects a generate button next to the <strong>API Name</strong> field in element and resource editors.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<ol>
+  <li>Detects that the user is in Flow Builder.</li>
+  <li>Loads the configured naming pattern from settings.</li>
+  <li>Loads prefix definitions from custom storage or the shipped default configuration.</li>
+  <li>Watches the page for relevant Flow Builder property panels opening.</li>
+  <li>Injects a <strong>Generate API Name</strong> button (🏷️) next to supported API Name fields.</li>
+  <li>Reads the current label and detects the element or resource type.</li>
+  <li>Generates an API name using the configured naming pattern and matching prefix.</li>
+  <li>Writes the generated value into the API Name input.</li>
+  <li>Dispatches the required input, change, and blur events so Salesforce recognises the update.</li>
+  <li>Shows a toast confirming the generated result.</li>
+</ol>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/api-name-generator/api-name-generator-element-update.png" alt="API Name Generator Element Update" /></p>
+
+<h2 id="naming-patterns">Naming patterns</h2>
+
+<p>Supported patterns:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Snake_Case</code></li>
+  <li><code class="language-plaintext highlighter-rouge">PascalCase</code></li>
+  <li><code class="language-plaintext highlighter-rouge">camelCase</code></li>
+</ul>
+
+<p>The configured naming pattern is read from settings and applied when generating the final API name.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/api-name-generator/api-name-generator-settings-options.png" alt="API Name Generator Settings Options" /></p>
+
+<h2 id="supported-type-coverage">Supported type coverage</h2>
+
+<h3 id="standard-flow-elements">Standard Flow elements</h3>
+
+<p>Get Records, Create Records, Update Records, Delete Records, Decision, Assignment, Screen, Loop, Action, Subflow, Wait, Transform, Custom Error, Roll Back Records, Collection Sort, Collection Filter, and more.</p>
+
+<h3 id="resources">Resources</h3>
+
+<p>Variable, Formula, Collection, Constant, Text Template, Choice, Collection Choice Set, Record Choice Set, Picklist Choice Set — with subtype support for data types such as Text, Number, Boolean, Date, Record, and Apex-Defined.</p>
+
+<h3 id="screen-component-subtypes">Screen component subtypes</h3>
+
+<p>Input, Display, Message, Repeater, Section, LWC.</p>
+
+<h3 id="orchestration-related-types">Orchestration-related types</h3>
+
+<p>Stage, Step.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/api-name-generator/api-name-generator-resource-item-update.png" alt="API Name Generator Resource Item Update" /></p>
+
+<h2 id="prefix-customisation">Prefix customisation</h2>
+
+<p>The prefix system supports importing user-provided JSON to override the default mappings, exporting the active configuration, and resetting to defaults. Updates to custom prefix configuration are reflected without requiring a manual page refresh.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/api-name-generator/api-name-generator-download-upload-prefixes.png" alt="API Name Generator Download/Upload Prefixes" /></p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<ol>
+  <li>Open a Flow in Salesforce Flow Builder.</li>
+  <li>Open the configuration panel for an element, resource, or supported screen component.</li>
+  <li>Enter a label if one is not already present.</li>
+  <li>Click the <strong>Generate API Name</strong> button (🏷️) next to the API Name field.</li>
+  <li>Review the generated API name and adjust manually if needed.</li>
+</ol>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The feature depends on Flow Builder editor DOM structure and selectors remaining compatible.</li>
+  <li>API Name generation quality depends on correct element/resource type detection.</li>
+  <li>The feature falls back to hardcoded defaults if the JSON default file cannot be loaded.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

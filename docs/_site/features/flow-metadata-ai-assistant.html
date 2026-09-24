@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow Metadata & AI Assistant | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Work with Flow metadata and generate prompt-ready content for AI-assisted workflows.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="flow-metadata--ai-assistant">Flow Metadata &amp; AI Assistant</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Flow Metadata &amp; AI Assistant</strong> is a combined metadata and prompt-generation feature for Salesforce Flow Builder.</p>
+
+<p>It provides a side-panel experience that helps users:</p>
+
+<ul>
+  <li>review Flow metadata in a more usable format</li>
+  <li>copy or download Flow metadata as JSON</li>
+  <li>generate AI-ready prompts using built-in templates</li>
+  <li>choose between raw and cleaned metadata depending on the task</li>
+  <li>estimate prompt size before copying content into an external AI tool</li>
+</ul>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-module.png" alt="Flow Metadata &amp; AI Assistant Module" /></p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Flow Metadata &amp; AI Assistant is intended for <strong>Salesforce Flow Builder</strong>. When activated, it opens a panel overlay that can be closed by clicking the close button, pressing <strong>Escape</strong>, or clicking outside the panel.</p>
+
+<h2 id="panel-sections">Panel sections</h2>
+
+<h3 id="flow-summary">Flow Summary</h3>
+
+<p>Displays core metadata: Label, Type, Status, API Version, element summary, and resource summary.</p>
+
+<h3 id="flow-metadata">Flow Metadata</h3>
+
+<p>Shows estimated token counts for raw and cleaned metadata, the token saving percentage, and action buttons:</p>
+
+<ul>
+  <li>Copy Raw / Copy Clean</li>
+  <li>Download Raw / Download Clean</li>
+</ul>
+
+<h3 id="ai-prompt-assistant">AI Prompt Assistant</h3>
+
+<p>Lets the user select a prompt template, choose between Clean and Raw metadata, view a token estimate, and copy the assembled prompt to the clipboard.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-summary-metadata-sections.png" alt="Flow Metadata &amp; AI Assistant Summary/Metadata Sections" /></p>
+
+<h2 id="prompt-templates">Prompt templates</h2>
+
+<ul>
+  <li><strong>Summarise Flow</strong> — produces a plain-English Flow summary suitable for a Flow description</li>
+  <li><strong>Generate Flow, Element, and Resource Descriptions</strong> — produces structured documentation including a Flow summary, paste-ready descriptions, and grouped element/resource descriptions</li>
+  <li><strong>Generate Draw.io Diagram</strong> — produces Draw.io compatible XML representing the Flow visually</li>
+  <li><strong>Suggest Improvements</strong> — analyses the Flow against performance, error handling, maintainability, security, governor limits, and general best practices</li>
+  <li><strong>Generate Test Scenarios</strong> — produces structured test scenarios covering Flow paths, branches, edge cases, and fault handling</li>
+</ul>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-prompt-template-section.png" alt="Flow Metadata &amp; AI Assistant Prompt Template Section" /></p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-metadata-ai-assistant/flow-metadata-ai-assistant-prompt-template-section-options.png" alt="Flow Metadata &amp; AI Assistant Prompt Template Section Options" /></p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<ol>
+  <li>Open a Flow in Salesforce Flow Builder.</li>
+  <li>Launch <strong>AI Assistant</strong> from the extension.</li>
+  <li>Wait for the current Flow metadata to be retrieved.</li>
+  <li>Review the Flow Summary section if needed.</li>
+  <li>Choose whether you want to work with raw or cleaned metadata.</li>
+  <li>Select a prompt template.</li>
+  <li>Review the token estimate.</li>
+  <li>Click <strong>Copy Prompt to Clipboard</strong>.</li>
+  <li>Paste the copied prompt into your preferred AI tool.</li>
+</ol>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The feature prepares prompts and metadata but does not itself execute an external AI model.</li>
+  <li>Token estimates are approximate and intended as a planning aid.</li>
+  <li>The quality of AI outputs depends on the selected prompt template and the metadata supplied to the external AI tool.</li>
+  <li>The feature depends on successful metadata retrieval for the current Flow.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

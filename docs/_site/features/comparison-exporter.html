@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparison Exporter | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Export Flow version comparison results into a structured Excel workbook.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="comparison-exporter">Comparison Exporter</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Comparison Exporter</strong> exports Salesforce Flow version comparison results to an Excel workbook based on a pre-defined template.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/comparison-exporter/comparison-exporter-side-bar-module.png" alt="Comparison Exporter Side Bar Module" /></p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Comparison Exporter is intended for the Salesforce <strong>Compare Flows</strong> page in Setup.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<ol>
+  <li>Detects that the user is on the Compare Flows page.</li>
+  <li>Loads the bundled XLSX library when export begins.</li>
+  <li>Opens an export options modal.</li>
+  <li>Scrapes the selected Flow/version information from the page.</li>
+  <li>Scrapes comparison result values such as analysis time and item counts.</li>
+  <li>Scrapes the basic changes table.</li>
+  <li>Optionally opens each <strong>View Details</strong> action to capture detail text.</li>
+  <li>Loads the Excel template workbook.</li>
+  <li>Populates named ranges and the comparison changes table in the workbook.</li>
+  <li>Triggers a browser download of the generated XLSX file.</li>
+</ol>
+
+<h2 id="export-options-modal">Export options modal</h2>
+
+<p>Before the export begins, the feature opens a modal with a checkbox for including <strong>View Details</strong> panel text. Detailed export is slower but more complete.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/comparison-exporter/comparison-exporter-export-module.png" alt="Comparison Exporter Export Module" /></p>
+
+<h2 id="what-gets-exported">What gets exported</h2>
+
+<ul>
+  <li>Selected Flow/version information (API names and version numbers for both compared versions)</li>
+  <li>Comparison summary values (Analysis Time, Last Modified Date/By, Status, Added/Updated/Changed/Removed item counts)</li>
+  <li>Changes table (Label, API Name, Change Type, Details)</li>
+</ul>
+
+<h2 id="downloaded-file">Downloaded file</h2>
+
+<p>The filename follows this pattern: <code class="language-plaintext highlighter-rouge">FlowCompare_&lt;FlowApiName&gt;_&lt;VersionX&gt;_to_&lt;VersionY&gt;.xlsx</code></p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<ol>
+  <li>Open the Salesforce <strong>Compare Versions</strong> page.</li>
+  <li>Select the two Flow versions to compare.</li>
+  <li>Launch <strong>Comparison Exporter</strong> from the extension.</li>
+  <li>Choose whether to include detailed <strong>View Details</strong> panel text.</li>
+  <li>Confirm the export.</li>
+  <li>Wait while the exporter scrapes the page and generates the workbook.</li>
+  <li>Open the downloaded <code class="language-plaintext highlighter-rouge">.xlsx</code> file.</li>
+</ol>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>The feature depends on Salesforce comparison-page DOM structure and selectors remaining compatible.</li>
+  <li>Detailed export is slower because it opens and reads each <strong>View Details</strong> panel individually.</li>
+  <li>The exporter depends on the bundled XLSX library and the Excel template workbook containing the expected named ranges.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

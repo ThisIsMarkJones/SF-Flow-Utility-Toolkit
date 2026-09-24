@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Canvas Search | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Search the Flow canvas, connector labels, and toolbox items, and move between matches.
 ---
 
 # Canvas Search

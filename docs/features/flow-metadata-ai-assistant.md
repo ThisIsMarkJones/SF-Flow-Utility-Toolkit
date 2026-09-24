@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Flow Metadata & AI Assistant | SF Flow Utility Toolkit
+meta-description: Work with Flow metadata and generate prompt-ready content for AI-assisted workflows.
 ---
 
 # Flow Metadata & AI Assistant

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Flow Trigger Explorer Enhancer | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Enrich Flow Trigger Explorer rows with inline metadata, context tags, and tooltips.
 ---
 
 # Flow Trigger Explorer Enhancer

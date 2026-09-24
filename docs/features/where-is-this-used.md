@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Where Is This Used? | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Find every subflow, action, quick action, and Lightning page that references the current Flow.
 ---
 
 # Where Is This Used?

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Unused Resources Finder | SF Flow Utility Toolkit
+meta-description: Find variables, formulas, and text templates that are defined in a Flow but never used.
 ---
 
 # Unused Resources Finder

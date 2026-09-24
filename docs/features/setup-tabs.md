@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Setup Tabs | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Add quick-access Setup tabs for key Flow and automation destinations.
 ---
 
 # Setup Tabs

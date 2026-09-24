@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Flow Version Manager | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Bulk-select and delete eligible Flow versions more safely from the versions page.
 ---
 
 # Flow Version Manager

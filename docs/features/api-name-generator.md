@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Name Generator | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Generate standardised API names for Flow elements and resources using configurable naming patterns and prefixes.
 ---
 
 # API Name Generator

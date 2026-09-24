@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Flow List Search | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Search and filter the Salesforce Setup Flows list by label, API name, status, and type.
 ---
 
 # Flow List Search

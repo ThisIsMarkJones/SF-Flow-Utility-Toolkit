@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Comparison Exporter | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Export Flow version comparison results into a structured Excel workbook.
 ---
 
 # Comparison Exporter

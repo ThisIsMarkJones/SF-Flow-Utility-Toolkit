@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Keyboard Shortcuts | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Keyboard shortcuts for common Flow Builder canvas actions including Save, Debug, and Activate.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="keyboard-shortcuts">Keyboard Shortcuts</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Keyboard Shortcuts</strong> adds a set of keyboard shortcuts to Salesforce Flow Builder, covering common canvas actions that would otherwise require reaching for the toolbar or navigating menus.</p>
+
+<p>All canvas shortcuts use <strong>Shift + Letter</strong> and are scoped to Flow Builder only. Shortcuts do not fire when the cursor is focused inside a text input, textarea, or other editable field.</p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Keyboard Shortcuts are active in <strong>Salesforce Flow Builder</strong>. The global sidebar shortcut is active on all pages where the toolkit side button is present.</p>
+
+<h2 id="canvas-shortcuts">Canvas shortcuts</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Shift + S</td>
+      <td>Save</td>
+    </tr>
+    <tr>
+      <td>Shift + D</td>
+      <td>Debug</td>
+    </tr>
+    <tr>
+      <td>Shift + R</td>
+      <td>Run</td>
+    </tr>
+    <tr>
+      <td>Shift + E</td>
+      <td>Add New Element</td>
+    </tr>
+    <tr>
+      <td>Shift + V</td>
+      <td>New Resource</td>
+    </tr>
+    <tr>
+      <td>Shift + M</td>
+      <td>Toggle Toolbox</td>
+    </tr>
+    <tr>
+      <td>Shift + F</td>
+      <td>Open Errors panel — Errors tab</td>
+    </tr>
+    <tr>
+      <td>Shift + W</td>
+      <td>Open Errors panel — Warnings tab</td>
+    </tr>
+    <tr>
+      <td>Shift + X</td>
+      <td>View Properties (Flow Settings)</td>
+    </tr>
+    <tr>
+      <td>Shift + A</td>
+      <td>Select Elements</td>
+    </tr>
+    <tr>
+      <td>Shift + Z</td>
+      <td>Undo</td>
+    </tr>
+    <tr>
+      <td>Shift + Y</td>
+      <td>Redo</td>
+    </tr>
+    <tr>
+      <td>Shift + T</td>
+      <td>Activate / Deactivate</td>
+    </tr>
+    <tr>
+      <td>Shift + H</td>
+      <td>Show / Hide Advanced</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="global-shortcut">Global shortcut</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cmd + Shift + U (Mac) / Ctrl + Shift + U (Windows)</td>
+      <td>Open Utility Sidebar</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="native-salesforce-shortcut-no-implementation-required">Native Salesforce shortcut (no implementation required)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shortcut</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cmd + Shift + S (Mac) / Ctrl + Shift + S (Windows)</td>
+      <td>Save As New Version</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This shortcut is built into Salesforce Flow Builder and works without the extension.</p>
+
+<h2 id="behaviour-notes">Behaviour notes</h2>
+
+<p><strong>Save (Shift + S)</strong> — only fires if the Save button is currently enabled. If there are no unsaved changes, a toast confirms there is nothing to save.</p>
+
+<p><strong>Add Element (Shift + E)</strong> — clicks the first visible, enabled connector button on the canvas. If no connector is available, a toast is shown.</p>
+
+<p><strong>New Resource (Shift + V)</strong> — opens the Toolbox panel if it is not already visible before triggering the New Resource button.</p>
+
+<p><strong>Errors / Warnings tabs (Shift + F / Shift + W)</strong> — opens the Errors panel if it is not already visible, then navigates to the relevant tab.</p>
+
+<p><strong>Activate / Deactivate (Shift + T)</strong> — only one of these buttons is present at a time depending on the current Flow state. The shortcut clicks whichever is available. If the Flow has unsaved changes, neither button is present and a toast explains why.</p>
+
+<p><strong>Show / Hide Advanced (Shift + H)</strong> — requires the Flow Settings panel to be open first (Shift + X). If the panel is not open, a toast prompts the user to open it.</p>
+
+<p>If a target button is absent or disabled, a warning toast is shown rather than silently doing nothing.</p>
+
+<h2 id="settings">Settings</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Setting</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Keyboard Shortcuts enabled</td>
+      <td>On</td>
+      <td>Enables or disables all keyboard shortcuts</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>Shortcuts do not fire when focus is inside a text input, textarea, select element, or contenteditable area.</li>
+  <li>The shortcut set is fixed and cannot currently be reconfigured per shortcut.</li>
+  <li>Shortcuts depend on Salesforce Flow Builder toolbar buttons being present and accessible in the DOM.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Report a Bug | SF Flow Utility Toolkit
+meta-description: How to report a bug in SF Flow Utility Toolkit and what to include in the report.
 ---
 
 # Report a Bug
@@ -26,7 +27,7 @@ A useful bug report should include:
 * the actual behaviour
 * steps to reproduce the issue
 * browser name and version
-* whether you were using Chrome or Edge
+* whether you were using Chrome, Edge, or Firefox
 * any relevant screenshots
 * any console errors, if available
 

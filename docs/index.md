@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Home | SF Flow Utility Toolkit
-meta-description: Documentation for the Salesforce Flow Builder browser extension
+meta-description: Documentation for SF Flow Utility Toolkit, a browser extension of utilities for Salesforce Flow Builder.
 ---
 
 # SF Flow Utility Toolkit
@@ -25,6 +25,10 @@ Analyse a Flow and identify maintainability, reliability, performance, and porta
 ### [Flow Error Explorer](features/flow-error-explorer.html)
 
 Translate Salesforce Flow runtime errors into plain English with causes, remediation steps, and AI-ready prompts. Includes a standalone Error Dictionary accessible from Setup at any time.
+
+### [Import / Export Flows](features/import-export-flows.html)
+
+Export the open Flow as a `.flow-meta.xml` file, and import a `.flow-meta.xml` file back into the org as a new version — validated, diffed against what is already there, and inactive by default. No SFDX required.
 
 ### [Scheduled Flow Explorer](features/scheduled-flow-explorer.html)
 

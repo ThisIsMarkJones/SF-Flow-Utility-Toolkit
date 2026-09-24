@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Flow Version Manager | SF Flow Utility Toolkit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bulk-select and delete eligible Flow versions more safely from the versions page.">
+  <link rel="stylesheet" href="/SF-Flow-Utility-Toolkit/assets/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand-kicker">Documentation</div>
+        <h1 class="brand-title"><a href="/SF-Flow-Utility-Toolkit/">SF Flow Utility Toolkit</a></h1>
+        <p class="brand-description">Documentation for the Salesforce Flow Builder browser extension</p>
+      </div>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/SF-Flow-Utility-Toolkit/">Home</a>
+        <a href="/SF-Flow-Utility-Toolkit/whats-new.html">What's New</a>
+        <a href="/SF-Flow-Utility-Toolkit/getting-started.html">Getting Started</a>
+        <a href="/SF-Flow-Utility-Toolkit/features/">Features</a>
+        <a href="/SF-Flow-Utility-Toolkit/report-a-bug.html">Report a Bug</a>
+        <a href="/SF-Flow-Utility-Toolkit/feature-requests.html">Feature Requests</a>
+        <a href="/SF-Flow-Utility-Toolkit/privacy-policy.html">Privacy Policy</a>
+        <div class="site-nav-dropdown">
+          <button type="button" class="site-nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            Install
+          </button>
+          <div class="site-nav-dropdown-menu">
+            <a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl" target="_blank" rel="noopener noreferrer">
+              Chrome Web Store
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/" target="_blank" rel="noopener noreferrer">
+              Firefox Add-Ons
+            </a>
+            <a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo" target="_blank" rel="noopener noreferrer">
+              Microsoft Edge Add-Ons
+            </a>
+          </div>
+        </div>
+      </nav>
+  </header>
+  <main class="site-main">
+    <div class="container content-container">
+      <h1 id="flow-version-manager">Flow Version Manager</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Flow Version Manager</strong> enhances the Salesforce Flow versions page by adding bulk-selection controls and a guided way to delete multiple Flow versions more safely.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-version-manager/flow-version-manager-disabled-row-and-button.png" alt="Flow Version Manager Disabled Row and Button" /></p>
+
+<h2 id="where-it-appears">Where it appears</h2>
+
+<p>Flow Version Manager is intended for the Salesforce <strong>Flow details / versions page</strong> in Setup.</p>
+
+<h2 id="what-the-feature-does">What the feature does</h2>
+
+<ol>
+  <li>Detects whether the current page is likely to be a Flow versions/details page.</li>
+  <li>Finds the Salesforce versions table.</li>
+  <li>Injects a checkbox column into the table header.</li>
+  <li>Adds row-level checkboxes for supported versions.</li>
+  <li>Tracks selected versions internally.</li>
+  <li>Adds a <strong>Delete Selected Versions</strong> action button to the page button bar.</li>
+  <li>Prevents active versions from being selected for deletion.</li>
+  <li>Opens a confirmation modal before deletion begins.</li>
+  <li>Requires the user to type <strong>DELETE</strong> before continuing.</li>
+  <li>Queues and processes deletions using Salesforce’s native delete links.</li>
+  <li>Shows a completion toast after deletion is finished.</li>
+</ol>
+
+<h2 id="selection-behaviour">Selection behaviour</h2>
+
+<p>Each eligible version row receives a checkbox. The bulk delete button label updates dynamically, e.g. <code class="language-plaintext highlighter-rouge">Delete Selected Versions (3)</code>. Active versions cannot be selected for deletion.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-version-manager/flow-version-manager-selectable-row-and-button.png" alt="Flow Version Manager Selectable Row and Button" /></p>
+
+<h2 id="confirmation-modal">Confirmation modal</h2>
+
+<p>Before deletion begins, the feature opens a confirmation modal showing:</p>
+
+<ul>
+  <li>a short confirmation message</li>
+  <li>a warning about in-progress interviews</li>
+  <li>a list of the selected versions</li>
+  <li>an input requiring the user to type <strong>DELETE</strong></li>
+  <li>Cancel and Delete action buttons</li>
+</ul>
+
+<p>The user must type <strong>DELETE</strong> exactly before the destructive action button is enabled.</p>
+
+<p><img src="https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/flow-version-manager/flow-version-manager-deletion-module.png" alt="Flow Version Manager Deletion Module" /></p>
+
+<h2 id="how-to-use-it">How to use it</h2>
+
+<ol>
+  <li>Open a Flow details page that includes the versions table.</li>
+  <li>Select one or more deletable versions using the added checkboxes.</li>
+  <li>Click <strong>Delete Selected Versions</strong>.</li>
+  <li>Review the list of selected versions in the modal.</li>
+  <li>Type <strong>DELETE</strong> to confirm.</li>
+  <li>Allow the queued deletion process to complete.</li>
+</ol>
+
+<h2 id="notes-and-limitations">Notes and limitations</h2>
+
+<ul>
+  <li>Active versions cannot be deleted through this feature.</li>
+  <li>The feature uses session storage to manage queued delete operations.</li>
+  <li>Because it relies on Salesforce’s native delete action links, changes to the underlying page structure may require future updates.</li>
+  <li>Deleting Flow versions is a destructive action and should be treated carefully, ideally during off-peak hours.</li>
+</ul>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>SF Flow Utility Toolkit documentation.</p>
+      <p class="footer-meta">Documentation for the current public release and ongoing updates.</p>
+    </div>
+  </footer>
+</body>
+</html>

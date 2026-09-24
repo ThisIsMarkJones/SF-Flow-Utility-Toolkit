@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/" rel="alternate" type="text/html" /><updated>2026-09-24T10:59:00+01:00</updated><id>http://localhost:4000/SF-Flow-Utility-Toolkit/feed.xml</id><title type="html">SF Flow Utility Toolkit</title><subtitle>Documentation for the Salesforce Flow Builder browser extension</subtitle><entry><title type="html">Import / Export Flows</title><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/09/21/import-export-flows.html" rel="alternate" type="text/html" title="Import / Export Flows" /><published>2026-09-21T01:00:00+01:00</published><updated>2026-09-21T01:00:00+01:00</updated><id>http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/09/21/import-export-flows</id><content type="html" xml:base="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/09/21/import-export-flows.html"><![CDATA[<p>v7.0.0 introduces <strong>Import / Export Flows</strong>, which moves Flow metadata in and out of a Salesforce org from the browser — no SFDX, no Metadata API SOAP endpoints, and no local development environment.</p>
+
+<p>Both halves live in a single panel, opened from the toolkit side button.</p>
+
+<h2 id="export">Export</h2>
+
+<p>From Flow Builder, export the flow currently open on the canvas as a <code class="language-plaintext highlighter-rouge">.flow-meta.xml</code> file — the same source format a Metadata API retrieve produces. Commit it to version control, attach it to a ticket, review it offline, or hand it to another org.</p>
+
+<h2 id="import">Import</h2>
+
+<p>From the Setup Flows list, import a <code class="language-plaintext highlighter-rouge">.flow-meta.xml</code> file back into the org as a new version. Nothing is created until the import has passed every check:</p>
+
+<ul>
+  <li>the file name and XML are validated before any request is made</li>
+  <li>the org is queried for existing versions of that flow</li>
+  <li>the file is compared against the active version, or against a version you choose when a newer inactive version also exists</li>
+  <li>the change list shows exactly which elements were added, changed, and removed</li>
+  <li>an import identical to what is already in the org is blocked rather than creating a duplicate version</li>
+  <li>the deploy is polled with live status until Salesforce reports the outcome</li>
+</ul>
+
+<p>Imports always create a <strong>new version</strong> — nothing is overwritten, replaced, or deleted. Every import lands as an <strong>inactive draft</strong> unless you explicitly opt in to activating it, and that option only appears when the source file came from an active version.</p>
+
+<p>Selecting and exporting multiple flows as a ZIP is not part of this release and is planned for a later one.</p>
+
+<p>For full details, see <a href="/SF-Flow-Utility-Toolkit/features/import-export-flows.html">Import / Export Flows</a>.</p>]]></content><author><name></name></author><category term="announcement" /><summary type="html"><![CDATA[v7.0.0 introduces Import / Export Flows, which moves Flow metadata in and out of a Salesforce org from the browser — no SFDX, no Metadata API SOAP endpoints, and no local development environment.]]></summary></entry><entry><title type="html">Flow Error Explorer</title><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/flow-error-explorer.html" rel="alternate" type="text/html" title="Flow Error Explorer" /><published>2026-07-01T13:00:00+01:00</published><updated>2026-07-01T13:00:00+01:00</updated><id>http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/flow-error-explorer</id><content type="html" xml:base="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/flow-error-explorer.html"><![CDATA[<p>v6.0.0 introduces <strong>Flow Error Explorer</strong>, which translates Salesforce Flow runtime errors into plain English with causes and remediation steps.</p>
+
+<p>When Flow Builder is opened from a fault debug link, the toolkit detects the error state in the debug panel and adds an <strong>Explore Error</strong> button to the debug toolbar. Opening it gives you:</p>
+
+<ul>
+  <li>the Salesforce ExceptionCode extracted from the raw fault string</li>
+  <li>the error category and a High, Medium, or Low severity rating</li>
+  <li>the fault message with Salesforce boilerplate text stripped out</li>
+  <li>any Salesforce record IDs mentioned in the fault</li>
+  <li>the faulted element type, label, and API name where it can be resolved</li>
+  <li>an indicator when the failure looks like a cascade caused by another flow or action</li>
+  <li>common causes and actionable remediation recommendations</li>
+  <li>a <strong>Copy AI Prompt</strong> action that assembles a ready-to-paste prompt for use in any AI tool</li>
+</ul>
+
+<p>The release also adds a standalone <strong>Error Dictionary</strong>, available from the toolkit side button on any Salesforce Setup page. It catalogues known Flow error codes by category — validation, governor limits, data operations, access and permissions, Apex and actions, and duplicate rules — so you can look an error up proactively without an active debug session.</p>
+
+<p>This release also recalibrates the Flow Health Check scoring model.</p>
+
+<p>For full details, see <a href="/SF-Flow-Utility-Toolkit/features/flow-error-explorer.html">Flow Error Explorer</a>.</p>]]></content><author><name></name></author><category term="announcement" /><summary type="html"><![CDATA[v6.0.0 introduces Flow Error Explorer, which translates Salesforce Flow runtime errors into plain English with causes and remediation steps.]]></summary></entry><entry><title type="html">SF Flow Utility Toolkit is Live on Firefox and Microsoft Edge</title><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/sf-flow-utility-toolkit-is-live-on-firefox-and-microsoft-edge.html" rel="alternate" type="text/html" title="SF Flow Utility Toolkit is Live on Firefox and Microsoft Edge" /><published>2026-07-01T01:00:00+01:00</published><updated>2026-07-01T01:00:00+01:00</updated><id>http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/sf-flow-utility-toolkit-is-live-on-firefox-and-microsoft-edge</id><content type="html" xml:base="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/07/01/sf-flow-utility-toolkit-is-live-on-firefox-and-microsoft-edge.html"><![CDATA[<p>SF Flow Utility Toolkit is now available on Firefox Add-ons and Microsoft Edge Add-ons, alongside the existing Chrome Web Store listing.</p>
+
+<p>The same feature set is available on all three browsers. The extension is built from browser-specific manifests so that each listing matches what its store expects:</p>
+
+<ul>
+  <li>Chrome and Edge run the extension as a Manifest V3 service worker</li>
+  <li>Firefox runs it as a background script, with a minimum supported version of Firefox 126</li>
+</ul>
+
+<p>No data collection permissions are requested on any browser.</p>
+
+<p>Please be aware that the Chrome version may be more up-to-date than the Firefox and Microsoft Edge versions. Chrome updates are typically available within the hour, while Firefox and Microsoft Edge can take several business days to review and approve updates.</p>
+
+<p>To install the extension, please visit:</p>
+
+<p><a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl">Google Chrome</a></p>
+
+<p><a href="https://addons.mozilla.org/en-US/firefox/addon/sf-flow-utility-toolkit/">Firefox</a></p>
+
+<p><a href="https://microsoftedge.microsoft.com/addons/detail/sf-flow-utility-toolkit/gmcdggeklbggfiheplhhcmgkcfloeclo">Microsoft Edge</a></p>]]></content><author><name></name></author><category term="announcement" /><summary type="html"><![CDATA[SF Flow Utility Toolkit is now available on Firefox Add-ons and Microsoft Edge Add-ons, alongside the existing Chrome Web Store listing.]]></summary></entry><entry><title type="html">SF Flow Utility Toolkit is Live on the Chrome Web Store</title><link href="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/04/19/sf-flow-utility-toolkit-is-live-on-the-chrome-web-store.html" rel="alternate" type="text/html" title="SF Flow Utility Toolkit is Live on the Chrome Web Store" /><published>2026-04-19T01:00:00+01:00</published><updated>2026-04-19T01:00:00+01:00</updated><id>http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/04/19/sf-flow-utility-toolkit-is-live-on-the-chrome-web-store</id><content type="html" xml:base="http://localhost:4000/SF-Flow-Utility-Toolkit/announcement/2026/04/19/sf-flow-utility-toolkit-is-live-on-the-chrome-web-store.html"><![CDATA[<p>SF Flow Utility Toolkit is now available on the Chrome Web Store.</p>
+
+<p>This release includes the initial public feature set, including:</p>
+
+<ul>
+  <li>Flow Health Check</li>
+  <li>Flow List Search</li>
+  <li>Canvas Search</li>
+  <li>API Name Generator</li>
+  <li>Flow Version Manager</li>
+  <li>Comparison Exporter</li>
+  <li>Missing Description Flags</li>
+  <li>Setup Tabs</li>
+  <li>Flow Trigger Explorer Enhancer</li>
+  <li>Flow Metadata &amp; AI Assistant</li>
+</ul>
+
+<p>To download the extension to your Chrome Browser, please visit:</p>
+
+<p><a href="https://chromewebstore.google.com/detail/sf-flow-utility-toolkit/mjbmlikmdkcakcbilibhbgcjdnidkpfl">Google Chrome</a></p>]]></content><author><name></name></author><category term="announcement" /><summary type="html"><![CDATA[SF Flow Utility Toolkit is now available on the Chrome Web Store.]]></summary></entry></feed>
