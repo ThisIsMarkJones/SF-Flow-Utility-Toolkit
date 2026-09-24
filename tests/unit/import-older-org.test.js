@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { loadModules, readJson, readText } = require('../helpers/load-modules');
+const { loadModules, readJson, readText, clone } = require('../helpers/load-modules');
 
 const { get } = loadModules(
   ['utils/salesforce-api.js', 'utils/flow-xml-converter.js', 'utils/flow-deploy-diff.js', 'features/flow-import-export.js'],
@@ -57,4 +57,19 @@ test('Import when the org version is unknown: nothing stripped, package 68.0', (
   const r = prepare(afterXml, 'Draft', null);
   assert.equal(r.packageVersion, '68.0');
   assert.match(r.deployXml, /<ends>/);
+});
+
+test('a fault path that ends is never dropped: Import to an older org is blocked, naming the element', () => {
+  const md = readJson('fixtures/winter27/ImportTest.after.tooling.json').Metadata;
+  md.recordLookups = [{
+    name: 'Get_Account', label: 'Get Account', locationX: 0, locationY: 0, object: 'Account',
+    getFirstRecordOnly: true, storeOutputAutomatically: true,
+    faultConnector: { targetReference: 'END_ELEMENT_2' }
+  }];
+  const xml = get('FlowXmlConverter').flowMetadataToXml(md);
+  const r = Diff.stripEndElements(xml);
+  assert.deepEqual(clone(r.faultPathsToEnd), ['Get Account (Get_Account)']);
+  assert.equal(r.xml, xml, 'nothing is stripped when the copy would be lossy');
+  assert.throws(() => prepare(xml, 'Draft', 67), /Get Account \(Get_Account\)[\s\S]*Winter '27/);
+  assert.doesNotThrow(() => prepare(xml, 'Draft', 68), 'a Winter \'27 org keeps the End element');
 });

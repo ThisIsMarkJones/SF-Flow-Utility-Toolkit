@@ -48,7 +48,7 @@ test('Decision outcome pointing straight at an End (hand-edited fixture)', () =>
   assert.equal(r.identical, true, JSON.stringify(r.summary));
 });
 
-test('every connector kind that targets an End is removed', () => {
+test('every ordinary connector kind that targets an End is removed', () => {
   const base = readJson('fixtures/winter27/SFUT_W27_EndElements.saved.tooling.json').Metadata;
   const withEnd = clone(base);
   const without = clone(base);
@@ -61,7 +61,7 @@ test('every connector kind that targets an End is removed', () => {
   withEnd.loops = [{ ...loop, nextValueConnector: { targetReference: 'END_ELEMENT_4' }, noMoreValuesConnector: toEnd }];
   without.loops = [{ ...loop }];
   const lookup = { name: 'Get_X', label: 'Get X', locationX: 0, locationY: 0, object: 'Account', getFirstRecordOnly: true, storeOutputAutomatically: true };
-  withEnd.recordLookups = [{ ...lookup, faultConnector: toEnd }];
+  withEnd.recordLookups = [{ ...lookup }];
   without.recordLookups = [{ ...lookup }];
   const wait = { name: 'Wait_X', label: 'Wait X', locationX: 0, locationY: 0 };
   withEnd.waits = [{ ...wait, defaultConnector: toEnd, timeoutConnector: toEnd }];
@@ -103,4 +103,27 @@ test('an apiVersion difference is a real change', () => {
   md.apiVersion = 68;
   const r = Diff.diffFlows(fixtureXml('ImportTest.before'), toXml(md));
   assert.equal(r.identical, false);
+});
+
+test('a fault path that ends is not the same as no fault path', () => {
+  const base = readJson('fixtures/winter27/SFUT_W27_EndElements.saved.tooling.json').Metadata;
+  const lookup = { name: 'Get_X', label: 'Get X', locationX: 0, locationY: 0, object: 'Account', getFirstRecordOnly: true, storeOutputAutomatically: true };
+  const handled = clone(base);
+  handled.recordLookups = [{ ...lookup, faultConnector: { targetReference: 'END_ELEMENT_3' } }];
+  const unhandled = clone(base);
+  unhandled.recordLookups = [{ ...lookup }];
+  assert.equal(Diff.diffFlows(toXml(unhandled), toXml(handled)).identical, false);
+  assert.deepEqual(clone(Diff.diffFlows(toXml(unhandled), toXml(handled)).summary.changed), ['recordLookups:Get_X']);
+});
+
+test('fault paths that end compare equal whichever End element they target', () => {
+  const base = readJson('fixtures/winter27/SFUT_W27_EndElements.saved.tooling.json').Metadata;
+  const lookup = { name: 'Get_X', label: 'Get X', locationX: 0, locationY: 0, object: 'Account', getFirstRecordOnly: true, storeOutputAutomatically: true };
+  const a = clone(base);
+  a.recordLookups = [{ ...lookup, faultConnector: { targetReference: 'END_ELEMENT_3' } }];
+  const b = clone(base);
+  b.ends = b.ends.map((e) => ({ ...e, name: e.name.replace('END_ELEMENT_', 'END_ELEMENT_1') }));
+  for (const a2 of b.assignments) if (a2.connector) a2.connector.targetReference = a2.connector.targetReference.replace('END_ELEMENT_', 'END_ELEMENT_1');
+  b.recordLookups = [{ ...lookup, faultConnector: { targetReference: 'END_ELEMENT_14' } }];
+  assert.equal(Diff.diffFlows(toXml(a), toXml(b)).identical, true);
 });

@@ -822,6 +822,10 @@ const FlowImportExport = (() => {
    * connectors that point at them are removed, and the package version is
    * capped at the org's highest version.
    *
+   * Throws if the flow has a fault path that goes straight to an End: before
+   * API 68.0 a connector must have a target, so that path can't be expressed
+   * and dropping it would turn a handled error into an unhandled one.
+   *
    * @param {string} xmlText - Imported flow XML.
    * @param {string} status - 'Active' or 'Draft'.
    * @param {number|null} orgMaxApiVersion - From SalesforceAPI.getOrgMaxApiVersion(); null if unknown.
@@ -835,6 +839,16 @@ const FlowImportExport = (() => {
 
     if (orgMaxApiVersion && orgMaxApiVersion < END_ELEMENTS_MIN_API_VERSION) {
       const stripped = FlowDeployDiff.stripEndElements(deployXml);
+      if (stripped.faultPathsToEnd.length > 0) {
+        throw new Error(
+          `This flow can't be imported into this org, which is on API ${orgMaxApiVersion} ` +
+          `(before Winter '27). These elements have a fault path that ends without any ` +
+          `further element, which this release can't represent: ` +
+          `${stripped.faultPathsToEnd.join(', ')}. ` +
+          `Add an element to each of those fault paths in the source flow and export it ` +
+          `again, or import into an org on Winter '27 or later.`
+        );
+      }
       deployXml = stripped.xml;
       removedEnds = stripped.ends;
       removedConnectors = stripped.connectors;

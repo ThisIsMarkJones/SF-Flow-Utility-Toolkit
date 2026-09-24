@@ -25,6 +25,10 @@
  *                                the same logic compares as identical. A connector
  *                                is removed only when its target is an entry in
  *                                <ends>, never by matching the END_ELEMENT_n name.
+ *                                Exception: a faultConnector to an End means "error
+ *                                handled, then end", which is not the same as having
+ *                                no fault path. Its target becomes FAULT_END_MARKER
+ *                                instead, so it never compares equal to no fault path.
  *
  * apiVersion is NOT ignored: it changes run-time behaviour.
  *
@@ -38,6 +42,8 @@ const FlowDeployDiff = (() => {
   const IGNORED_ANYWHERE = new Set(['locationX', 'locationY', 'processMetadataValues']);
   // Element names stripped only as direct children of the root <Flow>.
   const IGNORED_AT_ROOT = new Set(['status']);
+  // Stand-in target for a fault connector that leads straight to an End element.
+  const FAULT_END_MARKER = '__SFUT_FAULT_PATH_ENDS__';
 
   /**
    * Parses an XML string into a Document, throwing on malformed input.
@@ -68,34 +74,56 @@ const FlowDeployDiff = (() => {
   }
 
   /**
-   * Removes explicit End elements (top-level <ends>) and every connector that
-   * targets one, in place. A connector is any element whose direct
-   * <targetReference> child names an End element: connector, defaultConnector,
-   * faultConnector, nextValueConnector, noMoreValuesConnector, timeoutConnector,
-   * Decision rule connectors, and any connector type added later.
+   * Removes explicit End elements (top-level <ends>) and every ordinary
+   * connector that targets one, in place. A connector is any element whose
+   * direct <targetReference> child names an End element: connector,
+   * defaultConnector, nextValueConnector, noMoreValuesConnector,
+   * timeoutConnector, Decision rule connectors, and any connector type added
+   * later. Matching is by the <ends> list, never by the END_ELEMENT_n name.
+   *
+   * A faultConnector to an End ("handled, then end") is never removed:
+   *   - faultMode 'mark'  : its target becomes FAULT_END_MARKER (for comparison)
+   *   - faultMode 'report': it is left as-is and its element is reported, so
+   *                         the caller can refuse to produce a lossy copy
    *
    * @param {Document} doc
-   * @returns {{ends: number, connectors: number}} How many of each were removed.
+   * @param {'mark'|'report'} faultMode
+   * @returns {{ends: number, connectors: number, faultPathsToEnd: string[]}}
+   *   faultPathsToEnd: "Label (API_Name)" of each element whose fault path ends.
    */
-  function _removeEndElements(doc) {
+  function _removeEndElements(doc, faultMode) {
     const root = doc.documentElement;
     const endEls = Array.from(root.children).filter((c) => c.localName === 'ends');
     const endNames = new Set(endEls.map((el) => _childText(el, 'name')).filter(Boolean));
-    endEls.forEach((el) => el.remove());
 
     let connectors = 0;
+    const faultPathsToEnd = [];
     if (endNames.size > 0) {
       const targetRefs = Array.from(root.getElementsByTagName('*'))
         .filter((el) => el.localName === 'targetReference');
       for (const ref of targetRefs) {
         const connector = ref.parentElement;
-        if (connector && connector !== root && endNames.has((ref.textContent || '').trim())) {
-          connector.remove();
-          connectors += 1;
+        if (!connector || connector === root || !endNames.has((ref.textContent || '').trim())) continue;
+
+        if (connector.localName === 'faultConnector') {
+          if (faultMode === 'mark') {
+            ref.textContent = FAULT_END_MARKER;
+          } else {
+            const owner = connector.parentElement;
+            const name = owner ? _childText(owner, 'name') : null;
+            const label = owner ? _childText(owner, 'label') : null;
+            faultPathsToEnd.push(label && label !== name ? `${label} (${name})` : String(name));
+          }
+          continue;
         }
+        connector.remove();
+        connectors += 1;
       }
     }
-    return { ends: endEls.length, connectors };
+
+    // In 'report' mode with fault paths to keep, the Ends they target must stay.
+    if (faultPathsToEnd.length === 0) endEls.forEach((el) => el.remove());
+    return { ends: faultPathsToEnd.length === 0 ? endEls.length : 0, connectors, faultPathsToEnd };
   }
 
   /**
@@ -158,7 +186,7 @@ const FlowDeployDiff = (() => {
    */
   function _canonicalStruct(xmlString) {
     const doc = _parseXml(xmlString);
-    _removeEndElements(doc);
+    _removeEndElements(doc, 'mark');
     return _elementToValue(doc.documentElement, true);
   }
 
@@ -212,12 +240,20 @@ const FlowDeployDiff = (() => {
    * (API 68.0), which rejects <ends>. Removing a connector to an End keeps the
    * same logic: a path with no connector ends there.
    *
+   * A fault path that ends cannot be expressed before API 68.0 (a connector
+   * must have a target), so it is never dropped: if any exist, the input is
+   * returned unchanged and faultPathsToEnd names the elements, for the caller
+   * to block the deploy.
+   *
    * @param {string} xmlString
-   * @returns {{xml: string, ends: number, connectors: number}}
+   * @returns {{xml: string, ends: number, connectors: number, faultPathsToEnd: string[]}}
    */
   function stripEndElements(xmlString) {
     const doc = _parseXml(xmlString);
-    const removed = _removeEndElements(doc);
+    const removed = _removeEndElements(doc, 'report');
+    if (removed.faultPathsToEnd.length > 0) {
+      return { xml: String(xmlString), ends: 0, connectors: 0, faultPathsToEnd: removed.faultPathsToEnd };
+    }
     if (removed.ends === 0) return { xml: String(xmlString), ...removed };
 
     let xml = new XMLSerializer().serializeToString(doc);
