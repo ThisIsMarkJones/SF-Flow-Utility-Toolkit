@@ -44,7 +44,7 @@
 const FlowImportExport = (() => {
   let _enabled = true;
 
-  const API_VERSION_NUMERIC = '67.0';
+  const API_VERSION_NUMERIC = SalesforceAPI.API_VERSION.replace(/^v/, '');
   const POLL_INTERVAL_MS = 2000;
   const POLL_MAX_ATTEMPTS = 150; // 5 minutes at 2s
 

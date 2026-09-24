@@ -130,10 +130,11 @@ const FlowXmlConverter = (() => {
    * Builds a Metadata API `package.xml` manifest for deploying a single Flow.
    *
    * @param {string} developerName - The Flow's API name (a single Flow member).
-   * @param {string} [apiVersion='67.0'] - Numeric API version, no leading "v".
+   * @param {string} [apiVersion] - Numeric API version, no leading "v". Defaults to
+   *   SalesforceAPI.API_VERSION (<ends> and other Winter '27 fields need 68.0+).
    * @returns {string} A well-formed package.xml document string.
    */
-  function buildFlowPackageXml(developerName, apiVersion = '67.0') {
+  function buildFlowPackageXml(developerName, apiVersion = SalesforceAPI.API_VERSION.replace(/^v/, '')) {
     const member = _escapeXml(developerName);
     const version = _escapeXml(apiVersion);
     return (

@@ -216,10 +216,8 @@ const ScheduledFlowDiscovery = (() => {
     try {
       // The Tooling API does not expose the standard Organization object,
       // so we must use the regular Data API for this query.
-      // (API version is hardcoded to match the constant in salesforce-api.js;
-      //  if that changes in future, this should be updated to match.)
       const result = await SalesforceAPI.apiGet(
-        '/services/data/v62.0/query',
+        `/services/data/${SalesforceAPI.API_VERSION}/query`,
         { q: 'SELECT TimeZoneSidKey FROM Organization LIMIT 1' }
       );
       const tz = result?.records?.[0]?.TimeZoneSidKey || null;
