@@ -44,6 +44,7 @@ function loadModules(files, options = {}) {
       window: w,
       document: w.document,
       DOMParser: w.DOMParser,
+      XMLSerializer: w.XMLSerializer,
       Node: w.Node,
       Element: w.Element,
       HTMLElement: w.HTMLElement,

@@ -207,6 +207,27 @@ const FlowDeployDiff = (() => {
   }
 
   /**
+   * Returns a copy of the flow XML without explicit End elements or connectors
+   * that target them. Used when deploying into an org older than Winter '27
+   * (API 68.0), which rejects <ends>. Removing a connector to an End keeps the
+   * same logic: a path with no connector ends there.
+   *
+   * @param {string} xmlString
+   * @returns {{xml: string, ends: number, connectors: number}}
+   */
+  function stripEndElements(xmlString) {
+    const doc = _parseXml(xmlString);
+    const removed = _removeEndElements(doc);
+    if (removed.ends === 0) return { xml: String(xmlString), ...removed };
+
+    let xml = new XMLSerializer().serializeToString(doc);
+    if (!/^\s*<\?xml/.test(xml)) {
+      xml = `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
+    }
+    return { xml, ...removed };
+  }
+
+  /**
    * Compares an imported flow XML against a target flow XML.
    *
    * @param {string} importedXml - The imported `.flow-meta.xml` file contents.
@@ -229,6 +250,7 @@ const FlowDeployDiff = (() => {
   // --- Public API ---
   return {
     diffFlows,
+    stripEndElements,
     _canonicalStruct,   // exposed for testing
     _stableStringify    // exposed for testing
   };

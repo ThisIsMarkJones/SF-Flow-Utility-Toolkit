@@ -21,6 +21,7 @@
 const SalesforceAPI = (() => {
   const API_VERSION = 'v68.0';
   let _sessionCache = null; // { candidates: Array<{baseUrl, sid}> }
+  let _orgMaxApiVersion = null; // number, from GET /services/data
 
   // ---------
   // Messaging
@@ -152,6 +153,24 @@ const SalesforceAPI = (() => {
 
   function clearSessionCache() {
     _sessionCache = null;
+    _orgMaxApiVersion = null;
+  }
+
+  /**
+   * Returns the highest REST API version the current org supports (for example
+   * 68 once it is on Winter '27), read from the unversioned /services/data list.
+   * Cached for the page's lifetime.
+   *
+   * @returns {Promise<number|null>} null if the list could not be read.
+   */
+  async function getOrgMaxApiVersion() {
+    if (_orgMaxApiVersion !== null) return _orgMaxApiVersion;
+    const list = await apiGet('/services/data');
+    const versions = (Array.isArray(list) ? list : [])
+      .map((v) => Number(v && v.version))
+      .filter((n) => Number.isFinite(n));
+    _orgMaxApiVersion = versions.length > 0 ? Math.max(...versions) : null;
+    return _orgMaxApiVersion;
   }
 
   async function apiGet(endpoint, params = {}, retryOn401 = true) {
@@ -564,6 +583,7 @@ const SalesforceAPI = (() => {
     deployMetadata,
     getDeployStatus,
     getFlowIdFromUrl,
+    getOrgMaxApiVersion,
     clearSessionCache
   };
 })();
