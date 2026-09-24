@@ -30,8 +30,14 @@ test('no other shipped file hardcodes a REST API version', () => {
 test('Import/Export deploys with package version 68.0 (required for <ends>)', () => {
   const { get } = loadModules(['utils/salesforce-api.js', 'utils/flow-xml-converter.js'], { dom: true });
   assert.match(get('FlowXmlConverter').buildFlowPackageXml('X'), /<version>68\.0<\/version>/);
-  const src = fs.readFileSync(path.join(REPO_ROOT, 'features/flow-import-export.js'), 'utf8');
-  assert.match(src, /API_VERSION_NUMERIC = SalesforceAPI\.API_VERSION/);
+  const prepare = loadModules(
+    ['utils/salesforce-api.js', 'utils/flow-xml-converter.js', 'utils/flow-deploy-diff.js', 'features/flow-import-export.js'],
+    { dom: true }
+  ).get('FlowImportExport')._prepareDeployPayload;
+  const xml = '<?xml version="1.0" encoding="UTF-8"?><Flow xmlns="http://soap.sforce.com/2006/04/metadata"><label>X</label></Flow>';
+  assert.equal(prepare(xml, 'Draft', 68).packageVersion, '68.0');
+  assert.equal(prepare(xml, 'Draft', 69).packageVersion, '68.0', 'never above the toolkit\'s own version');
+  assert.equal(prepare(xml, 'Draft', 67).packageVersion, '67.0', 'capped at the org\'s version');
 });
 
 test('Outdated API version rule falls back to a target of 68', () => {

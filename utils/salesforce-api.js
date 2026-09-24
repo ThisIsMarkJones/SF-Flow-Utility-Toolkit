@@ -173,6 +173,44 @@ const SalesforceAPI = (() => {
     return _orgMaxApiVersion;
   }
 
+  /**
+   * Picks the API version to use: the toolkit's own (API_VERSION), capped at
+   * the org's highest, so an org still on an older release keeps working
+   * during a Salesforce upgrade window.
+   *
+   * @param {number|null} orgMaxApiVersion
+   * @returns {number} e.g. 68 or 67
+   */
+  function selectApiVersion(orgMaxApiVersion) {
+    const own = Number(API_VERSION.replace(/^v/, ''));
+    const orgMax = Number(orgMaxApiVersion);
+    return Number.isFinite(orgMax) && orgMax > 0 ? Math.min(own, orgMax) : own;
+  }
+
+  /**
+   * The API version number to call for this org: min(API_VERSION, org's highest).
+   * Uses the cached org version; if it can't be read, falls back to API_VERSION
+   * (and tries again on the next call).
+   * @returns {Promise<number>}
+   */
+  async function getApiVersionNumber() {
+    let orgMax = null;
+    try {
+      orgMax = await getOrgMaxApiVersion();
+    } catch (err) {
+      console.warn('[SFUT API] Could not read the org\'s API versions; using', API_VERSION, err?.message || err);
+    }
+    return selectApiVersion(orgMax);
+  }
+
+  /**
+   * The versioned path segment for REST endpoints, e.g. "v68.0" or "v67.0".
+   * @returns {Promise<string>}
+   */
+  async function getApiVersion() {
+    return `v${(await getApiVersionNumber()).toFixed(1)}`;
+  }
+
   async function apiGet(endpoint, params = {}, retryOn401 = true) {
     if (!endpoint || typeof endpoint !== 'string' || !endpoint.startsWith('/')) {
       throw new Error(`apiGet: endpoint must start with "/". Got: ${endpoint}`);
@@ -391,7 +429,7 @@ const SalesforceAPI = (() => {
   }
 
   async function toolingQuery(soql) {
-    return apiGet(`/services/data/${API_VERSION}/tooling/query`, { q: soql });
+    return apiGet(`/services/data/${await getApiVersion()}/tooling/query`, { q: soql });
   }
 
   /**
@@ -401,7 +439,7 @@ const SalesforceAPI = (() => {
    * @param {string} soql
    */
   async function restQuery(soql) {
-    return apiGet(`/services/data/${API_VERSION}/query`, { q: soql });
+    return apiGet(`/services/data/${await getApiVersion()}/query`, { q: soql });
   }
 
   async function getFlowMetadata(flowId) {
@@ -543,7 +581,7 @@ const SalesforceAPI = (() => {
     const body = new Blob([preamble, zipBuffer, epilogue], { type: contentType });
 
     return apiPostMultipart(
-      `/services/data/${API_VERSION}/metadata/deployRequest`,
+      `/services/data/${await getApiVersion()}/metadata/deployRequest`,
       body,
       contentType
     );
@@ -558,7 +596,7 @@ const SalesforceAPI = (() => {
   async function getDeployStatus(deployRequestId) {
     const id = encodeURIComponent(String(deployRequestId));
     return apiGet(
-      `/services/data/${API_VERSION}/metadata/deployRequest/${id}`,
+      `/services/data/${await getApiVersion()}/metadata/deployRequest/${id}`,
       { includeDetails: 'true' }
     );
   }
@@ -584,6 +622,9 @@ const SalesforceAPI = (() => {
     getDeployStatus,
     getFlowIdFromUrl,
     getOrgMaxApiVersion,
+    selectApiVersion,
+    getApiVersion,
+    getApiVersionNumber,
     clearSessionCache
   };
 })();

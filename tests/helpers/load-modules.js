@@ -29,6 +29,7 @@ function loadModules(files, options = {}) {
   const registry = { registerFeature() {} };
   const sandbox = {
     console: quietConsole, setTimeout, clearTimeout, setInterval, clearInterval,
+    URL, URLSearchParams, TextEncoder, TextDecoder, atob, btoa,
     SFFlowUtilityToolkit: registry,
     ...options.globals
   };

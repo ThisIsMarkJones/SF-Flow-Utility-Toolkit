@@ -113,6 +113,11 @@ const FlowHealthCheck = (() => {
       console.warn('[SFUT] Failed to build naming configuration for Health Check. Falling back to defaults.', error);
     }
 
+    // Judge "outdated" against the version this org actually supports, so a
+    // flow in an org still on an older release isn't flagged against 68.
+    // (Never throws: falls back to SalesforceAPI.API_VERSION.)
+    config.currentApiVersion = await SalesforceAPI.getApiVersionNumber();
+
     return config;
   }
 

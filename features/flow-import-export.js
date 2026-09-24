@@ -44,7 +44,6 @@
 const FlowImportExport = (() => {
   let _enabled = true;
 
-  const API_VERSION_NUMERIC = SalesforceAPI.API_VERSION.replace(/^v/, '');
   // Explicit End elements (<ends>) exist from Winter '27; older orgs reject them.
   const END_ELEMENTS_MIN_API_VERSION = 68;
   const POLL_INTERVAL_MS = 2000;
@@ -833,7 +832,8 @@ const FlowImportExport = (() => {
    */
   function _prepareDeployPayload(xmlText, status, orgMaxApiVersion) {
     let deployXml = _setFlowStatus(xmlText, status);
-    let packageVersion = API_VERSION_NUMERIC;
+    // Same rule as the REST endpoints: the toolkit's version, capped at the org's.
+    const packageVersion = SalesforceAPI.selectApiVersion(orgMaxApiVersion).toFixed(1);
     let removedEnds = 0;
     let removedConnectors = 0;
 
@@ -852,7 +852,6 @@ const FlowImportExport = (() => {
       deployXml = stripped.xml;
       removedEnds = stripped.ends;
       removedConnectors = stripped.connectors;
-      packageVersion = Math.min(Number(API_VERSION_NUMERIC), orgMaxApiVersion).toFixed(1);
     }
 
     return { deployXml, packageVersion, removedEnds, removedConnectors };
