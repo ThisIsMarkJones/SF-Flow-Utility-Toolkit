@@ -18,6 +18,15 @@
  *                                no flow logic; differs across builder versions
  *   - Array ordering           — sibling elements are compared as an unordered
  *                                multiset (sorted by canonical value)
+ *   - Explicit End elements    — Winter '27 (API 68.0) Flow Builder saves an
+ *                                <ends> entry for every path end, and a connector
+ *                                (of any kind) from the last element to it. An
+ *                                older export has neither. Both are removed, so
+ *                                the same logic compares as identical. A connector
+ *                                is removed only when its target is an entry in
+ *                                <ends>, never by matching the END_ELEMENT_n name.
+ *
+ * apiVersion is NOT ignored: it changes run-time behaviour.
  *
  * Dependency-free (uses DOMParser, available in content scripts) and side-effect
  * free, so it can be reasoned about and unit-tested in isolation.
@@ -45,6 +54,48 @@ const FlowDeployDiff = (() => {
       throw new Error('Invalid flow XML: no root element.');
     }
     return doc;
+  }
+
+  /**
+   * Returns the trimmed text of a direct child element, or null.
+   * @param {Element} el
+   * @param {string} localName
+   * @returns {string|null}
+   */
+  function _childText(el, localName) {
+    const child = Array.from(el.children).find((c) => c.localName === localName);
+    return child ? (child.textContent || '').trim() : null;
+  }
+
+  /**
+   * Removes explicit End elements (top-level <ends>) and every connector that
+   * targets one, in place. A connector is any element whose direct
+   * <targetReference> child names an End element: connector, defaultConnector,
+   * faultConnector, nextValueConnector, noMoreValuesConnector, timeoutConnector,
+   * Decision rule connectors, and any connector type added later.
+   *
+   * @param {Document} doc
+   * @returns {{ends: number, connectors: number}} How many of each were removed.
+   */
+  function _removeEndElements(doc) {
+    const root = doc.documentElement;
+    const endEls = Array.from(root.children).filter((c) => c.localName === 'ends');
+    const endNames = new Set(endEls.map((el) => _childText(el, 'name')).filter(Boolean));
+    endEls.forEach((el) => el.remove());
+
+    let connectors = 0;
+    if (endNames.size > 0) {
+      const targetRefs = Array.from(root.getElementsByTagName('*'))
+        .filter((el) => el.localName === 'targetReference');
+      for (const ref of targetRefs) {
+        const connector = ref.parentElement;
+        if (connector && connector !== root && endNames.has((ref.textContent || '').trim())) {
+          connector.remove();
+          connectors += 1;
+        }
+      }
+    }
+    return { ends: endEls.length, connectors };
   }
 
   /**
@@ -107,6 +158,7 @@ const FlowDeployDiff = (() => {
    */
   function _canonicalStruct(xmlString) {
     const doc = _parseXml(xmlString);
+    _removeEndElements(doc);
     return _elementToValue(doc.documentElement, true);
   }
 
