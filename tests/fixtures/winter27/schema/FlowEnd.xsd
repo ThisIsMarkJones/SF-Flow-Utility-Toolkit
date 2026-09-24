@@ -1,0 +1,65 @@
+<!-- Extracted from the Salesforce Metadata API WSDL (API 68.0, Winter '27), org sfut-w27, 2026-09-24.
+     Contents: ends.
+     Types referenced but not expanded here (unchanged, pre-existing): FlowConnector, FlowElementReferenceOrValue, FlowMetadataValue. -->
+<xsd:complexType name="FlowEnd">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowNode">
+      <xsd:sequence/>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:complexType name="FlowNode">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowElement">
+      <xsd:sequence>
+       <xsd:element name="elementSubtype" minOccurs="0" type="tns:FlowElementSubtype"/>
+       <xsd:element name="group" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="label" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="locationX" type="xsd:int"/>
+       <xsd:element name="locationY" type="xsd:int"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:complexType name="FlowElement">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowBaseElement">
+      <xsd:sequence>
+       <xsd:element name="description" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="name" minOccurs="0" type="xsd:string"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:simpleType name="FlowElementSubtype">
+    <xsd:restriction base="xsd:string">
+     <xsd:enumeration value="SortCollectionProcessor"/>
+     <xsd:enumeration value="RecommendationMapCollectionProcessor"/>
+     <xsd:enumeration value="FilterCollectionProcessor"/>
+     <xsd:enumeration value="WaitDate"/>
+     <xsd:enumeration value="WaitUntilEvent"/>
+     <xsd:enumeration value="WaitAttribute"/>
+     <xsd:enumeration value="WaitDuration"/>
+     <xsd:enumeration value="InteractiveStep"/>
+     <xsd:enumeration value="BackgroundStep"/>
+     <xsd:enumeration value="MuleSoftStep"/>
+     <xsd:enumeration value="ManagedContentRoleInteractiveStep"/>
+     <xsd:enumeration value="ManagedContentVariantSetLockBackgroundStep"/>
+     <xsd:enumeration value="ManagedContentVariantSetReadyBackgroundStep"/>
+     <xsd:enumeration value="ManagedContentVariantAutoPublishBackgroundStep"/>
+     <xsd:enumeration value="ManagedContentVariantAutoUnpublishBackgroundStep"/>
+     <xsd:enumeration value="AddPromptInstructions"/>
+     <xsd:enumeration value="ApprovalStep"/>
+     <xsd:enumeration value="AgxBackgroundStep"/>
+     <xsd:enumeration value="AgxInteractiveStep"/>
+     <xsd:enumeration value="SendToFlow"/>
+     <xsd:enumeration value="PersonalizedPaths"/>
+     <xsd:enumeration value="SplitPathByDate"/>
+     <xsd:enumeration value="SplitPathByField"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+<xsd:complexType name="FlowBaseElement">
+    <xsd:sequence>
+     <xsd:element name="processMetadataValues" minOccurs="0" maxOccurs="unbounded" type="tns:FlowMetadataValue"/>
+    </xsd:sequence>
+   </xsd:complexType>

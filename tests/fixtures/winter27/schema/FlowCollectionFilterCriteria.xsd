@@ -1,0 +1,127 @@
+<!-- Extracted from the Salesforce Metadata API WSDL (API 68.0, Winter '27), org sfut-w27, 2026-09-24.
+     Contents: collectionFilterCriteria.
+     Types referenced but not expanded here (unchanged, pre-existing): FlowConnector, FlowElementReferenceOrValue, FlowMetadataValue. -->
+<xsd:complexType name="FlowCollectionFilterCriteria">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowElement">
+      <xsd:sequence>
+       <xsd:element name="complexConditionLogic" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="dataType" minOccurs="0" type="tns:FlowDataType"/>
+       <xsd:element name="filterCondition" type="xsd:string"/>
+       <xsd:element name="filterOptions" minOccurs="0" maxOccurs="unbounded" type="tns:FlowCollectionFilterCondition"/>
+       <xsd:element name="formatType" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="isGroupedConditions" minOccurs="0" type="xsd:boolean"/>
+       <xsd:element name="objectReferencePath" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="sortOptions" minOccurs="0" maxOccurs="unbounded" type="tns:FlowCollectionFilterSortOption"/>
+       <xsd:element name="subType" minOccurs="0" type="xsd:string"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:complexType name="FlowElement">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowBaseElement">
+      <xsd:sequence>
+       <xsd:element name="description" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="name" minOccurs="0" type="xsd:string"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:simpleType name="FlowDataType">
+    <xsd:restriction base="xsd:string">
+     <xsd:enumeration value="Currency"/>
+     <xsd:enumeration value="Date"/>
+     <xsd:enumeration value="Number"/>
+     <xsd:enumeration value="String"/>
+     <xsd:enumeration value="Boolean"/>
+     <xsd:enumeration value="SObject"/>
+     <xsd:enumeration value="DateTime"/>
+     <xsd:enumeration value="Time"/>
+     <xsd:enumeration value="Picklist"/>
+     <xsd:enumeration value="Multipicklist"/>
+     <xsd:enumeration value="Apex"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+<xsd:complexType name="FlowCollectionFilterCondition">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowBaseElement">
+      <xsd:sequence>
+       <xsd:element name="leftValueReference" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="objectFieldName" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="objectReferencePath" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="operator" minOccurs="0" type="tns:FlowComparisonOperator"/>
+       <xsd:element name="rightValue" minOccurs="0" type="tns:FlowElementReferenceOrValue"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:complexType name="FlowCollectionFilterSortOption">
+    <xsd:complexContent>
+     <xsd:extension base="tns:FlowBaseElement">
+      <xsd:sequence>
+       <xsd:element name="nullsFirst" minOccurs="0" type="xsd:boolean"/>
+       <xsd:element name="objectReferencePath" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="sortField" minOccurs="0" type="xsd:string"/>
+       <xsd:element name="sortOrder" minOccurs="0" type="tns:SortOrder"/>
+      </xsd:sequence>
+     </xsd:extension>
+    </xsd:complexContent>
+   </xsd:complexType>
+<xsd:complexType name="FlowBaseElement">
+    <xsd:sequence>
+     <xsd:element name="processMetadataValues" minOccurs="0" maxOccurs="unbounded" type="tns:FlowMetadataValue"/>
+    </xsd:sequence>
+   </xsd:complexType>
+<xsd:simpleType name="FlowComparisonOperator">
+    <xsd:restriction base="xsd:string">
+     <xsd:enumeration value="None"/>
+     <xsd:enumeration value="EqualTo"/>
+     <xsd:enumeration value="NotEqualTo"/>
+     <xsd:enumeration value="GreaterThan"/>
+     <xsd:enumeration value="LessThan"/>
+     <xsd:enumeration value="GreaterThanOrEqualTo"/>
+     <xsd:enumeration value="LessThanOrEqualTo"/>
+     <xsd:enumeration value="StartsWith"/>
+     <xsd:enumeration value="EndsWith"/>
+     <xsd:enumeration value="Contains"/>
+     <xsd:enumeration value="IsNull"/>
+     <xsd:enumeration value="IsChanged"/>
+     <xsd:enumeration value="WasSet"/>
+     <xsd:enumeration value="WasSelected"/>
+     <xsd:enumeration value="WasVisited"/>
+     <xsd:enumeration value="In"/>
+     <xsd:enumeration value="NotIn"/>
+     <xsd:enumeration value="IsBlank"/>
+     <xsd:enumeration value="IsEmpty"/>
+     <xsd:enumeration value="HasError"/>
+     <xsd:enumeration value="HasNoValue"/>
+     <xsd:enumeration value="HasValue"/>
+     <xsd:enumeration value="IsAnniversaryOfToday"/>
+     <xsd:enumeration value="IsNotAnniversaryOfToday"/>
+     <xsd:enumeration value="IsToday"/>
+     <xsd:enumeration value="IsTomorrow"/>
+     <xsd:enumeration value="IsYesterday"/>
+     <xsd:enumeration value="IsThisMonth"/>
+     <xsd:enumeration value="IsNextMonth"/>
+     <xsd:enumeration value="IsLastMonth"/>
+     <xsd:enumeration value="ThisYear"/>
+     <xsd:enumeration value="NextYear"/>
+     <xsd:enumeration value="LastYear"/>
+     <xsd:enumeration value="IsOn"/>
+     <xsd:enumeration value="IsBefore"/>
+     <xsd:enumeration value="IsAfter"/>
+     <xsd:enumeration value="GreaterThanLastNumberOfDays"/>
+     <xsd:enumeration value="LastNumberOfDays"/>
+     <xsd:enumeration value="NextNumberOfDays"/>
+     <xsd:enumeration value="LastNumberOfMonths"/>
+     <xsd:enumeration value="NextNumberOfMonths"/>
+     <xsd:enumeration value="LastNumberOfYears"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+<xsd:simpleType name="SortOrder">
+    <xsd:restriction base="xsd:string">
+     <xsd:enumeration value="Asc"/>
+     <xsd:enumeration value="Desc"/>
+    </xsd:restriction>
+   </xsd:simpleType>
