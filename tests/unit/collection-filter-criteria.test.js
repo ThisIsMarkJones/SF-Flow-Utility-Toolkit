@@ -85,10 +85,7 @@ test('prefix: a Collection Filter Criteria resource row, distinct from the Colle
   const fallback = clone(Prefixes.getDefaults());
   const shipped = readJson('../config/default-prefixes.json').prefixes;
   const key = (r) => `${r.table}|${r.type}|${r.Snake_Case}|${r.PascalCase}|${r.camelCase}`;
-  // Compare only the Collection Filter rows: the fallback already lacks two
-  // unrelated rows (Datatable, Radio Button Group), reported separately.
-  const filterRows = (rows) => rows.filter((r) => r.type.startsWith('Collection Filter')).map(key).sort();
-  assert.deepEqual(filterRows(fallback), filterRows(shipped), 'fallback matches default-prefixes.json');
+  assert.deepEqual(fallback.map(key), shipped.map(key), 'fallback matches default-prefixes.json, row for row');
   const row = shipped.find((r) => r.type === 'Collection Filter Criteria');
   assert.equal(row.table, 'resource');
   assert.notEqual(row.Snake_Case, shipped.find((r) => r.type === 'Collection Filter').Snake_Case);
