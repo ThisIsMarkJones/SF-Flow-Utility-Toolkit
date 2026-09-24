@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Mark Jones. SF Flow Utility Toolkit.
 /**
  * SF Flow Utility Toolkit - Flow Error Explorer
  *

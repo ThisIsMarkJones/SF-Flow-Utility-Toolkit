@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Mark Jones. SF Flow Utility Toolkit.
+// Setup Tabs was inspired by SF Tabs by Chris Rouse
+// (https://github.com/chrisrouse/sftabs). This is an independent
+// implementation; no SF Tabs code is included.
 /**
  * SF Flow Utility Toolkit - Setup Tabs Feature
  *

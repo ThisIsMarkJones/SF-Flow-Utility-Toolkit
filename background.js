@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Mark Jones. SF Flow Utility Toolkit.
 /**
  * SF Flow Utility Toolkit - Background Service Worker
  * Robust messaging: always responds, always returns true.

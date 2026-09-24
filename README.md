@@ -130,6 +130,70 @@ The ZIP job renames the appropriate browser manifest to `manifest.json` before p
 
 ---
 
-## License
+## Acknowledgements
 
-This project is licensed under the [MIT License](LICENSE).
+The following projects inspired features of SF Flow Utility Toolkit, which is an independent
+implementation and contains none of their code.
+
+- **[SF Tabs](https://github.com/chrisrouse/sftabs)** by Chris Rouse — inspired the Setup Tabs
+  feature. If you already use SF Tabs, we recommend sticking with it rather than enabling Setup
+  Tabs here.
+- **[Salesforce Flow MetaData Downloader](https://chromewebstore.google.com/detail/salesforce-flow-metadata/bdonpnepbmgmhgciooglhfdnoepfnpkp)**
+  by physicshaurya — partly inspired Flow Health Check and the AI prompts.
+
+---
+
+## Licence and attribution
+
+This project is licensed under the [MIT Licence](LICENSE). You are free to use it,
+modify it, and use it commercially, including in closed-source and paid products.
+
+### What the licence requires
+
+The MIT Licence has one condition, and it is not optional:
+
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+
+In practice, that means the copyright notice and the full permission notice must travel
+with the code in **all** of the following cases:
+
+- **Copies and forks** — whole files, or substantial portions of them, reused in another project.
+- **Ports and translations** — rewriting the source into another language (for example TypeScript)
+  does not create new, unencumbered code. A port of a substantial portion is still a derivative of
+  this project and must carry the notice.
+- **Bundled, compiled, transpiled, or minified builds** — stripping comments during a build step
+  does not remove the obligation. If the notice is stripped from the bundle, it must be reproduced
+  somewhere the recipient can actually find it, such as a licence file shipped with the build.
+- **Published packages and extensions** — anything distributed to others, including npm packages
+  and browser extension store listings, must include the notice in the distributed artefact.
+
+Removing or omitting the notice means the licence grant no longer applies, and the copy is simply
+an infringing one.
+
+### How to attribute correctly
+
+1. **Include the licence text.** Copy the contents of [LICENSE](LICENSE) into a `NOTICE` or
+   `THIRD_PARTY_NOTICES` file in your project, alongside your other third-party notices. For a
+   bundled or minified build, ship that file with the build.
+
+2. **Add a visible credit line.** Somewhere a reader will actually see it — your README, your
+   documentation, or an about page — include a line such as:
+
+   > Includes code from SF Flow Utility Toolkit by Mark Jones (MIT) — https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit
+
+Every first-party source file in this repository also carries a two-line SPDX header. Keeping
+those headers in place when you copy a file is the simplest way to stay compliant.
+
+### A polite request
+
+The following is a **request, not a licence requirement**. You are under no obligation to do any
+of it.
+
+If you ship something built on this project, please also credit it on your store listing and
+about page, not only in your notices file. A visible credit costs very little and makes a real
+difference to a small independent project.
+
+If you are building on this work, I would genuinely like to hear about it. Please get in touch via
+[GitHub issues](https://github.com/ThisIsMarkJones/SF-Flow-Utility-Toolkit/issues) — whether to
+share what you have made, ask a licensing question, or discuss a different licensing arrangement.
