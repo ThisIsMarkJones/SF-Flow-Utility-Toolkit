@@ -120,7 +120,11 @@ const FlowErrorDictionary = (() => {
         'If the field is conditionally required, add a fault path that routes ' +
         'the user back to a screen where they can provide the missing value.',
         'Review all required fields on the object in Setup → Object Manager to ' +
-        'ensure your flow accounts for all of them.'
+        'ensure your flow accounts for all of them.',
+        'Since Winter \'27, Flow Builder warns at save time when a Create Records ' +
+        'element leaves a required field unset. Don\'t ignore that warning, and check ' +
+        'the element even if the flow saved without it: a mapped variable can still ' +
+        'be empty at run time.'
       ],
       example:
         'The flow tried to create a record. This error occurred: ' +
@@ -164,6 +168,44 @@ const FlowErrorDictionary = (() => {
         'is not valid for field Rating. You can look up ExceptionCode values in the ' +
         'SOAP API Developer Guide.',
       relatedCodes: ['FIELD_CUSTOM_VALIDATION_EXCEPTION', 'INVALID_FIELD']
+    },
+
+    {
+      code: 'STRING_TOO_LONG',
+      category: CATEGORIES.VALIDATION,
+      severity: 'high',
+      title: 'Text Value Too Long for the Field',
+      description:
+        'The flow tried to save a text value that is longer than the maximum length ' +
+        'of the target field. Salesforce rejected the record because the value would ' +
+        'not fit.',
+      causes: [
+        'A variable, formula or text template builds a value (for example by ' +
+        'concatenating several fields) that can exceed the field\'s length.',
+        'A value entered on a screen or passed in from another flow or Apex is longer ' +
+        'than the field allows.',
+        'The field\'s length was reduced after the flow was built.',
+        'An Assignment sets a fixed text value that is too long. Since Winter \'27, ' +
+        'Flow Builder warns about this at save time, but the check only covers fixed ' +
+        'text values, not values that come from variables.'
+      ],
+      recommendations: [
+        'Check the error message: it names the field and its maximum length.',
+        'Look for values that are built from variables, formulas or user input. The ' +
+        'Winter \'27 save-time warning does not cover these, so they can still be ' +
+        'too long at run time.',
+        'Shorten the value before saving it, for example with a formula using ' +
+        'LEFT({!yourValue}, <max length>).',
+        'On screens, set a maximum length on text inputs that feed this field.',
+        'Add a fault path so the user sees {!$Flow.FaultMessage} instead of an ' +
+        'unhandled error.'
+      ],
+      example:
+        'The flow tried to update these records: 001XX000003GYkZ. This error occurred: ' +
+        'STRING_TOO_LONG: Account Name: data value too large: ' +
+        '"A very long account name…" (max length=255). ' +
+        'You can look up ExceptionCode values in the SOAP API Developer Guide.',
+      relatedCodes: ['FIELD_INTEGRITY_EXCEPTION', 'REQUIRED_FIELD_MISSING']
     },
 
     // -------------------------------------------------------------------------
@@ -282,6 +324,44 @@ const FlowErrorDictionary = (() => {
       relatedCodes: ['CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY']
     },
 
+    {
+      code: 'UNABLE_TO_LOCK_ROW',
+      category: CATEGORIES.DML,
+      severity: 'medium',
+      title: 'Record Locked by Another Process',
+      description:
+        'The flow could not update a record because another transaction was holding a ' +
+        'lock on it (or on a related parent record) for longer than Salesforce was ' +
+        'willing to wait. Since Winter \'27, when a lock error happens while a ' +
+        'transaction is starting, Salesforce retries once after 10 seconds. If you still ' +
+        'see this error, the contention lasted longer than that retry.',
+      causes: [
+        'Several flows, triggers or integrations update the same record, or child ' +
+        'records of the same parent, at the same time.',
+        'A bulk data load or batch job is running against the same records.',
+        'Many child records under one parent (data skew) are updated together, so each ' +
+        'update locks the same parent record.',
+        'A long-running transaction keeps the lock while other processes queue behind it.'
+      ],
+      recommendations: [
+        'Find out what else updates the same records at the same time (other flows, ' +
+        'Apex triggers, integrations, scheduled jobs) and whether they can be spread out.',
+        'Because Salesforce already retried once after 10 seconds, a simple retry is ' +
+        'unlikely to help: reduce the contention instead.',
+        'Move non-urgent updates to an asynchronous or scheduled path so they run in a ' +
+        'separate transaction.',
+        'Reduce data skew: avoid having very large numbers of child records under a ' +
+        'single parent, owner or lookup value.',
+        'Add a fault path to record the failure (for example in a log object) so it can ' +
+        'be retried later.'
+      ],
+      example:
+        'The flow tried to update these records: 001XX000003GYkZ. This error occurred: ' +
+        'UNABLE_TO_LOCK_ROW: unable to obtain exclusive access to this record or 1 records: ' +
+        '001XX000003GYkZ. You can look up ExceptionCode values in the SOAP API Developer Guide.',
+      relatedCodes: ['CANNOT_INSERT_UPDATE_ACTIVATE_ENTITY', 'APEX_CPU_TIME_LIMIT_EXCEEDED']
+    },
+
     // -------------------------------------------------------------------------
     // GOVERNOR LIMITS
     // -------------------------------------------------------------------------
@@ -313,7 +393,10 @@ const FlowErrorDictionary = (() => {
         'a Scheduled Path or a Platform Event to break the execution chain.',
         'Reduce the number of elements in any loops within the flow.',
         'Check whether bulk operations are contributing — if many records are ' +
-        'processed at once, each adds to the CPU total.'
+        'processed at once, each adds to the CPU total.',
+        'Where a loop exists only to filter or sort a collection, consider replacing ' +
+        'it with a Collection Filter Criteria resource (Winter \'27), so the flow ' +
+        'runs fewer elements per record.'
       ],
       example:
         'The flow tried to update these records. This error occurred: ' +
