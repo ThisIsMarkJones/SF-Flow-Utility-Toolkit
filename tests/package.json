@@ -1,0 +1,14 @@
+{
+  "name": "sf-flow-utility-toolkit-tests",
+  "private": true,
+  "description": "Test tooling for SF Flow Utility Toolkit. Not part of the packaged extension.",
+  "scripts": {
+    "test": "node --test \"unit/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
