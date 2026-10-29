@@ -32,6 +32,7 @@
       "js": [
         "utils/context-detector.js",
         "utils/settings-manager.js",
+        "utils/theme-manager.js",
         "utils/salesforce-api.js",
         "utils/flow-metadata-cleaner.js",
         "utils/flow-health-normalizer.js",
