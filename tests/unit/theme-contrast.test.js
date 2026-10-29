@@ -2,8 +2,8 @@
 /**
  * Contrast check for the colour tokens, in the light and dark themes.
  *
- * Covers every rule in toolkit.css that sets both `color` and a background
- * from tokens. Text that inherits its colour from a parent rule isn't paired
+ * Covers every rule in toolkit.css, and in the Settings page's <style> block,
+ * that sets both `color` and a background from tokens. Text that inherits its colour from a parent rule isn't paired
  * here, so it still needs checking by eye.
  *
  * Light values come from the `:root` block in tokens.css (`--lwc-*` hooks use
@@ -23,6 +23,7 @@ const DARK_SELECTOR = 'html[data-sfut-theme="dark"]';
  * Pairs that already failed in light before dark mode, with their ratio then.
  * Recorded rather than fixed in the dark mode release; they must not get worse.
  * `.sfut-fee-overlay` is the modal backdrop, so its text never sits on it.
+ * The prompt star buttons are a ★ glyph used as an icon, not body text.
  */
 const KNOWN_LIGHT_FAILURES = new Map([
   ['.sfut-group-dropdown .uiMenuItem a:hover', 4.15],
@@ -35,7 +36,11 @@ const KNOWN_LIGHT_FAILURES = new Map([
   ['.sfut-fee-overlay', 4.47],
   ['.sfut-fee-element-type', 4.03],
   ['.sfut-fee-dict-toggle:hover', 4.06],
-  ['.sfut-fee-toast', 4.20]
+  ['.sfut-fee-toast', 4.20],
+  ['settings.html .category-badge', 4.15],
+  ['settings.html .prompt-star-btn', 2.17],
+  ['settings.html .prompt-star-btn:hover', 1.72],
+  ['settings.html .prompt-star-btn.is-default', 1.72]
 ]);
 
 const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -109,12 +114,20 @@ function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/** Rules to check. Settings page selectors are prefixed so exceptions can't collide. */
+function sourceRules() {
+  const toolkit = rules(fs.readFileSync(path.join(STYLES, 'toolkit.css'), 'utf8'));
+  const html = fs.readFileSync(path.join(STYLES, '..', 'settings', 'settings.html'), 'utf8');
+  const settings = rules(html.match(/<style>([\s\S]*?)<\/style>/)[1])
+    .map(r => ({ ...r, selector: `settings.html ${r.selector}` }));
+  return [...toolkit, ...settings];
+}
+
 /** Every same-rule text/background pair, with its contrast ratio in the given theme. */
 function pairs(tokens) {
   const surface = resolve('var(--sfut-color-surface)', tokens);
-  const toolkit = rules(fs.readFileSync(path.join(STYLES, 'toolkit.css'), 'utf8'));
   const out = [];
-  for (const { selector, decls } of toolkit) {
+  for (const { selector, decls } of sourceRules()) {
     const text = decls.color;
     const bg = decls['background-color'] ?? decls.background;
     if (!text || !bg || !text.includes('var(--sfut-') || !bg.includes('var(--sfut-')) continue;
@@ -130,8 +143,10 @@ function pairs(tokens) {
 
 const describe = (p) => `${p.selector}  (${p.text} on ${p.bg}): ${p.ratio.toFixed(2)}:1`;
 
-test('the contrast check finds the toolkit\'s text/background pairs', () => {
-  assert.ok(pairs(tokenMaps().light).length > 20);
+test('the contrast check finds text/background pairs in toolkit.css and the Settings page', () => {
+  const found = pairs(tokenMaps().light);
+  assert.ok(found.filter(p => !p.selector.startsWith('settings.html')).length > 20);
+  assert.ok(found.filter(p => p.selector.startsWith('settings.html')).length > 5);
 });
 
 test('light theme: text/background pairs meet 4.5:1, apart from recorded exceptions', () => {
