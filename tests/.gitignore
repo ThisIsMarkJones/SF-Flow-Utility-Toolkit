@@ -1,0 +1,6 @@
+node_modules/
+# Playwright output (Phase 3): never commit screenshots, traces or browser profiles
+e2e/screenshots/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.profile/

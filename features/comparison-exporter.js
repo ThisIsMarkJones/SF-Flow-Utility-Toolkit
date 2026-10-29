@@ -86,7 +86,12 @@ const ComparisonExporter = (() => {
       _showToast('Generating XLSX…');
       await _exportXlsx({ selections, results, rows });
 
-      _showToast('Export complete — download started.');
+      const detailsWarning = _detailsWarning(rows, includeDetails);
+      if (detailsWarning) {
+        _showToast(detailsWarning, 'warning');
+      } else {
+        _showToast('Export complete — download started.');
+      }
 
     } catch (err) {
       console.error('[SFUT CompExport] Export failed:', err);
@@ -94,6 +99,20 @@ const ComparisonExporter = (() => {
     } finally {
       _isExporting = false;
     }
+  }
+
+  /**
+   * Returns a warning when details were requested but none could be read, so
+   * the user isn't handed a silently empty Details column; otherwise null.
+   * @param {Array<{details?: string}>} rows
+   * @param {boolean} includeDetails
+   * @returns {string|null}
+   */
+  function _detailsWarning(rows, includeDetails) {
+    if (!includeDetails || !rows || rows.length === 0) return null;
+    if (rows.some((r) => r.details)) return null;
+    return 'Export complete, but no change details could be read from the comparison ' +
+      'page, so the Details column is empty. Salesforce may have changed the page layout.';
   }
 
   /**
@@ -638,7 +657,8 @@ const ComparisonExporter = (() => {
   return {
     init,
     isEnabled,
-    onActivate
+    onActivate,
+    _detailsWarning // exposed for testing
   };
 
 })();

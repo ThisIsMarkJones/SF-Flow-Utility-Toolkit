@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <assignments>
+        <name>Step_One</name>
+        <group>Setup_Steps</group>
+        <label>Step One</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>1</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Step_Two</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Step_Two</name>
+        <group>Setup_Steps</group>
+        <label>Step Two</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>2</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Step_Three</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Step_Three</name>
+        <label>Step Three</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>3</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>SFUT Winter &apos;27 synthetic probe (written from the API 68.0 WSDL, deployed via metadata, not built in Flow Builder): two elements in one group, one outside.</description>
+    <environments>Default</environments>
+    <groups>
+        <name>Setup_Steps</name>
+        <description>SFUT group description probe</description>
+        <label>Setup Steps</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <groupType>generic</groupType>
+    </groups>
+    <interviewLabel>SFUT_W27_GroupsSynthetic {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>SFUT_W27_GroupsSynthetic</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Step_One</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

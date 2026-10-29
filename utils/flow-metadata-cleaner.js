@@ -123,7 +123,8 @@ const FlowMetadataCleaner = (() => {
       { key: 'textTemplates', label: 'Text Templates' },
       { key: 'choices', label: 'Choices' },
       { key: 'dynamicChoiceSets', label: 'Dynamic Choice Sets' },
-      { key: 'stages', label: 'Stages' }
+      { key: 'stages', label: 'Stages' },
+      { key: 'collectionFilterCriteria', label: 'Collection Filter Criteria' }
     ];
 
     const elements = {};

@@ -228,6 +228,10 @@ const MissingDescriptionFlags = (() => {
       { key: 'subflows', type: 'Subflow' },
       { key: 'transforms', type: 'Transform' },
       { key: 'waits', type: 'Wait' },
+      // Winter '27 (API 68.0) groups carry their own description. Grouped
+      // elements stay in their usual top-level keys (with a `group` name), so
+      // they are still checked above.
+      { key: 'groups', type: 'Group' },
       // Orchestrator element types (stages can appear under either key)
       { key: 'orchestratedStages', type: 'Stage' },
       { key: 'stages', type: 'Stage' }
@@ -240,7 +244,8 @@ const MissingDescriptionFlags = (() => {
       { key: 'constants', type: 'Constant' },
       { key: 'textTemplates', type: 'Text Template' },
       { key: 'choices', type: 'Choice' },
-      { key: 'dynamicChoiceSets', type: 'Dynamic Choice Set' }
+      { key: 'dynamicChoiceSets', type: 'Dynamic Choice Set' },
+      { key: 'collectionFilterCriteria', type: 'Collection Filter Criteria' }
     ];
 
     for (const { key, type } of elementTypes) {
@@ -666,7 +671,10 @@ const MissingDescriptionFlags = (() => {
     });
   }
 
-  return { init, onActivate, refresh, isActive, isEnabled };
+  return {
+    init, onActivate, refresh, isActive, isEnabled,
+    _findElementsWithoutDescriptions // exposed for testing
+  };
 
 })();
 
