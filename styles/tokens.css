@@ -1,0 +1,141 @@
+/**
+ * SF Flow Utility Toolkit - Colour Tokens
+ *
+ * Colour and shadow tokens shared by the content-script styles (toolkit.css)
+ * and the Settings page. Loaded before toolkit.css.
+ *
+ * Every token resolves to the literal value it replaced, so the UI renders
+ * identically. Where the SLDS linter confirmed an equivalent Salesforce token,
+ * the token is referenced first with the literal kept as the var() fallback —
+ * the fallback is what applies outside Lightning (and if a hook is ever
+ * withdrawn).
+ */
+
+:root {
+
+  /* Brand, surface and text */
+  --sfut-color-brand: var(--lwc-paletteBlue50, #0176d3);
+  --sfut-color-brand-active: var(--lwc-paletteBlue30, #014486);
+  --sfut-color-surface: var(--lwc-paletteNeutral100, #ffffff);
+  --sfut-color-background: var(--lwc-paletteNeutral95, #f3f3f3);
+  --sfut-color-text: var(--lwc-paletteNeutral10, #181818);
+  --sfut-color-border-strong: var(--lwc-paletteNeutral80, #c9c9c9);
+  --sfut-color-border: var(--lwc-colorBorder, #e5e5e5);
+  --sfut-color-text-muted: var(--lwc-colorGray9, #706e6b);
+  --sfut-color-error: var(--lwc-paletteRed40, #ba0517);
+  --sfut-color-success: var(--lwc-paletteGreen50, #2e844a);
+  --sfut-color-warning: var(--lwc-paletteOrange70, #fe9339);
+  --sfut-color-text-weak: #3e3e3c;
+  --sfut-color-text-subtle: #747474;
+  --sfut-color-brand-legacy: #0070d2;
+  /* default for the user-configurable --sfut-highlight-colour */
+  --sfut-color-highlight: #ffd700;
+
+  /* Supporting palette (tints, badges, status backgrounds) */
+  --sfut-color-blue-19: #032d60;
+  --sfut-color-blue-36: #0b5cab;
+  --sfut-color-blue-78: #90d0fe;
+  --sfut-color-blue-83: #aacbff;
+  --sfut-color-blue-86: #b7d8ff;
+  --sfut-color-blue-87: #d8dde6;
+  --sfut-color-blue-91: #cfe0ff;
+  --sfut-color-blue-92: #d8ecff;
+  --sfut-color-blue-95: #e8f3ff;
+  --sfut-color-blue-95-2: #e8f4fd;
+  --sfut-color-blue-95-3: #eef1f6;
+  --sfut-color-blue-96: #eaf5fe;
+  --sfut-color-blue-97: #eef4ff;
+  --sfut-color-blue-97-2: #f0f7ff;
+  --sfut-color-blue-97-3: #f3f8fc;
+  --sfut-color-blue-98: #f3f9ff;
+  --sfut-color-green-20: #194e31;
+  --sfut-color-green-25: #1f5f2c;
+  --sfut-color-green-34: #2e7d32;
+  --sfut-color-green-70: #91db8b;
+  --sfut-color-green-77: #b6e3a8;
+  --sfut-color-green-94: #ebf7e6;
+  --sfut-color-green-95: #edfbe7;
+  --sfut-color-neutral-20: #333333;
+  --sfut-color-neutral-27: #444444;
+  --sfut-color-neutral-33: #555555;
+  --sfut-color-neutral-40: #666666;
+  --sfut-color-neutral-44: #707070;
+  --sfut-color-neutral-67: #aaaaaa;
+  --sfut-color-neutral-69: #b0b0b0;
+  --sfut-color-neutral-84: #d5d5d5;
+  --sfut-color-neutral-86: #dddbda;
+  --sfut-color-neutral-87: #dddddd;
+  --sfut-color-neutral-88: #e0e0e0;
+  --sfut-color-neutral-91: #e9e9e9;
+  --sfut-color-neutral-94: #f0f0f0;
+  --sfut-color-neutral-95: #f3f2f2;
+  --sfut-color-neutral-97: #f7f7f7;
+  --sfut-color-neutral-97-2: #f8f8f8;
+  --sfut-color-neutral-98: #fafafa;
+  --sfut-color-neutral-98-2: #fafaf9;
+  --sfut-color-orange-19: #5f3e02;
+  --sfut-color-orange-23: #6b4a09;
+  --sfut-color-orange-25: #7e2600;
+  --sfut-color-orange-28: #8c4b02;
+  --sfut-color-orange-31: #a06000;
+  --sfut-color-orange-36: #b95000;
+  --sfut-color-orange-44: #dd7a01;
+  --sfut-color-orange-45: #e87400;
+  --sfut-color-orange-50: #ffb300;
+  --sfut-color-orange-67: #f0a868;
+  --sfut-color-orange-78: #ffba90;
+  --sfut-color-orange-83: #f5deb3;
+  --sfut-color-orange-92: #fef1d6;
+  --sfut-color-orange-94: #fdf6e3;
+  --sfut-color-orange-94-2: #fff3e0;
+  --sfut-color-orange-95: #fef0e6;
+  --sfut-color-orange-95-2: #fef5e7;
+  --sfut-color-orange-96: #fff1ea;
+  --sfut-color-orange-97: #fffaf0;
+  --sfut-color-purple-26: #401075;
+  --sfut-color-purple-85: #d7bff2;
+  --sfut-color-purple-97: #f6f2fb;
+  --sfut-color-red-28: #8e030f;
+  --sfut-color-red-31: #8a1c12;
+  --sfut-color-red-35: #b00020;
+  --sfut-color-red-46: #ea001e;
+  --sfut-color-red-81: #f7b0a8;
+  --sfut-color-red-82: #feb9a5;
+  --sfut-color-red-86: #f5c6c0;
+  --sfut-color-red-95: #fde7e9;
+  --sfut-color-red-95-2: #fdecea;
+  --sfut-color-red-96: #fef1ed;
+  --sfut-color-red-97: #fef0f0;
+  --sfut-color-red-97-2: #fff1f0;
+  --sfut-color-teal-15: #023248;
+  --sfut-color-teal-17: #044e52;
+  --sfut-color-teal-28: #05628a;
+  --sfut-color-teal-67: #83d4d4;
+  --sfut-color-teal-96: #f0f9f9;
+  --sfut-color-yellow-17: #574300;
+  --sfut-color-yellow-63: #f0c950;
+
+  /* Translucent fills */
+  --sfut-color-brand-tint-6: rgba(1, 118, 211, 0.06);
+  --sfut-color-brand-tint-8: rgba(1, 118, 211, 0.08);
+  --sfut-color-overlay-40: rgba(0, 0, 0, 0.4);
+  --sfut-color-overlay-50: rgba(0, 0, 0, 0.5);
+  --sfut-color-overlay-text-45: rgba(24, 24, 24, 0.45);
+
+  /* Elevation */
+  --sfut-shadow-focus-ring: 0 0 0 2px rgba(1, 118, 211, 0.2);
+  --sfut-shadow-focus-ring-soft: 0 0 0 2px rgba(1, 118, 211, 0.15);
+  --sfut-shadow-focus-outline: 0 0 0 1px var(--sfut-color-brand);
+  --sfut-shadow-dropdown: var(--lwc-shadowDropDown, 0 2px 3px 0 rgba(0, 0, 0, 0.16));
+  --sfut-shadow-raised: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --sfut-shadow-side-button: -2px 2px 6px rgba(0, 0, 0, 0.2);
+  --sfut-shadow-side-panel: -4px 0 12px rgba(0, 0, 0, 0.15);
+  --sfut-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --sfut-shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.18);
+  --sfut-shadow-popover: 0 6px 18px rgba(0, 0, 0, 0.18);
+  --sfut-shadow-panel: 0 8px 20px rgba(0, 0, 0, 0.18);
+  --sfut-shadow-panel-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --sfut-shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.25);
+  --sfut-shadow-modal-lg: 0 12px 32px rgba(0, 0, 0, 0.2);
+  --sfut-shadow-modal-xl: 0 16px 48px rgba(0, 0, 0, 0.25);
+}

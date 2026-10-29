@@ -75,6 +75,7 @@
         "features/autosave.js"
       ],
       "css": [
+        "styles/tokens.css",
         "styles/toolkit.css"
       ],
       "run_at": "document_idle",
