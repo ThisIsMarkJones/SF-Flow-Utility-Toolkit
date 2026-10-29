@@ -9,6 +9,7 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "jsdom": "^26.1.0"
   }
 }
