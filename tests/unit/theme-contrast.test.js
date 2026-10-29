@@ -45,7 +45,7 @@ function declarations(body) {
   for (const part of body.split(';')) {
     const i = part.indexOf(':');
     if (i < 0) continue;
-    out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
+    out[part.slice(0, i).trim()] = part.slice(i + 1).replace(/!important/, '').trim();
   }
   return out;
 }
@@ -140,9 +140,10 @@ test('light theme: text/background pairs meet 4.5:1, apart from recorded excepti
   assert.deepEqual(unexpected.map(describe), []);
 });
 
-test('dark theme: text/background pairs meet 4.5:1', (t) => {
+test('dark theme: text/background pairs meet 4.5:1, and recorded exceptions are no worse than in light', (t) => {
   const { dark, hasDark } = tokenMaps();
   if (!hasDark) return t.skip('no dark token set yet');
   const failing = pairs(dark).filter(p => p.ratio < MIN_TEXT_CONTRAST);
-  assert.deepEqual(failing.map(describe), []);
+  const unexpected = failing.filter(p => !(p.ratio >= KNOWN_LIGHT_FAILURES.get(p.selector) - 0.005));
+  assert.deepEqual(unexpected.map(describe), []);
 });

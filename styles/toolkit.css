@@ -237,8 +237,8 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background-color: var(--sfut-color-success);
-  color: var(--sfut-color-surface);
+  background-color: var(--sfut-color-success-fill);
+  color: var(--sfut-color-on-fill);
   padding: var(--sfut-space-12) var(--sfut-space-20);
   border-radius: var(--sfut-radius-6);
   font-size: var(--sfut-font-size-base);
@@ -256,12 +256,12 @@
 }
 
 .sfut-toast-error {
-  background-color: var(--sfut-color-error);
+  background-color: var(--sfut-color-error-fill);
 }
 
 .sfut-toast-warning {
   background-color: var(--sfut-color-warning);
-  color: var(--sfut-color-text);
+  color: var(--sfut-color-on-warning);
 }
 
 /* Setup Tabs - Group Dropdown */
@@ -373,7 +373,7 @@
 
 .sfut-btn-primary {
   background-color: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-color: var(--sfut-color-brand);
 }
 
@@ -406,7 +406,7 @@
   width: 20px;
   height: 20px;
   background-color: var(--sfut-color-warning);
-  color: var(--sfut-color-text);
+  color: var(--sfut-color-on-warning);
   border-radius: var(--sfut-radius-circle);
   display: flex;
   align-items: center;
@@ -1101,7 +1101,7 @@
 
 .sfut-ai-btn-primary {
   background-color: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-color: var(--sfut-color-brand);
   width: 100%;
 }
@@ -1562,14 +1562,14 @@ tr.sfut-version-row-disabled,
 }
 
 .sfut-version-manager-btn-danger {
-  background-color: var(--sfut-color-error);
-  color: var(--sfut-color-surface);
+  background-color: var(--sfut-color-error-fill);
+  color: var(--sfut-color-on-fill);
   border-color: var(--sfut-color-error);
 }
 
 .sfut-version-manager-btn-danger:hover {
-  background-color: var(--sfut-color-red-28);
-  border-color: var(--sfut-color-red-28);
+  background-color: var(--sfut-color-error-active);
+  border-color: var(--sfut-color-error-active);
 }
 
 .sfut-version-manager-btn-danger:disabled,
@@ -1601,18 +1601,18 @@ input.sfut-version-manager-btn-danger[disabled] {
   z-index: 100004;
   padding: 0.875rem 1rem;
   border-radius: var(--sfut-radius-6);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   font-size: var(--sfut-font-size-base);
   font-family: 'Salesforce Sans', Arial, sans-serif;
   box-shadow: var(--sfut-shadow-panel);
 }
 
 .sfut-version-manager-toast--success {
-  background-color: var(--sfut-color-success);
+  background-color: var(--sfut-color-success-fill);
 }
 
 .sfut-version-manager-toast--error {
-  background-color: var(--sfut-color-error);
+  background-color: var(--sfut-color-error-fill);
 }
 
 .sfut-version-manager-toast--info {
@@ -2012,9 +2012,9 @@ input.sfut-version-manager-btn-danger[disabled] {
 
 .sfut-version-manager-modal-footer .sfut-version-manager-confirm.sfut-version-manager-btn-danger,
 .sfut-version-manager-modal-footer button.sfut-version-manager-confirm.sfut-version-manager-btn-danger {
-  background-color: var(--sfut-color-error) !important;
+  background-color: var(--sfut-color-error-fill) !important;
   background-image: none !important;
-  color: var(--sfut-color-surface) !important;
+  color: var(--sfut-color-on-fill) !important;
   border: var(--sfut-border-width-1) solid var(--sfut-color-error) !important;
   box-shadow: none !important;
   text-shadow: none !important;
@@ -2025,9 +2025,9 @@ input.sfut-version-manager-btn-danger[disabled] {
 .sfut-version-manager-modal-footer button.sfut-version-manager-confirm.sfut-version-manager-btn-danger:hover,
 .sfut-version-manager-modal-footer .sfut-version-manager-confirm.sfut-version-manager-btn-danger:focus,
 .sfut-version-manager-modal-footer button.sfut-version-manager-confirm.sfut-version-manager-btn-danger:focus {
-  background-color: var(--sfut-color-red-28) !important;
-  border-color: var(--sfut-color-red-28) !important;
-  color: var(--sfut-color-surface) !important;
+  background-color: var(--sfut-color-error-active) !important;
+  border-color: var(--sfut-color-error-active) !important;
+  color: var(--sfut-color-on-fill) !important;
   -webkit-text-fill-color: var(--sfut-color-surface) !important;
 }
 
@@ -2295,7 +2295,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-health-btn-primary {
   background: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-color: var(--sfut-color-brand);
 }
 
@@ -2835,7 +2835,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-sfe-overlay .sfut-sfe-cal-cell-today .sfut-sfe-cal-date-num {
   background: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-radius: var(--sfut-radius-circle);
   width: 22px;
   height: 22px;
@@ -3299,8 +3299,8 @@ tr.palette-item.sfut-canvas-highlight-focus {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background-color: var(--sfut-color-text);
-  color: var(--sfut-color-surface);
+  background-color: var(--sfut-color-inverse);
+  color: var(--sfut-color-on-fill);
   padding: var(--sfut-space-10) var(--sfut-space-16);
   border-radius: var(--sfut-radius-6);
   font-size: var(--sfut-font-size-base);
@@ -4086,7 +4086,7 @@ a.sfut-witu-trigger-btn:hover {
   width: 20px;
   height: 20px;
   background: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-radius: var(--sfut-radius-circle);
   font-size: var(--sfut-font-size-xs);
   font-weight: var(--sfut-font-weight-bold);
@@ -4359,7 +4359,7 @@ a.sfut-witu-trigger-btn:hover {
 
 .sfut-fee-btn--primary {
   background: var(--sfut-color-brand);
-  color: var(--sfut-color-surface);
+  color: var(--sfut-color-on-fill);
   border-color: var(--sfut-color-brand);
 }
 
