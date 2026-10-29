@@ -84,6 +84,24 @@
 }
 
 
+/* ===== Theme Roots =====
+ *
+ * Every toolkit element appended to <body> (modals, overlays, toasts, the
+ * menu, tooltips) takes its text colour from the theme rather than inheriting
+ * the page's. Without this, forcing Dark on a light page (or Light on a page
+ * darkened by Dark Reader) leaves page-coloured text on a toolkit surface.
+ * :where() keeps the specificity at zero, so each root's own color still wins.
+ */
+:where(body > [class*="sfut-"], body > [id^="sfut-"]) {
+  color: var(--sfut-color-text);
+}
+
+/* Native controls inside toolkit UI (selects, scrollbars) follow the theme */
+:where(html[data-sfut-theme="dark"]) :where(body > [class*="sfut-"], body > [id^="sfut-"]) {
+  color-scheme: dark;
+}
+
+
 /* ===== Side Button ===== */
 
 .sfut-side-button {
@@ -346,6 +364,25 @@
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-xl);
   color: var(--sfut-color-text);
+}
+
+/* Shared close button (Health Check, Unused Resources, Scheduled Flow
+   Explorer detail and day modals). Matches .sfut-ai-panel-close. */
+.sfut-modal-close {
+  background: none;
+  border: none;
+  color: var(--sfut-color-text-muted);
+  font-size: var(--sfut-font-size-xl);
+  cursor: pointer;
+  padding: var(--sfut-space-2) var(--sfut-space-6);
+  border-radius: var(--sfut-radius-3);
+  line-height: var(--sfut-line-height-reset);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sfut-modal-close:hover {
+  color: var(--sfut-color-text);
+  background-color: var(--sfut-color-border);
 }
 
 .sfut-modal-body {
