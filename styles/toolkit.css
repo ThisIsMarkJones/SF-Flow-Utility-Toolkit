@@ -158,7 +158,7 @@
 .sfut-menu-title {
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-md);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-menu-close {
@@ -227,7 +227,7 @@
 }
 
 .sfut-menu-settings-link:hover {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 /* ===== Shared UI Elements ===== */
@@ -306,7 +306,7 @@
 
 .sfut-group-dropdown .uiMenuItem a:hover {
   background-color: var(--sfut-color-neutral-95);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 /* Modal overlay */
@@ -383,7 +383,7 @@
 
 .sfut-btn-secondary {
   background-color: var(--sfut-color-surface);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   border-color: var(--sfut-color-border-strong);
 }
 
@@ -531,7 +531,7 @@
 }
 
 .sfut-flow-search-loading {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   font-style: italic;
 }
 
@@ -617,7 +617,7 @@
 
 .sfut-canvas-search-bar-nav:hover {
   background-color: var(--sfut-color-background);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 /* Count label */
@@ -731,7 +731,7 @@
 }
 
 .sfut-fie-overlay .sfut-fie-tab.sfut-fie-tab-active {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   border-bottom-color: var(--sfut-color-brand);
   font-weight: var(--sfut-font-weight-bold);
 }
@@ -955,7 +955,7 @@
 .sfut-ai-panel-title {
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-lg);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-ai-panel-close {
@@ -1267,7 +1267,7 @@
 .sfut-comp-export-modal-title {
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-lg);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-comp-export-modal-close {
@@ -1422,7 +1422,7 @@ tr.sfut-version-row-disabled,
   margin: 0;
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-lg);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-version-manager-modal-close {
@@ -1679,7 +1679,7 @@ input.sfut-version-manager-btn-danger[disabled] {
 
 .sfut-fte-info-trigger:hover,
 .sfut-fte-info-trigger:focus {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   background-color: var(--sfut-color-brand-tint-8);
   outline: none;
 }
@@ -1732,7 +1732,7 @@ input.sfut-version-manager-btn-danger[disabled] {
 .sfut-fte-tag-created {
   background-color: var(--sfut-color-blue-95);
   border-color: var(--sfut-color-blue-86);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
 }
 
 .sfut-fte-tag-updated {
@@ -1872,7 +1872,7 @@ input.sfut-version-manager-btn-danger[disabled] {
 .sfut-apigen-modal-title {
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-lg);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-apigen-modal-close {
@@ -1952,7 +1952,7 @@ input.sfut-version-manager-btn-danger[disabled] {
 .sfut-apigen-result-value {
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: var(--sfut-font-size-base);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   font-weight: var(--sfut-font-weight-semibold);
   word-break: break-all;
 }
@@ -2138,7 +2138,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
   font-size: var(--sfut-font-size-display-sm);
   font-weight: var(--sfut-font-weight-bold);
   line-height: var(--sfut-line-height-reset);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-health-summary-cards,
@@ -2224,7 +2224,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-health-severity-low {
   background: var(--sfut-color-blue-96);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
 }
 
 .sfut-health-severity-info {
@@ -2365,7 +2365,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-sfe-overlay .sfut-sfe-tz-badge {
   background: var(--sfut-color-blue-97);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
   padding: var(--sfut-space-3) var(--sfut-space-10);
   border-radius: var(--sfut-radius-12);
   font-size: var(--sfut-font-size-xs);
@@ -2415,7 +2415,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 }
 
 .sfut-sfe-overlay .sfut-sfe-tab.sfut-sfe-tab-active {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   border-bottom-color: var(--sfut-color-brand);
   font-weight: var(--sfut-font-weight-bold);
 }
@@ -2495,7 +2495,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 }
 
 .sfut-sfe-overlay .sfut-sfe-empty a {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   text-decoration: none;
 }
 
@@ -2521,7 +2521,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 }
 
 .sfut-sfe-overlay .sfut-sfe-error-banner .sfut-sfe-error-toggle {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   text-decoration: underline;
   margin-left: var(--sfut-space-4);
 }
@@ -2600,7 +2600,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 .sfut-sfe-overlay .sfut-sfe-pill.sfut-sfe-pill-active {
   background: var(--sfut-color-blue-97);
   border-color: var(--sfut-color-brand);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
   font-weight: var(--sfut-font-weight-semibold);
 }
 
@@ -2665,7 +2665,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-sfe-overlay .sfut-sfe-flow-name {
   font-weight: var(--sfut-font-weight-semibold);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-sfe-overlay .sfut-sfe-row:hover .sfut-sfe-flow-name {
@@ -2900,7 +2900,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-sfe-overlay .sfut-sfe-chip-more {
   font-size: var(--sfut-font-size-2xs);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   cursor: pointer;
   padding: var(--sfut-space-2) var(--sfut-space-6);
   font-weight: var(--sfut-font-weight-semibold);
@@ -2969,7 +2969,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
   border-radius: var(--sfut-radius-3);
   font-size: var(--sfut-font-size-base);
   line-height: var(--sfut-line-height-text);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
 }
 
 .sfut-sfe-detail-field {
@@ -3036,7 +3036,7 @@ tr.palette-item.sfut-canvas-highlight-focus {
 
 .sfut-sfe-day-list .sfut-sfe-day-time {
   font-weight: var(--sfut-font-weight-bold);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   min-width: 60px;
 }
 
@@ -3391,7 +3391,7 @@ a.sfut-witu-trigger-btn:hover {
   margin: 0;
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-lg);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-witu-modal-close {
@@ -3536,7 +3536,7 @@ a.sfut-witu-trigger-btn:hover {
 }
 
 .sfut-witu-table a {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   text-decoration: none;
 }
 
@@ -3626,7 +3626,7 @@ a.sfut-witu-trigger-btn:hover {
 .sfut-witu-btn-csv:hover {
   background-color: var(--sfut-color-blue-97-2);
   border-color: var(--sfut-color-brand-active);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
 }
 
 /* Location pages — show more/less toggle */
@@ -3636,7 +3636,7 @@ a.sfut-witu-trigger-btn:hover {
 
 .sfut-witu-location-toggle {
   font-size: var(--sfut-font-size-xs);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   text-decoration: none;
   white-space: nowrap;
   margin-left: var(--sfut-space-2);
@@ -3761,7 +3761,7 @@ a.sfut-witu-trigger-btn:hover {
 .sfut-fee-header-title {
   font-weight: var(--sfut-font-weight-bold);
   font-size: var(--sfut-font-size-xl);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-fee-header-meta {
@@ -3815,7 +3815,7 @@ a.sfut-witu-trigger-btn:hover {
 }
 
 .sfut-fee-tab--active {
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
   border-bottom-color: var(--sfut-color-brand);
   font-weight: var(--sfut-font-weight-bold);
 }
@@ -4045,7 +4045,7 @@ a.sfut-witu-trigger-btn:hover {
 
 .sfut-fee-badge--low {
   background: var(--sfut-color-blue-96);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
 }
 
 .sfut-fee-category-pill {
@@ -4135,7 +4135,7 @@ a.sfut-witu-trigger-btn:hover {
   border: var(--sfut-border-width-1) solid var(--sfut-color-blue-86);
   border-radius: var(--sfut-radius-4);
   padding: var(--sfut-space-4) var(--sfut-space-10);
-  color: var(--sfut-color-brand-active);
+  color: var(--sfut-color-brand-text-active);
   cursor: pointer;
   font-weight: var(--sfut-font-weight-semibold);
   transition: background-color 0.15s ease;
@@ -4231,7 +4231,7 @@ a.sfut-witu-trigger-btn:hover {
 
 .sfut-fee-dict-toggle:hover {
   background: var(--sfut-color-neutral-94);
-  color: var(--sfut-color-brand);
+  color: var(--sfut-color-brand-text);
 }
 
 .sfut-fee-dict-entry-header {

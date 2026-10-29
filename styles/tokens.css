@@ -16,6 +16,10 @@
   /* Brand, surface and text */
   --sfut-color-brand: var(--lwc-paletteBlue50, #0176d3);
   --sfut-color-brand-active: var(--lwc-paletteBlue30, #014486);
+  /* Brand as text (links, active labels). Same as the fills in light; lighter
+     in dark, where the brand fills are too dark to read as text. */
+  --sfut-color-brand-text: var(--sfut-color-brand);
+  --sfut-color-brand-text-active: var(--sfut-color-brand-active);
   --sfut-color-surface: var(--lwc-paletteNeutral100, #ffffff);
   --sfut-color-background: var(--lwc-paletteNeutral95, #f3f3f3);
   --sfut-color-text: var(--lwc-paletteNeutral10, #181818);
