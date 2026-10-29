@@ -14,6 +14,9 @@
 (function () {
 
   const DEFAULTS = {
+    // Appearance
+    'theme.mode': 'auto',
+
     // Feature toggles — default off (user must enable)
     'setupTabs.enabled': false,
     'setupTabs.automationHome.enabled': false,
@@ -179,6 +182,7 @@
       // Populate selects
       _setSelect('setting-namingPattern', settings['apiNameGenerator.namingPattern']);
       _setSelect('setting-scheduledFlowExplorerDefaultView', settings['scheduledFlowExplorer.defaultView']);
+      _setSelect('setting-themeMode', settings['theme.mode']);
     });
   }
 

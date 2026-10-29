@@ -11,6 +11,9 @@ const SettingsManager = (() => {
 
   // Default settings applied on first install or when a setting is missing
   const DEFAULTS = {
+    // Appearance: 'auto' follows each page's background (see utils/theme-manager.js)
+    'theme.mode': 'auto',                              // 'auto' | 'light' | 'dark'
+
     // Feature toggles
     'setupTabs.enabled': false,
     'setupTabs.automationHome.enabled': false, // Optional tab for Automation App Home
