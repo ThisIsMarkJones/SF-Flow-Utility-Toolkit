@@ -601,23 +601,23 @@ const ScheduledFlowExplorer = (() => {
       const badgeText = expired ? 'Expired' : flow.parsedSchedule.frequency;
 
       const nextRunCell = expired
-        ? `<div style="color: #747474;">Will not run</div>
+        ? `<div class="sfut-sfe-muted">Will not run</div>
            <div class="${C.nextRunRelative}">Past start date</div>`
         : `<div class="${C.nextRunPrimary}">${ScheduledFlowCalculator.formatDateTimeLong(nextRun)}</div>
            <div class="${C.nextRunRelative}">${ScheduledFlowCalculator.formatRelative(nextRun, now)}</div>`;
 
       const objectCell = flow.parsedSchedule.targetObject
         ? _escapeHtml(flow.parsedSchedule.targetObject)
-        : '<span style="color:#747474;">—</span>';
+        : '<span class="sfut-sfe-muted">—</span>';
 
       let filterCell;
       if (flow.parsedSchedule.filters && flow.parsedSchedule.filters.length > 0) {
         const text = ScheduledFlowCalculator.formatFilters(flow.parsedSchedule);
         filterCell = `<div class="${C.filterText}" title="${_escapeHtml(text)}">${_escapeHtml(text)}</div>`;
       } else if (flow.parsedSchedule.targetObject) {
-        filterCell = '<span style="color:#747474;">All records</span>';
+        filterCell = '<span class="sfut-sfe-muted">All records</span>';
       } else {
-        filterCell = '<span style="color:#747474;">No filter</span>';
+        filterCell = '<span class="sfut-sfe-muted">No filter</span>';
       }
 
       tr.innerHTML = `
@@ -931,7 +931,7 @@ const ScheduledFlowExplorer = (() => {
           ${upcoming.map((d) => `
             <li>
               <span>${_escapeHtml(ScheduledFlowCalculator.formatDateTimeLong(d))}</span>
-              <span style="color:#747474;font-size:11px;">${_escapeHtml(ScheduledFlowCalculator.formatRelative(d, now))}</span>
+              <span class="sfut-sfe-muted sfut-sfe-muted--sm">${_escapeHtml(ScheduledFlowCalculator.formatRelative(d, now))}</span>
             </li>
           `).join('')}
         </ul>
@@ -971,7 +971,7 @@ const ScheduledFlowExplorer = (() => {
             <div class="${C.detailField}">
               <div class="${C.detailFieldLabel}">Start Time</div>
               <div class="${C.detailFieldValue}">${_escapeHtml(ScheduledFlowCalculator.formatTime(flow.parsedSchedule.startTimeHours, flow.parsedSchedule.startTimeMinutes))}
-                <span style="color:#747474;font-size:11px;">(Org timezone)</span>
+                <span class="sfut-sfe-muted sfut-sfe-muted--sm">(Org timezone)</span>
               </div>
             </div>
             <div class="${C.detailField}">
@@ -979,15 +979,15 @@ const ScheduledFlowExplorer = (() => {
               <div class="${C.detailFieldValue}">${
                 flow.activationDate
                   ? _escapeHtml(ScheduledFlowCalculator.formatDateTimeLong(flow.activationDate))
-                  : '<span style="color:#747474;">Unknown</span>'
+                  : '<span class="sfut-sfe-muted">Unknown</span>'
               }</div>
             </div>
             <div class="${C.detailField}">
               <div class="${C.detailFieldLabel}">Next Run</div>
               <div class="${C.detailFieldValue}">${
                 expired
-                  ? '<span style="color:#747474;">Will not run</span>'
-                  : `${_escapeHtml(ScheduledFlowCalculator.formatDateTimeLong(nextRun))} <span style="color:#747474;font-size:11px;">(${_escapeHtml(ScheduledFlowCalculator.formatRelative(nextRun, now))})</span>`
+                  ? '<span class="sfut-sfe-muted">Will not run</span>'
+                  : `${_escapeHtml(ScheduledFlowCalculator.formatDateTimeLong(nextRun))} <span class="sfut-sfe-muted sfut-sfe-muted--sm">(${_escapeHtml(ScheduledFlowCalculator.formatRelative(nextRun, now))})</span>`
               }</div>
             </div>
           </div>

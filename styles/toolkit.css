@@ -2728,6 +2728,16 @@ tr.palette-item.sfut-canvas-highlight-focus {
   color: var(--sfut-color-green-20);
 }
 
+/* Secondary text in table cells and the detail modal (which sits outside the
+   overlay, so these aren't scoped to it) */
+.sfut-sfe-muted {
+  color: var(--sfut-color-text-subtle);
+}
+
+.sfut-sfe-muted--sm {
+  font-size: var(--sfut-font-size-xs);
+}
+
 .sfut-sfe-overlay .sfut-sfe-badge-expired {
   background: var(--sfut-color-background);
   color: var(--sfut-color-text-subtle);
