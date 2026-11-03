@@ -42,7 +42,13 @@
     'apiNameGenerator.namingPattern': 'Snake_Case',
     'apiNameGenerator.flowRegex': null,
     'flowHealthCheck.namingConventions.flow': null,
-    'scheduledFlowExplorer.defaultView': 'list'
+    'scheduledFlowExplorer.defaultView': 'list',
+
+    // Side button
+    'sideButton.hidden': false,
+    'sideButton.edge': 'right',
+    'sideButton.verticalPosition': 50,
+    'sideButton.idleOpacity': 100
   };
 
   /**

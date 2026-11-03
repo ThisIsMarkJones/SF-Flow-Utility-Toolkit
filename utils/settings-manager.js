@@ -49,7 +49,16 @@ const SettingsManager = (() => {
 
     // Autosave
     'autosave.enabled': false,                         // Off by default — user must opt in
-    'autosave.intervalMinutes': 3                      // Minutes of inactivity before countdown starts
+    'autosave.intervalMinutes': 3,                     // Minutes of inactivity before countdown starts
+
+    // Keyboard shortcuts (canvas Shift+letter shortcuts and Cmd/Ctrl+Shift+U)
+    'keyboardShortcuts.enabled': true,
+
+    // Side button (applied live by ui/side-button.js)
+    'sideButton.hidden': false,                        // true: not rendered; open via shortcut or toolbar icon
+    'sideButton.edge': 'right',                        // 'right' | 'left'
+    'sideButton.verticalPosition': 50,                 // Button centre, % of viewport height (0–100)
+    'sideButton.idleOpacity': 100                      // % when not hovered/focused/open: 100 | 75 | 50 | 25
   };
 
   /**

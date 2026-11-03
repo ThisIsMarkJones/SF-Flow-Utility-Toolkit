@@ -29,6 +29,21 @@ const SideButton = (() => {
   let urlObserverInitialised = false;
 
   /**
+   * Settings the launcher reads synchronously (the shortcut handler must call
+   * preventDefault() before any await). Filled at init from SettingsManager,
+   * then kept current through SettingsManager.onChange.
+   */
+  const SETTING_KEYS = [
+    'keyboardShortcuts.enabled',
+    'sideButton.hidden',
+    'sideButton.edge',
+    'sideButton.verticalPosition',
+    'sideButton.idleOpacity'
+  ];
+  const _settings = Object.fromEntries(SETTING_KEYS.map(k => [k, SettingsManager.DEFAULTS[k]]));
+  let _settingsListenerAttached = false;
+
+  /**
    * Initialises the side button if the current context supports it.
    */
   function init() {
@@ -44,6 +59,26 @@ const SideButton = (() => {
     _createButton();
     _createMenu();
     _attachEventListeners();
+    _loadSettings();
+  }
+
+  /**
+   * Reads the launcher settings into the cache and listens for changes.
+   */
+  async function _loadSettings() {
+    try {
+      Object.assign(_settings, await SettingsManager.getMultiple(SETTING_KEYS));
+    } catch (e) {
+      console.warn('[SFUT] Side button settings could not be read, using defaults:', e);
+    }
+
+    if (!_settingsListenerAttached) {
+      _settingsListenerAttached = true;
+      SettingsManager.onChange((key, newValue) => {
+        if (!SETTING_KEYS.includes(key)) return;
+        _settings[key] = newValue ?? SettingsManager.DEFAULTS[key];
+      });
+    }
   }
 
   /**
@@ -402,12 +437,12 @@ const SideButton = (() => {
     // Attached here rather than in keyboard-shortcuts.js so it works on all
     // pages where the side button is present, not just the Flow Builder canvas.
     if (!document.body.dataset.sfutSideButtonKeyBound) {
-      document.addEventListener('keydown', async (e) => {
-        const key = e.key.toUpperCase();
+      document.addEventListener('keydown', (e) => {
+        const key = (e.key || '').toUpperCase();
         const cmdShift = e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey;
         if (cmdShift && key === 'U') {
-          const enabled = (await SettingsManager.get('keyboardShortcuts.enabled')) ?? true;
-          if (!enabled) return;
+          // Read from the cache: preventDefault() only works before any await.
+          if (_settings['keyboardShortcuts.enabled'] === false) return;
           e.preventDefault();
           _toggleMenu();
         }
