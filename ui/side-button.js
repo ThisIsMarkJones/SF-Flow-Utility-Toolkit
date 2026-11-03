@@ -27,6 +27,10 @@ const SideButton = (() => {
   let menuElement = null;
   let isMenuOpen = false;
   let urlObserverInitialised = false;
+  let _returnFocusTo = null;
+
+  /** Everything the arrow keys move between, in order. */
+  const MENU_ITEM_SELECTOR = '[role="menuitem"], [role="menuitemcheckbox"]';
 
   /**
    * Settings the launcher reads synchronously (the shortcut handler must call
@@ -45,11 +49,11 @@ const SideButton = (() => {
    * GROUP_HEADER_THRESHOLD entries (Flow Builder); smaller menus stay flat.
    */
   const GROUPS = [
+    { id: 'setup',   label: 'Setup' },   // Setup Tabs, which leads Setup pages' flat menus
     { id: 'canvas',  label: 'Canvas' },
     { id: 'analyse', label: 'Analyse' },
     { id: 'assist',  label: 'Assist' },
-    { id: 'move',    label: 'Move' },
-    { id: 'setup',   label: 'Setup' }
+    { id: 'move',    label: 'Move' }
   ];
   const GROUP_HEADER_THRESHOLD = 5;
 
@@ -138,12 +142,17 @@ const SideButton = (() => {
       return;
     }
 
-    buttonElement = document.createElement('div');
+    buttonElement = document.createElement('button');
+    buttonElement.type = 'button';
     buttonElement.id = 'sfut-side-button';
     buttonElement.className = 'sfut-side-button';
     buttonElement.title = 'SF Flow Utility Toolkit';
+    buttonElement.setAttribute('aria-label', 'SF Flow Utility Toolkit');
+    buttonElement.setAttribute('aria-haspopup', 'menu');
+    buttonElement.setAttribute('aria-controls', 'sfut-menu-content');
+    buttonElement.setAttribute('aria-expanded', 'false');
     buttonElement.innerHTML = `
-      <span class="sfut-side-button-icon">⚡</span>
+      <span class="sfut-side-button-icon" aria-hidden="true">⚡</span>
     `;
     document.body.appendChild(buttonElement);
   }
@@ -167,8 +176,8 @@ const SideButton = (() => {
     const header = document.createElement('div');
     header.className = 'sfut-menu-header';
     header.innerHTML = `
-      <span class="sfut-menu-title">SF Flow Utility Toolkit</span>
-      <span class="sfut-menu-close">&times;</span>
+      <span class="sfut-menu-title" id="sfut-menu-title">SF Flow Utility Toolkit</span>
+      <button type="button" class="sfut-menu-close" aria-label="Close menu">&times;</button>
     `;
     menuElement.appendChild(header);
 
@@ -176,13 +185,15 @@ const SideButton = (() => {
     const content = document.createElement('div');
     content.id = 'sfut-menu-content';
     content.className = 'sfut-menu-content';
+    content.setAttribute('role', 'menu');
+    content.setAttribute('aria-labelledby', 'sfut-menu-title');
     menuElement.appendChild(content);
 
     // Settings link (always present)
     const footer = document.createElement('div');
     footer.className = 'sfut-menu-footer';
     footer.innerHTML = `
-      <a href="#" id="sfut-settings-link" class="sfut-menu-settings-link">
+      <a href="#" id="sfut-settings-link" class="sfut-menu-settings-link" role="menuitem" tabindex="-1">
         ⚙ Settings
       </a>
     `;
@@ -199,6 +210,11 @@ const SideButton = (() => {
   function _populateMenu() {
     const content = document.getElementById('sfut-menu-content');
     if (!content) return;
+
+    // A rebuild while the menu is in use (refresh() after a feature loads)
+    // puts focus back on the same entry.
+    const focused = content.contains(document.activeElement) ? document.activeElement : null;
+    const refocus = focused && `[data-feature="${focused.dataset.feature}"][data-action="${focused.dataset.action}"]`;
 
     content.innerHTML = '';
 
@@ -226,6 +242,8 @@ const SideButton = (() => {
 
       groupItems.forEach(item => content.appendChild(_buildMenuRow(item, group)));
     }
+
+    if (refocus) content.querySelector(refocus)?.focus();
   }
 
   /**
@@ -468,17 +486,102 @@ const SideButton = (() => {
 
     const opening = forceState !== undefined ? forceState : !isMenuOpen;
     if (opening && _currentMenuItems().length === 0) return;
+    if (opening === isMenuOpen) return;
     isMenuOpen = opening;
+    if (buttonElement) buttonElement.setAttribute('aria-expanded', String(isMenuOpen));
 
     if (isMenuOpen) {
+      // Remember where focus was, to put it back when the menu closes.
+      const active = document.activeElement;
+      _returnFocusTo = active && active !== document.body ? active : null;
+
       // Rebuild menu content so dynamic labels reflect current state
       _populateMenu();
       menuElement.classList.remove('sfut-menu-hidden');
       menuElement.classList.add('sfut-menu-visible');
+      _menuItems()[0]?.focus();
     } else {
+      const focusWasInMenu = menuElement.contains(document.activeElement);
       menuElement.classList.remove('sfut-menu-visible');
       menuElement.classList.add('sfut-menu-hidden');
+      if (focusWasInMenu) {
+        if (_returnFocusTo && _returnFocusTo.isConnected) _returnFocusTo.focus();
+        else document.activeElement.blur();
+      }
+      _returnFocusTo = null;
     }
+  }
+
+  /**
+   * The menu's items in order (entries, ↻ controls, then Settings).
+   * @returns {HTMLElement[]}
+   */
+  function _menuItems() {
+    if (!menuElement) return [];
+    return [...menuElement.querySelectorAll(MENU_ITEM_SELECTOR)]
+      .filter(el => !el.closest('[hidden]'));
+  }
+
+  /**
+   * Keyboard handling inside the open menu. Every key press stops here, so
+   * Flow Builder's own handlers and the canvas Shift+letter shortcuts can't
+   * act on it (for example Delete removing a selected element).
+   *
+   * @param {KeyboardEvent} e
+   */
+  function _handleMenuKeydown(e) {
+    e.stopPropagation();
+
+    // The toggle shortcut can't reach the document listener from here.
+    if (_isToggleShortcut(e)) {
+      if (_settings['keyboardShortcuts.enabled'] === false) return;
+      e.preventDefault();
+      _toggleMenu(false);
+      return;
+    }
+
+    const items = _menuItems();
+    const index = items.indexOf(document.activeElement);
+    const focusAt = (i) => items[(i + items.length) % items.length]?.focus();
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        focusAt(index + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        focusAt(index < 0 ? -1 : index - 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        focusAt(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        focusAt(-1);
+        break;
+      case 'Enter':
+      case ' ':
+        if (index >= 0) {
+          e.preventDefault();
+          items[index].click();
+        }
+        break;
+      case 'Escape':
+      case 'Tab':
+        e.preventDefault();
+        _toggleMenu(false);
+        break;
+    }
+  }
+
+  /**
+   * @param {KeyboardEvent} e
+   * @returns {boolean} Whether this is Cmd/Ctrl+Shift+U
+   */
+  function _isToggleShortcut(e) {
+    return (e.key || '').toUpperCase() === 'U' && e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey;
   }
 
   /**
@@ -504,6 +607,11 @@ const SideButton = (() => {
       });
 
       closeButton.dataset.sfutBound = 'true';
+    }
+
+    if (!menuElement.dataset.sfutKeysBound) {
+      menuElement.addEventListener('keydown', _handleMenuKeydown);
+      menuElement.dataset.sfutKeysBound = 'true';
     }
 
     const settingsLink = menuElement.querySelector('#sfut-settings-link');
@@ -544,9 +652,7 @@ const SideButton = (() => {
     // pages where the side button is present, not just the Flow Builder canvas.
     if (!document.body.dataset.sfutSideButtonKeyBound) {
       document.addEventListener('keydown', (e) => {
-        const key = (e.key || '').toUpperCase();
-        const cmdShift = e.shiftKey && (e.ctrlKey || e.metaKey) && !e.altKey;
-        if (cmdShift && key === 'U') {
+        if (_isToggleShortcut(e)) {
           // Read from the cache: preventDefault() only works before any await.
           if (_settings['keyboardShortcuts.enabled'] === false) return;
           e.preventDefault();

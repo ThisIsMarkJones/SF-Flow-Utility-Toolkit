@@ -191,3 +191,98 @@ test('Missing Description Flags: while on, the ↻ on the same row refreshes the
   refresh.click();
   assert.deepEqual(seen.map(d => ({ ...d })), [{ feature: 'missing-descriptions', action: 'refresh' }]);
 });
+
+const focusedId = (doc) => {
+  const el = doc.activeElement;
+  return el?.dataset?.feature ? `${el.dataset.feature}:${el.dataset.action}` : el?.id || el?.tagName;
+};
+
+test('the button is a real button that reports whether the menu is open', async () => {
+  const { doc, shortcut } = await setup();
+  const btn = doc.getElementById('sfut-side-button');
+  assert.equal(btn.tagName, 'BUTTON');
+  assert.equal(btn.getAttribute('aria-haspopup'), 'menu');
+  assert.equal(btn.getAttribute('aria-expanded'), 'false');
+  shortcut();
+  assert.equal(btn.getAttribute('aria-expanded'), 'true');
+  assert.equal(doc.getElementById('sfut-menu-content').getAttribute('role'), 'menu');
+});
+
+test('opening the menu focuses the first entry; arrows, Home and End move and wrap', async () => {
+  const { doc, shortcut, key } = await setup({ url: SETUP_FLOWS_URL });
+  shortcut();
+  assert.equal(focusedId(doc), 'setup-tabs:activate');
+  key('ArrowDown');
+  assert.equal(focusedId(doc), 'scheduled-flow-explorer:activate');
+  key('End');
+  assert.equal(focusedId(doc), 'sfut-settings-link');
+  key('ArrowDown');
+  assert.equal(focusedId(doc), 'setup-tabs:activate');
+  key('ArrowUp');
+  assert.equal(focusedId(doc), 'sfut-settings-link');
+  key('Home');
+  assert.equal(focusedId(doc), 'setup-tabs:activate');
+});
+
+test('Enter runs the focused entry and closes the menu', async () => {
+  const { doc, shortcut, key, menuOpen } = await setup({ url: SETUP_FLOWS_URL });
+  const seen = activations(doc);
+  shortcut();
+  key('ArrowDown');
+  key('Enter');
+  assert.deepEqual(seen.map(d => ({ ...d })), [{ feature: 'scheduled-flow-explorer', action: 'activate' }]);
+  assert.equal(menuOpen(), false);
+});
+
+test('Escape closes the menu and puts focus back where it was', async () => {
+  const { doc, shortcut, key, menuOpen } = await setup();
+  const input = doc.createElement('input');
+  doc.body.appendChild(input);
+  input.focus();
+  shortcut();
+  assert.notEqual(doc.activeElement, input);
+  key('Escape');
+  assert.equal(menuOpen(), false);
+  assert.equal(doc.activeElement, input);
+});
+
+test('Tab closes the menu', async () => {
+  const { shortcut, key, menuOpen } = await setup();
+  shortcut();
+  key('Tab');
+  assert.equal(menuOpen(), false);
+});
+
+test('the shortcut still closes the menu while focus is inside it', async () => {
+  const { shortcut, menuOpen } = await setup();
+  shortcut();
+  shortcut();
+  assert.equal(menuOpen(), false);
+});
+
+test('key presses in the menu never reach the page (Flow Builder, canvas shortcuts)', async () => {
+  const { doc, shortcut, key } = await setup();
+  let reached = 0;
+  doc.addEventListener('keydown', () => reached++);
+  shortcut();
+  reached = 0;
+  for (const k of ['Delete', 'Backspace', 'S', 'ArrowDown']) key(k, { shiftKey: k === 'S' });
+  assert.equal(reached, 0);
+});
+
+test('a rebuild while the menu is open keeps focus on the same entry', async () => {
+  const { doc, shortcut, key, SideButton } = await setup();
+  shortcut();
+  key('ArrowDown');
+  key('ArrowDown');
+  const before = focusedId(doc);
+  SideButton.refresh();
+  assert.equal(focusedId(doc), before);
+});
+
+test('Setup pages keep their original order, with Setup Tabs first', async () => {
+  const { doc, shortcut } = await setup({ url: SETUP_FLOWS_URL });
+  shortcut();
+  assert.deepEqual([...doc.querySelectorAll('.sfut-menu-item')].map(el => el.dataset.feature),
+    ['setup-tabs', 'scheduled-flow-explorer', 'flow-error-dictionary', 'flow-import-export']);
+});

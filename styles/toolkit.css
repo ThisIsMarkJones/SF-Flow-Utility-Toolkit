@@ -120,11 +120,23 @@
   z-index: 99999;
   box-shadow: var(--sfut-shadow-side-button);
   transition: width 0.2s ease, background-color 0.2s ease;
+  /* It's a <button>: clear the browser's own button styling */
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--sfut-color-on-fill);
 }
 
-.sfut-side-button:hover {
+.sfut-side-button:hover,
+.sfut-side-button:focus-visible {
   width: 42px;
   background-color: var(--sfut-color-brand-active);
+}
+
+.sfut-side-button:focus-visible {
+  outline: var(--sfut-border-width-2) solid var(--sfut-color-brand-text);
+  outline-offset: 2px;
 }
 
 .sfut-side-button-icon {
@@ -183,6 +195,9 @@
 }
 
 .sfut-menu-close {
+  background: none;
+  border: none;
+  font-family: inherit;
   cursor: pointer;
   font-size: var(--sfut-font-size-2xl);
   color: var(--sfut-color-text-muted);
@@ -240,8 +255,19 @@
   transition: background-color 0.15s ease;
 }
 
-.sfut-menu-item:hover {
+.sfut-menu-item:hover,
+.sfut-menu-item:focus {
   background-color: var(--sfut-color-background);
+  outline: none;
+}
+
+/* Keyboard focus: a visible ring on menu items, ↻, Settings and close */
+.sfut-menu-item:focus-visible,
+.sfut-menu-item-refresh:focus-visible,
+.sfut-menu-settings-link:focus-visible,
+.sfut-menu-close:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--sfut-color-brand-text);
 }
 
 .sfut-menu-item-icon {
@@ -301,7 +327,12 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.sfut-menu-item-refresh:hover {
+.sfut-menu-item-refresh:focus {
+  outline: none;
+}
+
+.sfut-menu-item-refresh:hover,
+.sfut-menu-item-refresh:focus {
   background-color: var(--sfut-color-background);
   color: var(--sfut-color-text);
 }
