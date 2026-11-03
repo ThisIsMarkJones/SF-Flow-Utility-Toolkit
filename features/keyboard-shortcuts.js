@@ -64,6 +64,15 @@ const KeyboardShortcuts = (() => {
     { key: 'Y', selector: 'button[title="Redo"]',            label: 'Redo',            disabledMessage: 'Nothing to redo.' },
   ];
 
+  /** Keys handled by the special cases in _handleKeyDown's switch. */
+  const SPECIAL_KEYS = ['E', 'V', 'F', 'W', 'T', 'H'];
+
+  /**
+   * Every Shift+key the toolkit handles. Anything else (Shift+Tab, Shift+arrows,
+   * Shift+other letters) is left to the browser and Flow Builder.
+   */
+  const MAPPED_KEYS = new Set([...SPECIAL_KEYS, ...CANVAS_SHORTCUTS.map(s => s.key)]);
+
   // ─── State ────────────────────────────────────────────────────────────────
   const ERRORS_PANEL_BUTTON_SELECTOR = 'button[title="Show errors panel"]';
 
@@ -106,12 +115,13 @@ const KeyboardShortcuts = (() => {
     // Never fire shortcuts when the user is typing in an input field.
     if (_isTypingTarget(e.target)) return;
 
-    const key = e.key.toUpperCase();
+    const key = (e.key || '').toUpperCase();
     const shiftOnly = e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey;
 
     // ── Canvas shortcuts: Shift+Letter ──
     if (!_isFlowBuilderContext) return;
     if (!shiftOnly) return;
+    if (!MAPPED_KEYS.has(key)) return;
 
     e.preventDefault();
 

@@ -73,6 +73,11 @@ const SFFlowUtilityToolkit = (() => {
   }
 
   async function _initForContext(context) {
+    // Theme first, so no toolkit UI appears in the wrong colours. Idempotent.
+    if (typeof ThemeManager !== 'undefined') {
+      await ThemeManager.init();
+    }
+
     if (!_sideButtonInitialised) {
       SideButton.init();
       _sideButtonInitialised = true;
@@ -176,6 +181,10 @@ const SFFlowUtilityToolkit = (() => {
       console.log('[SFUT] URL changed (SPA):', currentUrl);
 
       _initialisedFeatures.clear();
+
+      if (typeof ThemeManager !== 'undefined') {
+        ThemeManager.refresh();
+      }
 
       await _initForCurrentPageWithRetry();
     }, 500);

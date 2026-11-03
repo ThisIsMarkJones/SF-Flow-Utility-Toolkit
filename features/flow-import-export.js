@@ -44,7 +44,8 @@
 const FlowImportExport = (() => {
   let _enabled = true;
 
-  const API_VERSION_NUMERIC = '67.0';
+  // Explicit End elements (<ends>) exist from Winter '27; older orgs reject them.
+  const END_ELEMENTS_MIN_API_VERSION = 68;
   const POLL_INTERVAL_MS = 2000;
   const POLL_MAX_ATTEMPTS = 150; // 5 minutes at 2s
 
@@ -716,8 +717,18 @@ const FlowImportExport = (() => {
       await _ensureJsZipLoaded();
 
       const statusToSet = imp.activate ? 'Active' : 'Draft';
-      const deployXml = _setFlowStatus(imp.xmlText, statusToSet);
-      const packageXml = FlowXmlConverter.buildFlowPackageXml(imp.developerName, API_VERSION_NUMERIC);
+      let orgMaxApiVersion = null;
+      try {
+        orgMaxApiVersion = await SalesforceAPI.getOrgMaxApiVersion();
+      } catch (err) {
+        console.warn('[SFUT FlowImportExport] Could not read the org\'s API versions; assuming current:', err?.message || err);
+      }
+      const { deployXml, packageVersion, removedEnds } =
+        _prepareDeployPayload(imp.xmlText, statusToSet, orgMaxApiVersion);
+      if (removedEnds > 0) {
+        console.log(`[SFUT FlowImportExport] Target org is on API ${orgMaxApiVersion}; removed ${removedEnds} End element(s) and their connectors.`);
+      }
+      const packageXml = FlowXmlConverter.buildFlowPackageXml(imp.developerName, packageVersion);
 
       const zip = new JSZip();
       zip.file('package.xml', packageXml);
@@ -802,6 +813,48 @@ const FlowImportExport = (() => {
   function _readFlowStatus(doc) {
     const statusEl = Array.from(doc.documentElement.children).find((c) => c.localName === 'status');
     return statusEl ? (statusEl.textContent || '').trim() : null;
+  }
+
+  /**
+   * Builds the flow XML and package version to deploy. If the target org is on
+   * a release older than Winter '27 (API 68.0), explicit End elements and the
+   * connectors that point at them are removed, and the package version is
+   * capped at the org's highest version.
+   *
+   * Throws if the flow has a fault path that goes straight to an End: before
+   * API 68.0 a connector must have a target, so that path can't be expressed
+   * and dropping it would turn a handled error into an unhandled one.
+   *
+   * @param {string} xmlText - Imported flow XML.
+   * @param {string} status - 'Active' or 'Draft'.
+   * @param {number|null} orgMaxApiVersion - From SalesforceAPI.getOrgMaxApiVersion(); null if unknown.
+   * @returns {{deployXml: string, packageVersion: string, removedEnds: number, removedConnectors: number}}
+   */
+  function _prepareDeployPayload(xmlText, status, orgMaxApiVersion) {
+    let deployXml = _setFlowStatus(xmlText, status);
+    // Same rule as the REST endpoints: the toolkit's version, capped at the org's.
+    const packageVersion = SalesforceAPI.selectApiVersion(orgMaxApiVersion).toFixed(1);
+    let removedEnds = 0;
+    let removedConnectors = 0;
+
+    if (orgMaxApiVersion && orgMaxApiVersion < END_ELEMENTS_MIN_API_VERSION) {
+      const stripped = FlowDeployDiff.stripEndElements(deployXml);
+      if (stripped.faultPathsToEnd.length > 0) {
+        throw new Error(
+          `This flow can't be imported into this org, which is on API ${orgMaxApiVersion} ` +
+          `(before Winter '27). These elements have a fault path that ends without any ` +
+          `further element, which this release can't represent: ` +
+          `${stripped.faultPathsToEnd.join(', ')}. ` +
+          `Add an element to each of those fault paths in the source flow and export it ` +
+          `again, or import into an org on Winter '27 or later.`
+        );
+      }
+      deployXml = stripped.xml;
+      removedEnds = stripped.ends;
+      removedConnectors = stripped.connectors;
+    }
+
+    return { deployXml, packageVersion, removedEnds, removedConnectors };
   }
 
   /**
@@ -901,7 +954,8 @@ const FlowImportExport = (() => {
   return {
     init,
     onActivate,
-    isEnabled
+    isEnabled,
+    _prepareDeployPayload // exposed for testing
   };
 
 })();

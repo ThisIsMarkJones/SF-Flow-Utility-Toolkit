@@ -14,6 +14,9 @@
 (function () {
 
   const DEFAULTS = {
+    // Appearance
+    'theme.mode': 'auto',
+
     // Feature toggles — default off (user must enable)
     'setupTabs.enabled': false,
     'setupTabs.automationHome.enabled': false,
@@ -179,6 +182,7 @@
       // Populate selects
       _setSelect('setting-namingPattern', settings['apiNameGenerator.namingPattern']);
       _setSelect('setting-scheduledFlowExplorerDefaultView', settings['scheduledFlowExplorer.defaultView']);
+      _setSelect('setting-themeMode', settings['theme.mode']);
     });
   }
 
@@ -1921,6 +1925,38 @@
         : '<kbd class="sfut-kbd">Ctrl</kbd> + <kbd class="sfut-kbd">Shift</kbd> + <kbd class="sfut-kbd">S</kbd>';
     }
   }
+
+  // ===== Theme =====
+
+  /**
+   * Applies the Theme setting to this page. This is an extension page, not a
+   * Salesforce one, so Auto follows the system setting (prefers-color-scheme)
+   * rather than a page background. Applied once straight away as Auto, to
+   * avoid a flash in the common case, then corrected from storage.
+   */
+  function initTheme() {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    let mode = DEFAULTS['theme.mode'];
+
+    const apply = () => {
+      const theme = mode === 'light' || mode === 'dark' ? mode : (media.matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-sfut-theme', theme);
+    };
+
+    apply();
+    chrome.storage.sync.get('theme.mode', (result) => {
+      mode = result['theme.mode'] || DEFAULTS['theme.mode'];
+      apply();
+    });
+    media.addEventListener('change', apply);
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      if (namespace !== 'sync' || !changes['theme.mode']) return;
+      mode = changes['theme.mode'].newValue || DEFAULTS['theme.mode'];
+      apply();
+    });
+  }
+
+  initTheme();
 
   // ===== Initialise =====
 

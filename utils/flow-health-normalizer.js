@@ -346,7 +346,8 @@ const FlowHealthNormalizer = (() => {
         timing: _detectTriggerTiming(metadata),
         event: _detectTriggerEvent(metadata),
         entryCriteriaSummary: _buildEntryCriteriaSummary(metadata),
-        runContext: _detectRunContext(metadata)
+        runContext: _detectRunContext(metadata),
+        runInMode: metadata.runInMode || metadata.start?.flowRunAsUser || null
       },
       nodes: normalizedNodes,
       edges,
@@ -394,9 +395,22 @@ const FlowHealthNormalizer = (() => {
     return 'Unknown';
   }
 
+  // Flow Builder's "How to Run the Flow" labels for each runInMode value.
+  const RUN_CONTEXT_LABELS = {
+    DefaultMode: 'User or System Context\u2014Depends on How Flow is Launched',
+    SystemModeWithSharing: 'System Context with Sharing\u2014Enforces Record-Level Access',
+    SystemModeWithoutSharing: 'System Context Without Sharing\u2014Access All Data',
+    UserMode: 'User Context\u2014Enforces User Permissions' // Winter '27 (API 68.0)
+  };
+
+  /**
+   * Returns a readable run context label. Unrecognised values are returned
+   * as-is; the raw value is also kept on trigger.runInMode.
+   */
   function _detectRunContext(metadata) {
     const mode = metadata.runInMode || metadata.start?.flowRunAsUser || null;
-    return mode || 'Unknown';
+    if (!mode) return 'Unknown';
+    return RUN_CONTEXT_LABELS[mode] || mode;
   }
 
   function _buildEntryCriteriaSummary(metadata) {

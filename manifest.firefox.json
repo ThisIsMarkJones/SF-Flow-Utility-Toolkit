@@ -2,7 +2,7 @@
   "_comment": "Firefox build manifest. Used by the ZIP job — rename to manifest.json when packaging for Firefox Add-ons (AMO). Do not use manifest.json for builds.",
   "manifest_version": 3,
   "name": "SF Flow Utility Toolkit",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "A comprehensive toolkit for Salesforce Flow Builder — search, analyse, generate, and manage Flows with ease.",
   "permissions": [
     "storage",
@@ -32,6 +32,7 @@
       "js": [
         "utils/context-detector.js",
         "utils/settings-manager.js",
+        "utils/theme-manager.js",
         "utils/salesforce-api.js",
         "utils/flow-metadata-cleaner.js",
         "utils/flow-health-normalizer.js",
@@ -75,6 +76,7 @@
         "features/autosave.js"
       ],
       "css": [
+        "styles/tokens.css",
         "styles/toolkit.css"
       ],
       "run_at": "document_idle",

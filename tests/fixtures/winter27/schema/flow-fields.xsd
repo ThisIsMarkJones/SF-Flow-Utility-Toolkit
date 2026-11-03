@@ -1,0 +1,8 @@
+<!-- Extracted from the Salesforce Metadata API WSDL (API 68.0, Winter '27), org sfut-w27, 2026-09-24.
+     Contents: Flow (excerpt: new and related top-level fields only).
+     Types referenced but not expanded here (unchanged, pre-existing): FlowConnector, FlowElementReferenceOrValue, FlowMetadataValue. -->
+<xsd:element name="apiVersion" minOccurs="0" type="xsd:double" nillable="true"/>
+<xsd:element name="collectionFilterCriteria" minOccurs="0" maxOccurs="unbounded" type="tns:FlowCollectionFilterCriteria"/>
+<xsd:element name="ends" minOccurs="0" maxOccurs="unbounded" type="tns:FlowEnd"/>
+<xsd:element name="groups" minOccurs="0" maxOccurs="unbounded" type="tns:FlowNodeGroup"/>
+<xsd:element name="runInMode" minOccurs="0" type="tns:FlowRunInMode"/>

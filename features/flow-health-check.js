@@ -11,7 +11,7 @@ const FlowHealthCheck = (() => {
 
   const DEFAULT_CONFIG = {
     outdatedApiVersionThreshold: 3,
-    currentApiVersion: 67,
+    currentApiVersion: Number(SalesforceAPI.API_VERSION.replace(/^v/, '')),
     highDataOperationThreshold: 8,
     namingConventions: {
       variable: /^var[A-Z].*/,
@@ -112,6 +112,11 @@ const FlowHealthCheck = (() => {
     } catch (error) {
       console.warn('[SFUT] Failed to build naming configuration for Health Check. Falling back to defaults.', error);
     }
+
+    // Judge "outdated" against the version this org actually supports, so a
+    // flow in an org still on an older release isn't flagged against 68.
+    // (Never throws: falls back to SalesforceAPI.API_VERSION.)
+    config.currentApiVersion = await SalesforceAPI.getApiVersionNumber();
 
     return config;
   }

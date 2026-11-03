@@ -42,7 +42,7 @@
 
 const UnusedResourcesAnalyser = (() => {
 
-  // The seven resource types in display order.
+  // The resource types in display order.
   // metadataKey is the raw Tooling API field name on the flow Metadata object.
   const RESOURCE_TYPES = [
     { metadataKey: 'variables',         displayType: 'Variable',      displayPlural: 'Variables' },
@@ -51,7 +51,9 @@ const UnusedResourcesAnalyser = (() => {
     { metadataKey: 'textTemplates',     displayType: 'Text Template', displayPlural: 'Text Templates' },
     { metadataKey: 'choices',           displayType: 'Choice',        displayPlural: 'Choices' },
     { metadataKey: 'dynamicChoiceSets', displayType: 'Choice Set',    displayPlural: 'Choice Sets' },
-    { metadataKey: 'stages',            displayType: 'Stage',         displayPlural: 'Stages' }
+    { metadataKey: 'stages',            displayType: 'Stage',         displayPlural: 'Stages' },
+    // Winter '27 (API 68.0) resource, not the Collection Filter element (collectionProcessors).
+    { metadataKey: 'collectionFilterCriteria', displayType: 'Collection Filter Criteria', displayPlural: 'Collection Filter Criteria' }
   ];
 
   // Matches {!Identifier or {!Identifier.path... — captures only the root identifier.
@@ -175,6 +177,11 @@ const UnusedResourcesAnalyser = (() => {
 
         // Single reference fields: keys ending in 'Reference'.
         if (typeof value === 'string' && key.endsWith('Reference')) {
+          recordReference(value);
+        }
+        // Collection Filter Criteria name their source collection in
+        // objectReferencePath (e.g. 'Get_Accounts' or 'varAccounts').
+        else if (typeof value === 'string' && key === 'objectReferencePath') {
           recordReference(value);
         }
         // Array reference fields: keys ending in 'References'.

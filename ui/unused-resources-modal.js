@@ -72,7 +72,7 @@ const UnusedResourcesModal = (() => {
           <div class="sfut-unused-empty-message">
             This Flow doesn't have any user-authored resources in scope
             (Variables, Constants, Formulas, Text Templates, Choices,
-            Choice Sets, or Stages).
+            Choice Sets, Stages, or Collection Filter Criteria).
           </div>
         </div>
       `;
