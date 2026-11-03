@@ -14,7 +14,7 @@ All canvas shortcuts use **Shift + Letter** and are scoped to Flow Builder only.
 
 ## Where it appears
 
-Keyboard Shortcuts are active in **Salesforce Flow Builder**. The global sidebar shortcut is active on all pages where the toolkit side button is present.
+Keyboard Shortcuts are active in **Salesforce Flow Builder**. The global menu shortcut works on every Salesforce page where the toolkit has tools, including when the side button is hidden.
 
 ## Canvas shortcuts
 
@@ -39,7 +39,13 @@ Keyboard Shortcuts are active in **Salesforce Flow Builder**. The global sidebar
 
 | Shortcut | Action |
 |----------|--------|
-| Cmd + Shift + U (Mac) / Ctrl + Shift + U (Windows) | Open Utility Sidebar |
+| Cmd + Shift + U (Mac) / Ctrl + Shift + U (Windows) | Open or close the toolkit menu |
+
+This shortcut is registered with the browser, so it works wherever focus is on the page, including inside Setup pages' frames. You can change it in your browser's extension shortcut settings: `chrome://extensions/shortcuts` in Chrome, `edge://extensions/shortcuts` in Edge, or **Manage Extension Shortcuts** in Firefox's Add-ons Manager.
+
+The toolkit's icon in the browser toolbar also opens and closes the menu (pin it from the browser's extensions menu). On pages where the toolkit has no tools, the toolbar icon opens Settings instead.
+
+In the menu, use the arrow keys to move between tools, **Enter** to run one, and **Escape** to close it. In Flow Builder, start typing to filter the list.
 
 ## Native Salesforce shortcut (no implementation required)
 

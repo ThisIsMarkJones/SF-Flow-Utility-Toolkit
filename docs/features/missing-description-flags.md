@@ -40,7 +40,7 @@ Canvas elements (Action, Assignment, Decision, Loop, Get/Create/Update/Delete Re
 
 ## Activation and refresh behaviour
 
-The feature can be toggled between **Show Missing Description Flags** and **Hide Missing Description Flags** from the side button menu. A manual refresh action re-fetches metadata and rebuilds flags — useful after adding descriptions without reloading the page.
+Turn the flags on and off with the **Missing Description Flags** switch in the side button menu. While the flags are on, the **↻** button on the same row re-fetches the metadata and rebuilds the flags — useful after adding descriptions without reloading the page.
 
 ![Missing Description Flags Hide/Show/Refresh Side Bar Items](https://thisismarkjones.github.io/SF-Flow-Utility-Toolkit/images/missing-description-flags/missing-description-flags-hide-refresh-side-bar-items.png)
 
