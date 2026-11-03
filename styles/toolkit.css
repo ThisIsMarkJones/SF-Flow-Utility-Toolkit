@@ -174,7 +174,7 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 280px;
+  width: 304px;
   max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
@@ -394,7 +394,7 @@
   justify-content: center;
   flex-shrink: 0;
   width: 40px;
-  font-size: var(--sfut-font-size-xl);
+  font-size: var(--sfut-font-size-2xl);
   color: var(--sfut-color-text-muted);
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
