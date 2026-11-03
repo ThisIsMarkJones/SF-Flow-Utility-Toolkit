@@ -181,6 +181,17 @@ const SideButton = (() => {
     `;
     menuElement.appendChild(header);
 
+    // Filter box: shown on menus with more than GROUP_HEADER_THRESHOLD entries
+    const filter = document.createElement('div');
+    filter.className = 'sfut-menu-filter';
+    filter.hidden = true;
+    filter.innerHTML = `
+      <input type="search" class="sfut-menu-filter-input" id="sfut-menu-filter-input"
+             placeholder="Filter tools" aria-label="Filter tools" aria-controls="sfut-menu-content"
+             autocomplete="off" spellcheck="false">
+    `;
+    menuElement.appendChild(filter);
+
     // Menu content container
     const content = document.createElement('div');
     content.id = 'sfut-menu-content';
@@ -188,6 +199,13 @@ const SideButton = (() => {
     content.setAttribute('role', 'menu');
     content.setAttribute('aria-labelledby', 'sfut-menu-title');
     menuElement.appendChild(content);
+
+    const noMatch = document.createElement('div');
+    noMatch.className = 'sfut-menu-empty sfut-menu-no-match';
+    noMatch.setAttribute('role', 'status');
+    noMatch.hidden = true;
+    noMatch.textContent = 'No matching tools';
+    menuElement.appendChild(noMatch);
 
     // Settings link (always present)
     const footer = document.createElement('div');
@@ -243,7 +261,34 @@ const SideButton = (() => {
       groupItems.forEach(item => content.appendChild(_buildMenuRow(item, group)));
     }
 
+    _filterWrap().hidden = menuItems.length <= GROUP_HEADER_THRESHOLD;
+    _applyFilter();
+
     if (refocus) content.querySelector(refocus)?.focus();
+  }
+
+  function _filterWrap() {
+    return menuElement.querySelector('.sfut-menu-filter');
+  }
+
+  function _filterInput() {
+    return menuElement.querySelector('.sfut-menu-filter-input');
+  }
+
+  /**
+   * Hides the rows that don't match the filter text (by entry label or group
+   * name), and any group header left with no rows.
+   */
+  function _applyFilter() {
+    const input = _filterInput();
+    const query = !_filterWrap().hidden && input ? input.value.trim().toLowerCase() : '';
+    const rows = [...menuElement.querySelectorAll('.sfut-menu-row')];
+
+    rows.forEach(row => { row.hidden = !!query && !row.dataset.filterText.includes(query); });
+    menuElement.querySelectorAll('.sfut-menu-group-label').forEach(label => {
+      label.hidden = !rows.some(row => !row.hidden && row.dataset.group === label.dataset.group);
+    });
+    menuElement.querySelector('.sfut-menu-no-match').hidden = !query || rows.some(row => !row.hidden);
   }
 
   /**
@@ -496,10 +541,12 @@ const SideButton = (() => {
       _returnFocusTo = active && active !== document.body ? active : null;
 
       // Rebuild menu content so dynamic labels reflect current state
+      _filterInput().value = '';
       _populateMenu();
       menuElement.classList.remove('sfut-menu-hidden');
       menuElement.classList.add('sfut-menu-visible');
-      _menuItems()[0]?.focus();
+      if (!_filterWrap().hidden) _filterInput().focus();
+      else _menuItems()[0]?.focus();
     } else {
       const focusWasInMenu = menuElement.contains(document.activeElement);
       menuElement.classList.remove('sfut-menu-visible');
@@ -543,6 +590,29 @@ const SideButton = (() => {
     const items = _menuItems();
     const index = items.indexOf(document.activeElement);
     const focusAt = (i) => items[(i + items.length) % items.length]?.focus();
+    const input = _filterInput();
+
+    if (e.target === input) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusAt(0);
+      } else if (e.key === 'Enter') {
+        // Runs the first matching entry (not the Settings link).
+        e.preventDefault();
+        menuElement.querySelector('.sfut-menu-row:not([hidden]) .sfut-menu-item')?.click();
+      } else if (e.key === 'Escape' || e.key === 'Tab') {
+        e.preventDefault();
+        _toggleMenu(false);
+      }
+      return; // other keys type into the box
+    }
+
+    // Typing a letter on an entry goes to the filter box.
+    const printable = e.key.length === 1 && e.key !== ' ' && !e.ctrlKey && !e.metaKey && !e.altKey;
+    if (printable && !_filterWrap().hidden) {
+      input.focus();
+      return;
+    }
 
     switch (e.key) {
       case 'ArrowDown':
@@ -611,6 +681,7 @@ const SideButton = (() => {
 
     if (!menuElement.dataset.sfutKeysBound) {
       menuElement.addEventListener('keydown', _handleMenuKeydown);
+      _filterInput().addEventListener('input', _applyFilter);
       menuElement.dataset.sfutKeysBound = 'true';
     }
 

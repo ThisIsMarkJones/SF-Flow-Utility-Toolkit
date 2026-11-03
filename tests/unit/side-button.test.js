@@ -286,3 +286,94 @@ test('Setup pages keep their original order, with Setup Tabs first', async () =>
   assert.deepEqual([...doc.querySelectorAll('.sfut-menu-item')].map(el => el.dataset.feature),
     ['setup-tabs', 'scheduled-flow-explorer', 'flow-error-dictionary', 'flow-import-export']);
 });
+
+const visibleFeatures = (doc) => [...doc.querySelectorAll('.sfut-menu-row')].filter(r => !r.hidden)
+  .map(r => r.querySelector('.sfut-menu-item').dataset.feature);
+const visibleHeaders = (doc) => [...doc.querySelectorAll('.sfut-menu-group-label')].filter(h => !h.hidden).map(h => h.textContent);
+const typeFilter = (doc, env, text) => {
+  const input = doc.querySelector('.sfut-menu-filter-input');
+  input.value = text;
+  input.dispatchEvent(new env.window.Event('input', { bubbles: true }));
+};
+
+test('Flow Builder shows a filter box, focused when the menu opens', async () => {
+  const { doc, shortcut } = await setup();
+  shortcut();
+  const input = doc.querySelector('.sfut-menu-filter-input');
+  assert.equal(input.closest('.sfut-menu-filter').hidden, false);
+  assert.equal(doc.activeElement, input);
+});
+
+test('Setup pages have no filter box', async () => {
+  const { doc, shortcut } = await setup({ url: SETUP_FLOWS_URL });
+  shortcut();
+  assert.equal(doc.querySelector('.sfut-menu-filter').hidden, true);
+  assert.equal(focusedId(doc), 'setup-tabs:activate');
+});
+
+test('the filter matches entry labels and hides empty groups', async () => {
+  const { doc, env, shortcut } = await setup();
+  shortcut();
+  typeFilter(doc, env, 'unused');
+  assert.deepEqual(visibleFeatures(doc), ['unused-resources']);
+  assert.deepEqual(visibleHeaders(doc), ['Analyse']);
+});
+
+test('the filter matches group names', async () => {
+  const { doc, env, shortcut } = await setup();
+  shortcut();
+  typeFilter(doc, env, 'canvas');
+  assert.deepEqual(visibleFeatures(doc), ['canvas-search', 'missing-descriptions']);
+});
+
+test('no match shows a message; clearing the filter shows everything again', async () => {
+  const { doc, env, shortcut } = await setup();
+  shortcut();
+  typeFilter(doc, env, 'zzz');
+  assert.deepEqual(visibleFeatures(doc), []);
+  assert.equal(doc.querySelector('.sfut-menu-no-match').hidden, false);
+  typeFilter(doc, env, '');
+  assert.equal(visibleFeatures(doc).length, 6);
+  assert.equal(doc.querySelector('.sfut-menu-no-match').hidden, true);
+});
+
+test('Enter in the filter runs the first match; Down moves into the list', async () => {
+  const { doc, env, shortcut, key } = await setup();
+  const seen = activations(doc);
+  shortcut();
+  typeFilter(doc, env, 'health');
+  key('ArrowDown');
+  assert.equal(focusedId(doc), 'flow-health-check:activate');
+  doc.querySelector('.sfut-menu-filter-input').focus();
+  key('Enter');
+  assert.deepEqual(seen.map(d => ({ ...d })), [{ feature: 'flow-health-check', action: 'activate' }]);
+});
+
+test('arrow keys skip filtered-out entries', async () => {
+  const { doc, env, shortcut, key } = await setup();
+  shortcut();
+  typeFilter(doc, env, 'resources');
+  key('ArrowDown');
+  assert.equal(focusedId(doc), 'unused-resources:activate');
+  key('ArrowDown');
+  assert.equal(focusedId(doc), 'sfut-settings-link');
+});
+
+test('typing a letter on an entry moves focus to the filter box', async () => {
+  const { doc, shortcut, key } = await setup();
+  shortcut();
+  key('ArrowDown');
+  assert.notEqual(doc.activeElement, doc.querySelector('.sfut-menu-filter-input'));
+  key('h');
+  assert.equal(doc.activeElement, doc.querySelector('.sfut-menu-filter-input'));
+});
+
+test('the filter is cleared each time the menu opens', async () => {
+  const { doc, env, shortcut } = await setup();
+  shortcut();
+  typeFilter(doc, env, 'health');
+  shortcut();
+  shortcut();
+  assert.equal(doc.querySelector('.sfut-menu-filter-input').value, '');
+  assert.equal(visibleFeatures(doc).length, 6);
+});

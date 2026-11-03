@@ -237,6 +237,40 @@
   align-items: stretch;
 }
 
+/* Filter box (menus with more than five entries) */
+.sfut-menu-filter {
+  padding: var(--sfut-space-8) var(--sfut-space-12) 0;
+}
+
+.sfut-menu-filter[hidden],
+.sfut-menu-row[hidden],
+.sfut-menu-group-label[hidden],
+.sfut-menu-no-match[hidden] {
+  display: none;
+}
+
+.sfut-menu-filter-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--sfut-space-6) var(--sfut-space-10);
+  border: var(--sfut-border-width-1) solid var(--sfut-color-border-strong);
+  border-radius: var(--sfut-radius-4);
+  background-color: var(--sfut-color-surface);
+  color: var(--sfut-color-text);
+  font: inherit;
+  font-size: var(--sfut-font-size-base);
+}
+
+.sfut-menu-filter-input::placeholder {
+  color: var(--sfut-color-text-muted);
+}
+
+.sfut-menu-filter-input:focus {
+  outline: none;
+  border-color: var(--sfut-color-brand);
+  box-shadow: var(--sfut-shadow-focus-ring);
+}
+
 .sfut-menu-empty {
   padding: var(--sfut-space-16);
   text-align: center;
