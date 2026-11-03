@@ -9,10 +9,10 @@
  * Update:
  * - Avoids "Uncaught (in promise) ... message channel closed" by always providing
  *   a callback to chrome.runtime.sendMessage for openSettings.
- * - Restores the previous Missing Descriptions behaviour:
- *   - "Show Missing Description Flags" when flags are not active
- *   - "Hide Missing Description Flags" when flags are active
- *   - "Refresh Missing Descriptions" action when available
+ * - Groups entries (Canvas, Analyse, Assist, Move) with headers on pages with
+ *   more than five entries. Toggles (Missing Description Flags, Setup Tabs)
+ *   are one row with a switch; while the flags are on, a ↻ on that row
+ *   refreshes them.
  * - Removes API Name Generator from the side button menu.
  * - Prevents the side button from rendering inside iframes / VF frames.
  * - Adds a "Run Health Check" menu item for Flow Builder.
@@ -209,20 +209,78 @@ const SideButton = (() => {
       return;
     }
 
-    menuItems.forEach((item) => {
-      const menuItem = document.createElement('div');
-      menuItem.className = 'sfut-menu-item';
-      menuItem.dataset.feature = item.id;
-      menuItem.dataset.action = item.action || 'activate';
-      menuItem.innerHTML = `
-        <span class="sfut-menu-item-icon">${item.icon}</span>
-        <span class="sfut-menu-item-label">${item.label}</span>
-      `;
-      menuItem.addEventListener('click', () => {
-        _handleMenuItemClick(item);
-      });
-      content.appendChild(menuItem);
-    });
+    const showHeaders = menuItems.length > GROUP_HEADER_THRESHOLD;
+
+    for (const group of GROUPS) {
+      const groupItems = menuItems.filter(item => item.group === group.id);
+      if (!groupItems.length) continue;
+
+      if (showHeaders) {
+        const header = document.createElement('div');
+        header.className = 'sfut-menu-group-label';
+        header.setAttribute('role', 'presentation');
+        header.dataset.group = group.id;
+        header.textContent = group.label;
+        content.appendChild(header);
+      }
+
+      groupItems.forEach(item => content.appendChild(_buildMenuRow(item, group)));
+    }
+  }
+
+  /**
+   * Builds one menu row. Actions are a single item; toggles show their state
+   * as a switch, and Missing Descriptions adds a ↻ (refresh) control beside
+   * it while the flags are on, in place of a separate Refresh entry.
+   *
+   * @param {Object} item - Entry from _getMenuItemsForFeatures
+   * @param {{id: string, label: string}} group
+   * @returns {HTMLElement}
+   */
+  function _buildMenuRow(item, group) {
+    const row = document.createElement('div');
+    row.className = 'sfut-menu-row';
+    row.setAttribute('role', 'none');
+    row.dataset.group = group.id;
+    row.dataset.filterText = `${item.label} ${group.label}`.toLowerCase();
+
+    const menuItem = document.createElement('div');
+    menuItem.className = 'sfut-menu-item';
+    menuItem.dataset.feature = item.id;
+    menuItem.dataset.action = 'activate';
+    menuItem.tabIndex = -1;
+    menuItem.innerHTML = `
+      <span class="sfut-menu-item-icon" aria-hidden="true">${item.icon}</span>
+      <span class="sfut-menu-item-label">${item.label}</span>
+    `;
+
+    if (item.type === 'toggle') {
+      menuItem.classList.add('sfut-menu-item--toggle');
+      menuItem.setAttribute('role', 'menuitemcheckbox');
+      menuItem.setAttribute('aria-checked', String(!!item.checked));
+      menuItem.insertAdjacentHTML('beforeend', '<span class="sfut-menu-switch" aria-hidden="true"></span>');
+    } else {
+      menuItem.setAttribute('role', 'menuitem');
+    }
+
+    menuItem.addEventListener('click', () => _handleMenuItemClick(item));
+    row.appendChild(menuItem);
+
+    if (item.refreshable) {
+      const refreshBtn = document.createElement('div');
+      refreshBtn.className = 'sfut-menu-item-refresh';
+      refreshBtn.setAttribute('role', 'menuitem');
+      refreshBtn.setAttribute('aria-label', 'Refresh Missing Descriptions');
+      refreshBtn.title = 'Refresh Missing Descriptions';
+      refreshBtn.tabIndex = -1;
+      refreshBtn.dataset.feature = item.id;
+      refreshBtn.dataset.action = 'refresh';
+      refreshBtn.textContent = '↻';
+      refreshBtn.addEventListener('click', () => _handleMenuItemClick({ id: item.id, action: 'refresh' }));
+      row.appendChild(refreshBtn);
+    }
+
+    return row;
   }
 
   /**
@@ -291,9 +349,8 @@ const SideButton = (() => {
         group: 'setup',
         type: 'toggle',
         icon: '📑',
-        label: _areSetupTabsVisible()
-          ? 'Hide Setup Tabs'
-          : 'Show Setup Tabs'
+        label: 'Setup Tabs',
+        checked: _areSetupTabsVisible()
       },
       'canvas-search': {
         id: 'canvas-search',
@@ -307,9 +364,9 @@ const SideButton = (() => {
         group: 'canvas',
         type: 'toggle',
         icon: '⚠️',
-        label: _areMissingDescriptionFlagsActive()
-          ? 'Hide Missing Description Flags'
-          : 'Show Missing Description Flags'
+        label: 'Missing Description Flags',
+        checked: _areMissingDescriptionFlagsActive(),
+        refreshable: _areMissingDescriptionFlagsActive()
       },
       'ai-assistant': {
         id: 'ai-assistant',
@@ -382,17 +439,6 @@ const SideButton = (() => {
       .filter((f) => _isFeatureEnabled(f))
       .map((f) => featureMap[f])
       .filter(Boolean);
-
-    if (features.includes('missing-descriptions') && _areMissingDescriptionFlagsActive()) {
-      items.push({
-        id: 'missing-descriptions',
-        group: 'canvas',
-        type: 'action',
-        action: 'refresh',
-        icon: '🔄',
-        label: 'Refresh Missing Descriptions'
-      });
-    }
 
     return items;
   }

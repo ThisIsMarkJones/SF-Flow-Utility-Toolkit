@@ -52,6 +52,7 @@ function loadModules(files, options = {}) {
       KeyboardEvent: w.KeyboardEvent,
       MouseEvent: w.MouseEvent,
       Event: w.Event,
+      CustomEvent: w.CustomEvent,
       MutationObserver: w.MutationObserver,
       location: w.location,
       navigator: w.navigator,

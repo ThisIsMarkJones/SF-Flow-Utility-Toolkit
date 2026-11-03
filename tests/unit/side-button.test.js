@@ -125,3 +125,69 @@ test('Search & Highlight and Find Unused Resources have distinct icons', async (
   assert.ok(labels.some(l => l.startsWith('🔎') && l.includes('Search & Highlight')));
   assert.ok(labels.some(l => l.startsWith('🧹') && l.includes('Find Unused Resources')));
 });
+
+const headers = (doc) => [...doc.querySelectorAll('.sfut-menu-group-label')].map(el => el.textContent);
+const activations = (doc) => {
+  const seen = [];
+  doc.addEventListener('sfut-feature-activate', e => seen.push(e.detail));
+  return seen;
+};
+
+test('Flow Builder groups its entries under Canvas, Analyse, Assist and Move', async () => {
+  const { doc, shortcut } = await setup();
+  shortcut();
+  assert.deepEqual(headers(doc), ['Canvas', 'Analyse', 'Assist', 'Move']);
+  const order = [...doc.querySelectorAll('.sfut-menu-group-label, .sfut-menu-item')].map(el =>
+    el.classList.contains('sfut-menu-group-label') ? `# ${el.textContent}` : el.dataset.feature);
+  assert.deepEqual(order, [
+    '# Canvas', 'canvas-search', 'missing-descriptions',
+    '# Analyse', 'flow-health-check', 'unused-resources',
+    '# Assist', 'ai-assistant',
+    '# Move', 'flow-import-export'
+  ]);
+});
+
+test('Error Explorer joins Analyse only in a fault-debug session', async () => {
+  const { doc, shortcut } = await setup({ url: `${FLOW_BUILDER_URL}&guid=abc` });
+  shortcut();
+  assert.ok(doc.querySelector('.sfut-menu-item[data-feature="flow-error-explorer"]'));
+});
+
+test('Setup pages stay flat, with no group headers', async () => {
+  const { doc, shortcut } = await setup({ url: SETUP_FLOWS_URL });
+  shortcut();
+  assert.deepEqual(headers(doc), []);
+  assert.equal(doc.querySelectorAll('.sfut-menu-item').length, 4);
+});
+
+test('toggles are one row with a switch showing their state', async () => {
+  const { doc, shortcut } = await setup({ url: SETUP_FLOWS_URL });
+  shortcut();
+  const tabs = doc.querySelector('.sfut-menu-item[data-feature="setup-tabs"]');
+  assert.equal(tabs.getAttribute('role'), 'menuitemcheckbox');
+  assert.equal(tabs.getAttribute('aria-checked'), 'false');
+  assert.equal(tabs.textContent.trim().replace(/\s+/g, ' '), '📑 Setup Tabs');
+  assert.ok(tabs.querySelector('.sfut-menu-switch'));
+});
+
+test('Missing Description Flags: no ↻ while off', async () => {
+  const { doc, shortcut } = await setup({ features: { MissingDescriptionFlags: { isEnabled: () => true, isActive: () => false } } });
+  shortcut();
+  const row = doc.querySelector('.sfut-menu-item[data-feature="missing-descriptions"]');
+  assert.equal(row.getAttribute('aria-checked'), 'false');
+  assert.equal(doc.querySelector('.sfut-menu-item-refresh'), null);
+});
+
+test('Missing Description Flags: while on, the ↻ on the same row refreshes them', async () => {
+  const { doc, shortcut } = await setup({ features: { MissingDescriptionFlags: { isEnabled: () => true, isActive: () => true } } });
+  shortcut();
+  const row = doc.querySelector('.sfut-menu-item[data-feature="missing-descriptions"]');
+  assert.equal(row.getAttribute('aria-checked'), 'true');
+  const refresh = doc.querySelector('.sfut-menu-item-refresh');
+  assert.equal(refresh.parentElement, row.parentElement);
+  assert.equal([...doc.querySelectorAll('.sfut-menu-item')].filter(el => /Refresh/.test(el.textContent)).length, 0);
+
+  const seen = activations(doc);
+  refresh.click();
+  assert.deepEqual(seen.map(d => ({ ...d })), [{ feature: 'missing-descriptions', action: 'refresh' }]);
+});

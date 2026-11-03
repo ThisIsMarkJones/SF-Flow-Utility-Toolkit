@@ -140,6 +140,9 @@
   top: 50%;
   transform: translateY(-50%);
   width: 280px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
   background-color: var(--sfut-color-surface);
   border-radius: var(--sfut-radius-8) 0 0 var(--sfut-radius-8);
   box-shadow: var(--sfut-shadow-side-panel);
@@ -191,11 +194,32 @@
   color: var(--sfut-color-text);
 }
 
-/* Menu Content */
+/* Menu Content: grows with its entries, and scrolls only when the menu
+   reaches the viewport height */
 .sfut-menu-content {
   padding: var(--sfut-space-8) 0;
-  max-height: 300px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+}
+
+.sfut-menu-group-label {
+  padding: var(--sfut-space-10) var(--sfut-space-16) var(--sfut-space-4);
+  font-size: var(--sfut-font-size-xs);
+  font-weight: var(--sfut-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sfut-color-text-muted);
+}
+
+.sfut-menu-group-label:first-child {
+  padding-top: var(--sfut-space-4);
+}
+
+/* A row holds one entry, plus the ↻ control on Missing Description Flags */
+.sfut-menu-row {
+  display: flex;
+  align-items: stretch;
 }
 
 .sfut-menu-empty {
@@ -208,6 +232,8 @@
 /* Menu Items */
 .sfut-menu-item {
   display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
   align-items: center;
   padding: var(--sfut-space-10) var(--sfut-space-16);
   cursor: pointer;
@@ -226,6 +252,57 @@
 
 .sfut-menu-item-label {
   font-size: var(--sfut-font-size-base);
+  color: var(--sfut-color-text);
+  flex: 1 1 auto;
+}
+
+/* Toggle switch: shows the feature's state; the whole row toggles it */
+.sfut-menu-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 28px;
+  height: 16px;
+  margin-left: var(--sfut-space-8);
+  border-radius: var(--sfut-radius-pill);
+  background-color: var(--sfut-color-border-strong);
+  transition: background-color 0.15s ease;
+}
+
+.sfut-menu-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--sfut-radius-circle);
+  background-color: var(--sfut-color-on-fill);
+  box-shadow: var(--sfut-shadow-raised);
+  transition: transform 0.15s ease;
+}
+
+.sfut-menu-item[aria-checked="true"] .sfut-menu-switch {
+  background-color: var(--sfut-color-brand);
+}
+
+.sfut-menu-item[aria-checked="true"] .sfut-menu-switch::after {
+  transform: translateX(12px);
+}
+
+.sfut-menu-item-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  font-size: var(--sfut-font-size-xl);
+  color: var(--sfut-color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sfut-menu-item-refresh:hover {
+  background-color: var(--sfut-color-background);
   color: var(--sfut-color-text);
 }
 
