@@ -179,6 +179,7 @@
       _setToggle('setting-flowImportExport', settings['flowImportExport.enabled']);
       _setToggle('setting-autosave', settings['autosave.enabled']);
       _setToggle('setting-keyboardShortcuts', settings['keyboardShortcuts.enabled']);
+      _setToggle('setting-sideButtonHidden', settings['sideButton.hidden']);
 
       // Populate inputs
       _setInput('setting-shortcut', settings['canvasSearch.shortcut']);
@@ -189,6 +190,8 @@
       _setSelect('setting-namingPattern', settings['apiNameGenerator.namingPattern']);
       _setSelect('setting-scheduledFlowExplorerDefaultView', settings['scheduledFlowExplorer.defaultView']);
       _setSelect('setting-themeMode', settings['theme.mode']);
+      _setSelect('setting-sideButtonEdge', settings['sideButton.edge']);
+      _setSelect('setting-sideButtonIdleOpacity', String(settings['sideButton.idleOpacity']));
     });
   }
 
@@ -206,9 +209,18 @@
     // Select dropdowns
     document.querySelectorAll('.setting-select').forEach((select) => {
       select.addEventListener('change', () => {
-        _saveSetting(select.dataset.key, select.value);
+        const value = select.dataset.type === 'number' ? Number(select.value) : select.value;
+        _saveSetting(select.dataset.key, value);
       });
     });
+
+    // Side button: put it back in the middle of its edge
+    const resetPosition = document.getElementById('setting-sideButtonResetPosition');
+    if (resetPosition) {
+      resetPosition.addEventListener('click', () => {
+        _saveSetting('sideButton.verticalPosition', DEFAULTS['sideButton.verticalPosition']);
+      });
+    }
 
     // Colour picker
     const colourPicker = document.getElementById('setting-highlightColour');

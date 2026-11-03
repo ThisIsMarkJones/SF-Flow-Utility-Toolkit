@@ -107,8 +107,11 @@
 .sfut-side-button {
   position: fixed;
   right: 0;
-  top: 50%;
+  /* Saved position (% of viewport height), kept fully on screen */
+  top: clamp(22px, var(--sfut-side-button-top, 50%), calc(100% - 22px));
   transform: translateY(-50%);
+  opacity: var(--sfut-side-button-idle-opacity, 1);
+  touch-action: none;
   width: 36px;
   height: 36px;
   background-color: var(--sfut-color-brand);
@@ -119,7 +122,7 @@
   cursor: pointer;
   z-index: 99999;
   box-shadow: var(--sfut-shadow-side-button);
-  transition: width 0.2s ease, background-color 0.2s ease;
+  transition: width 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
   /* It's a <button>: clear the browser's own button styling */
   border: none;
   padding: 0;
@@ -137,6 +140,26 @@
 .sfut-side-button:focus-visible {
   outline: var(--sfut-border-width-2) solid var(--sfut-color-brand-text);
   outline-offset: 2px;
+}
+
+/* Fully visible whenever it's in use */
+.sfut-side-button:hover,
+.sfut-side-button:focus-visible,
+.sfut-side-button[aria-expanded="true"],
+.sfut-side-button--dragging {
+  opacity: 1;
+}
+
+.sfut-side-button--dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.sfut-side-button--left {
+  right: auto;
+  left: 0;
+  border-radius: 0 var(--sfut-radius-8) var(--sfut-radius-8) 0;
+  box-shadow: var(--sfut-shadow-side-button-left);
 }
 
 .sfut-side-button-icon {
@@ -175,6 +198,22 @@
   transform: translateY(-50%) translateX(0);
   opacity: 1;
   pointer-events: all;
+}
+
+/* Left edge: the menu slides in from the left */
+.sfut-menu--left {
+  right: auto;
+  left: 0;
+  border-radius: 0 var(--sfut-radius-8) var(--sfut-radius-8) 0;
+  box-shadow: var(--sfut-shadow-side-panel-left);
+}
+
+.sfut-menu--left.sfut-menu-hidden {
+  transform: translateY(-50%) translateX(-100%);
+}
+
+.sfut-menu--left .sfut-menu-header {
+  border-radius: 0 var(--sfut-radius-8) 0 0;
 }
 
 /* Menu Header */

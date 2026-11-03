@@ -15,7 +15,7 @@ const SETUP_FLOWS_URL = 'https://example.lightning.force.com/lightning/setup/Flo
  * @param {Object} [opts.settings] - Stored settings (merged over DEFAULTS)
  * @param {Object} [opts.features] - Feature module globals, e.g. { FlowHealthCheck: { isEnabled: () => false } }
  */
-async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {} } = {}) {
+async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {}, wait = true } = {}) {
   const store = { ...settings };
   const listeners = [];
   const chrome = {
@@ -42,7 +42,7 @@ async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {} } = 
   );
   const SideButton = env.get('SideButton');
   SideButton.init();
-  await new Promise(r => setTimeout(r, 0)); // let the settings load
+  if (wait) await new Promise(r => setTimeout(r, 0)); // let the settings load
   const doc = env.window.document;
 
   const key = (k, mods = {}) => {
@@ -388,4 +388,81 @@ test('after an SPA navigation, refresh() hides the button on unsupported pages a
   env.window.history.pushState({}, '', '/builder_platform_interaction/flowBuilder.app?flowId=301000000000001');
   SideButton.refresh();
   assert.equal(buttonShown(doc), true);
+});
+
+const button = (doc) => doc.getElementById('sfut-side-button');
+const pointer = (env, el, type, clientY) =>
+  el.dispatchEvent(new env.window.MouseEvent(type, { clientY, button: 0, bubbles: true }));
+
+test('the button only goes on the page once the settings have loaded (no flash when hidden)', async () => {
+  const { doc } = await setup({ wait: false });
+  assert.equal(button(doc), null);
+  await new Promise(r => setTimeout(r, 0));
+  assert.ok(button(doc));
+});
+
+test('hidden: the button is not on the page, but the shortcut still opens the menu', async () => {
+  const { doc, shortcut, menuOpen } = await setup({ settings: { 'sideButton.hidden': true } });
+  assert.equal(button(doc), null);
+  shortcut();
+  assert.equal(menuOpen(), true);
+});
+
+test('hiding and showing the button applies without a reload', async () => {
+  const { doc, SettingsManager } = await setup();
+  await SettingsManager.set('sideButton.hidden', true);
+  assert.equal(button(doc), null);
+  await SettingsManager.set('sideButton.hidden', false);
+  assert.ok(button(doc));
+});
+
+test('left edge: the button and the menu move to the left', async () => {
+  const { doc, SettingsManager } = await setup({ settings: { 'sideButton.edge': 'left' } });
+  assert.ok(button(doc).classList.contains('sfut-side-button--left'));
+  assert.ok(doc.getElementById('sfut-menu').classList.contains('sfut-menu--left'));
+  await SettingsManager.set('sideButton.edge', 'right');
+  assert.ok(!button(doc).classList.contains('sfut-side-button--left'));
+  assert.ok(!doc.getElementById('sfut-menu').classList.contains('sfut-menu--left'));
+});
+
+test('idle opacity is applied, and unknown values fall back to 100%', async () => {
+  const { doc, SettingsManager } = await setup({ settings: { 'sideButton.idleOpacity': 25 } });
+  assert.equal(button(doc).style.getPropertyValue('--sfut-side-button-idle-opacity'), '0.25');
+  await SettingsManager.set('sideButton.idleOpacity', 33);
+  assert.equal(button(doc).style.getPropertyValue('--sfut-side-button-idle-opacity'), '1');
+});
+
+test('the saved position places the button, and the menu opens beside it within the viewport', async () => {
+  const { doc, env, shortcut } = await setup({ settings: { 'sideButton.verticalPosition': 20 } });
+  assert.equal(button(doc).style.getPropertyValue('--sfut-side-button-top'), '20%');
+  shortcut();
+  const top = parseInt(doc.getElementById('sfut-menu').style.top, 10);
+  assert.equal(top, Math.round(env.window.innerHeight * 0.2));
+});
+
+test('dragging moves the button, saves the position, and does not open the menu', async () => {
+  const { doc, env, menuOpen, SettingsManager } = await setup();
+  const btn = button(doc);
+  const h = env.window.innerHeight;
+  pointer(env, btn, 'pointerdown', 0);           // jsdom rects are 0, so the centre starts at 0
+  pointer(env, btn, 'pointermove', h * 0.3);
+  assert.ok(btn.classList.contains('sfut-side-button--dragging'));
+  pointer(env, btn, 'pointerup', h * 0.3);
+  btn.click();                                    // the click that ends a drag
+  assert.equal(menuOpen(), false);
+  assert.equal(await SettingsManager.get('sideButton.verticalPosition'), 30);
+  assert.equal(btn.style.getPropertyValue('--sfut-side-button-top'), '30%');
+  btn.click();                                    // the next click opens it as usual
+  assert.equal(menuOpen(), true);
+});
+
+test('a press that barely moves is still a click', async () => {
+  const { doc, env, menuOpen, SettingsManager } = await setup();
+  const btn = button(doc);
+  pointer(env, btn, 'pointerdown', 100);
+  pointer(env, btn, 'pointermove', 102);
+  pointer(env, btn, 'pointerup', 102);
+  btn.click();
+  assert.equal(menuOpen(), true);
+  assert.equal(await SettingsManager.get('sideButton.verticalPosition'), 50);
 });

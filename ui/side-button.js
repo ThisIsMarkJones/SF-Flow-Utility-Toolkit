@@ -56,8 +56,16 @@ const SideButton = (() => {
   ];
   const GROUP_HEADER_THRESHOLD = 5;
 
+  /** Pointer movement (px) before a press on the button becomes a drag. */
+  const DRAG_THRESHOLD = 4;
+  const IDLE_OPACITIES = [100, 75, 50, 25];
+  /** Gap (px) kept between the menu and the top and bottom of the viewport. */
+  const MENU_MARGIN = 16;
+
   const _settings = Object.fromEntries(SETTING_KEYS.map(k => [k, SettingsManager.DEFAULTS[k]]));
   let _settingsListenerAttached = false;
+  let _settingsLoaded = false;
+  let _suppressNextClick = false;
 
   /**
    * Initialises the side button if the current context supports it.
@@ -75,8 +83,9 @@ const SideButton = (() => {
     _createButton();
     _createMenu();
     _attachEventListeners();
-    _loadSettings();
-    _updateVisibility();
+    // The button goes on the page once the settings are in, so a hidden
+    // button never flashes up on load (it would show in recordings).
+    _loadSettings().then(_applyLauncherSettings);
   }
 
   /**
@@ -94,9 +103,64 @@ const SideButton = (() => {
    */
   function _updateVisibility() {
     if (!buttonElement) return;
-    const visible = ContextDetector.shouldShowSideButton() && _currentMenuItems().length > 0;
-    buttonElement.style.display = visible ? '' : 'none';
-    if (!visible) _toggleMenu(false);
+    const hasMenu = ContextDetector.shouldShowSideButton() && _currentMenuItems().length > 0;
+
+    // Hidden by the user: not in the page at all. The menu still opens from
+    // the shortcut and the toolbar icon.
+    if (_settings['sideButton.hidden'] || !_settingsLoaded) {
+      buttonElement.remove();
+    } else if (!buttonElement.isConnected) {
+      document.body.appendChild(buttonElement);
+    }
+
+    buttonElement.style.display = hasMenu ? '' : 'none';
+    if (!hasMenu) _toggleMenu(false);
+  }
+
+  /**
+   * Applies the edge, vertical position, idle opacity and hide settings.
+   */
+  function _applyLauncherSettings() {
+    const left = _settings['sideButton.edge'] === 'left';
+    buttonElement?.classList.toggle('sfut-side-button--left', left);
+    menuElement?.classList.toggle('sfut-menu--left', left);
+
+    if (buttonElement) {
+      buttonElement.style.setProperty('--sfut-side-button-top', `${_verticalPosition()}%`);
+      buttonElement.style.setProperty('--sfut-side-button-idle-opacity', String(_idleOpacity() / 100));
+    }
+
+    _updateVisibility();
+    if (isMenuOpen) _positionMenu();
+  }
+
+  /** @returns {number} The button's centre, as a % of viewport height (0–100). */
+  function _verticalPosition() {
+    const value = Number(_settings['sideButton.verticalPosition']);
+    return Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 50;
+  }
+
+  /** @returns {number} Idle opacity as a percentage. */
+  function _idleOpacity() {
+    const value = Number(_settings['sideButton.idleOpacity']);
+    return IDLE_OPACITIES.includes(value) ? value : 100;
+  }
+
+  /**
+   * Places the menu beside the button's saved position, kept inside the
+   * viewport. A menu taller than the viewport is centred (its content scrolls).
+   */
+  function _positionMenu() {
+    if (!menuElement) return;
+    const viewport = window.innerHeight;
+    const half = menuElement.offsetHeight / 2;
+    if (half * 2 + MENU_MARGIN * 2 >= viewport) {
+      menuElement.style.top = '50%';
+      return;
+    }
+    const centre = viewport * _verticalPosition() / 100;
+    const top = Math.min(Math.max(centre, MENU_MARGIN + half), viewport - MENU_MARGIN - half);
+    menuElement.style.top = `${Math.round(top)}px`;
   }
 
   /**
@@ -108,12 +172,14 @@ const SideButton = (() => {
     } catch (e) {
       console.warn('[SFUT] Side button settings could not be read, using defaults:', e);
     }
+    _settingsLoaded = true;
 
     if (!_settingsListenerAttached) {
       _settingsListenerAttached = true;
       SettingsManager.onChange((key, newValue) => {
         if (!SETTING_KEYS.includes(key)) return;
         _settings[key] = newValue ?? SettingsManager.DEFAULTS[key];
+        if (key.startsWith('sideButton.')) _applyLauncherSettings();
       });
     }
   }
@@ -154,7 +220,7 @@ const SideButton = (() => {
     buttonElement.innerHTML = `
       <span class="sfut-side-button-icon" aria-hidden="true">⚡</span>
     `;
-    document.body.appendChild(buttonElement);
+    // Added to the page by _updateVisibility(), once the settings have loaded.
   }
 
   /**
@@ -543,6 +609,7 @@ const SideButton = (() => {
       // Rebuild menu content so dynamic labels reflect current state
       _filterInput().value = '';
       _populateMenu();
+      _positionMenu();
       menuElement.classList.remove('sfut-menu-hidden');
       menuElement.classList.add('sfut-menu-visible');
       if (!_filterWrap().hidden) _filterInput().focus();
@@ -557,6 +624,50 @@ const SideButton = (() => {
       }
       _returnFocusTo = null;
     }
+  }
+
+  /**
+   * Lets the button be dragged up and down its edge. A press that moves less
+   * than DRAG_THRESHOLD is an ordinary click. The position is saved, as a %
+   * of viewport height, when the drag ends.
+   */
+  function _attachDrag() {
+    let start = null; // { pointerY, centreY }
+    let dragging = false;
+    let position = null;
+
+    buttonElement.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      e.stopPropagation(); // keep Flow Builder's canvas from starting a pan
+      const rect = buttonElement.getBoundingClientRect();
+      start = { pointerY: e.clientY, centreY: rect.top + rect.height / 2 };
+      dragging = false;
+      if (e.pointerId !== undefined) buttonElement.setPointerCapture?.(e.pointerId);
+    });
+
+    buttonElement.addEventListener('pointermove', (e) => {
+      if (!start) return;
+      const dy = e.clientY - start.pointerY;
+      if (!dragging && Math.abs(dy) < DRAG_THRESHOLD) return;
+      dragging = true;
+      buttonElement.classList.add('sfut-side-button--dragging');
+      position = Math.min(100, Math.max(0, (start.centreY + dy) / window.innerHeight * 100));
+      buttonElement.style.setProperty('--sfut-side-button-top', `${position}%`);
+    });
+
+    const end = () => {
+      if (!start) return;
+      start = null;
+      if (!dragging) return;
+      dragging = false;
+      _suppressNextClick = true;
+      buttonElement.classList.remove('sfut-side-button--dragging');
+      const rounded = Math.round(position * 10) / 10;
+      _settings['sideButton.verticalPosition'] = rounded;
+      SettingsManager.set('sideButton.verticalPosition', rounded);
+    };
+    buttonElement.addEventListener('pointerup', end);
+    buttonElement.addEventListener('pointercancel', end);
   }
 
   /**
@@ -663,8 +774,14 @@ const SideButton = (() => {
     if (!buttonElement.dataset.sfutBound) {
       buttonElement.addEventListener('click', (e) => {
         e.stopPropagation();
+        // The click that ends a drag doesn't open the menu.
+        if (_suppressNextClick) {
+          _suppressNextClick = false;
+          return;
+        }
         _toggleMenu();
       });
+      _attachDrag();
 
       buttonElement.dataset.sfutBound = 'true';
     }

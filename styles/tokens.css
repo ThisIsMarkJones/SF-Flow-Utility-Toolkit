@@ -170,7 +170,9 @@
   --sfut-shadow-raised-soft: 0 2px 4px rgba(0, 0, 0, 0.08);
   --sfut-shadow-raised-soft-2: 0 2px 4px rgba(0, 0, 0, 0.1);
   --sfut-shadow-side-button: -2px 2px 6px rgba(0, 0, 0, 0.2);
+  --sfut-shadow-side-button-left: 2px 2px 6px rgba(0, 0, 0, 0.2);
   --sfut-shadow-side-panel: -4px 0 12px rgba(0, 0, 0, 0.15);
+  --sfut-shadow-side-panel-left: 4px 0 12px rgba(0, 0, 0, 0.15);
   --sfut-shadow-card: 0 4px 12px rgba(0, 0, 0, 0.2);
   --sfut-shadow-card-lg: 0 4px 16px rgba(0, 0, 0, 0.18);
   --sfut-shadow-popover: 0 6px 18px rgba(0, 0, 0, 0.18);
@@ -346,7 +348,9 @@ html[data-sfut-theme="dark"] {
   --sfut-shadow-raised-soft: 0 2px 6px rgba(0, 0, 0, 0.45);
   --sfut-shadow-raised-soft-2: 0 2px 6px rgba(0, 0, 0, 0.5);
   --sfut-shadow-side-button: -2px 2px 8px rgba(0, 0, 0, 0.55);
+  --sfut-shadow-side-button-left: 2px 2px 8px rgba(0, 0, 0, 0.55);
   --sfut-shadow-side-panel: -4px 0 16px rgba(0, 0, 0, 0.5);
+  --sfut-shadow-side-panel-left: 4px 0 16px rgba(0, 0, 0, 0.5);
   --sfut-shadow-card: 0 4px 14px rgba(0, 0, 0, 0.55);
   --sfut-shadow-card-lg: 0 4px 18px rgba(0, 0, 0, 0.55);
   --sfut-shadow-popover: 0 6px 20px rgba(0, 0, 0, 0.55);

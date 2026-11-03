@@ -1256,6 +1256,64 @@
         </div>
       </div>
 
+      <!-- Side Button -->
+      <div class="settings-section">
+        <div class="settings-section-header">Side Button</div>
+        <div class="settings-section-body">
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Hide the side button</div>
+              <div class="setting-description">Keeps the ⚡ button off the page, for example in screenshots and recordings. Open the menu with Cmd/Ctrl+Shift+U or the toolbar icon (pin it from your browser's extensions menu).</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-sideButtonHidden" data-key="sideButton.hidden">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Edge</div>
+              <div class="setting-description">Which side of the page the button and menu sit on.</div>
+            </div>
+            <select class="setting-select"
+                    id="setting-sideButtonEdge"
+                    data-key="sideButton.edge"
+                    style="min-width: 130px;">
+              <option value="right">Right</option>
+              <option value="left">Left</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Opacity when idle</div>
+              <div class="setting-description">How visible the button is when you're not using it. It's always fully visible on hover, on focus and while the menu is open.</div>
+            </div>
+            <select class="setting-select"
+                    id="setting-sideButtonIdleOpacity"
+                    data-key="sideButton.idleOpacity"
+                    data-type="number"
+                    style="min-width: 130px;">
+              <option value="100">100%</option>
+              <option value="75">75%</option>
+              <option value="50">50%</option>
+              <option value="25">25%</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Position</div>
+              <div class="setting-description">Drag the button up or down its edge to move it; the position is saved. This puts it back in the middle.</div>
+            </div>
+            <button type="button" class="setting-button" id="setting-sideButtonResetPosition">Reset position</button>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Feature Toggles — Setup Enhancements -->
       <div class="feature-group">
         <div class="feature-group-label">Setup enhancements</div>
