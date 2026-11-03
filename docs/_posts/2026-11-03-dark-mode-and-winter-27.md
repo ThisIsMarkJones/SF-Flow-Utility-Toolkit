@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Dark Mode and Winter '27"
+date: 2026-11-03 00:00:00 +0000
 categories: announcement
 ---
 

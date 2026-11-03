@@ -12,12 +12,14 @@ This page highlights recent releases, feature updates, fixes, and other notable 
 
 ## Latest updates
 
-[Import / Export Flows](announcement/2026/09/21/import-export-flows.html)
+[Dark Mode and Winter '27](announcement/2026/11/03/dark-mode-and-winter-27.html)
 
 ## Updates by category
 
 ### Announcement
 
+* [Dark Mode and Winter '27](announcement/2026/11/03/dark-mode-and-winter-27.html)
+  — 3 November 2026
 * [Import / Export Flows](announcement/2026/09/21/import-export-flows.html)
   — 21 September 2026
 * [Flow Error Explorer](announcement/2026/07/01/flow-error-explorer.html)
