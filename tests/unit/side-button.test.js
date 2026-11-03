@@ -377,3 +377,15 @@ test('the filter is cleared each time the menu opens', async () => {
   assert.equal(doc.querySelector('.sfut-menu-filter-input').value, '');
   assert.equal(visibleFeatures(doc).length, 6);
 });
+
+test('after an SPA navigation, refresh() hides the button on unsupported pages and shows it again', async () => {
+  const { doc, env, SideButton, shortcut, menuOpen } = await setup();
+  shortcut();
+  env.window.history.pushState({}, '', '/lightning/r/Account/001000000000001/view');
+  SideButton.refresh();
+  assert.equal(buttonShown(doc), false);
+  assert.equal(menuOpen(), false);
+  env.window.history.pushState({}, '', '/builder_platform_interaction/flowBuilder.app?flowId=301000000000001');
+  SideButton.refresh();
+  assert.equal(buttonShown(doc), true);
+});

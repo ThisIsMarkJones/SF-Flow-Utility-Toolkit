@@ -186,6 +186,11 @@ const SFFlowUtilityToolkit = (() => {
         ThemeManager.refresh();
       }
 
+      // Also when the new page isn't supported, so the button goes away there.
+      if (_sideButtonInitialised && typeof SideButton !== 'undefined') {
+        SideButton.refresh();
+      }
+
       await _initForCurrentPageWithRetry();
     }, 500);
   }

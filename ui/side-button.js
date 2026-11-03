@@ -26,7 +26,6 @@ const SideButton = (() => {
   let buttonElement = null;
   let menuElement = null;
   let isMenuOpen = false;
-  let urlObserverInitialised = false;
   let _returnFocusTo = null;
 
   /** Everything the arrow keys move between, in order. */
@@ -120,8 +119,9 @@ const SideButton = (() => {
   }
 
   /**
-   * Refreshes the menu items based on current context.
-   * Call this when URL changes within a single-page app navigation.
+   * Refreshes the menu items and the button's visibility for the current page.
+   * main.js calls this on every SPA URL change (its URL watcher is the only
+   * one) and after each feature initialises or runs.
    */
   function refresh() {
     if (window.top !== window.self) return;
@@ -734,33 +734,6 @@ const SideButton = (() => {
       document.body.dataset.sfutSideButtonKeyBound = 'true';
     }
 
-    _observeUrlChanges();
-  }
-
-  /**
-   * Observes URL changes in Salesforce's single-page app architecture
-   * and refreshes the menu context accordingly.
-   */
-  function _observeUrlChanges() {
-    if (urlObserverInitialised) return;
-    urlObserverInitialised = true;
-
-    let lastUrl = window.location.href;
-
-    const observer = new MutationObserver(() => {
-      const currentUrl = window.location.href;
-      if (currentUrl !== lastUrl) {
-        lastUrl = currentUrl;
-        refresh();
-
-        // refresh() also shows or hides the button for the new page.
-      }
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
   }
 
   return {
