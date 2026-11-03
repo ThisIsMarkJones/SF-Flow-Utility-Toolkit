@@ -40,6 +40,19 @@ const SideButton = (() => {
     'sideButton.verticalPosition',
     'sideButton.idleOpacity'
   ];
+  /**
+   * Menu groups, in display order. Headers only show on pages with more than
+   * GROUP_HEADER_THRESHOLD entries (Flow Builder); smaller menus stay flat.
+   */
+  const GROUPS = [
+    { id: 'canvas',  label: 'Canvas' },
+    { id: 'analyse', label: 'Analyse' },
+    { id: 'assist',  label: 'Assist' },
+    { id: 'move',    label: 'Move' },
+    { id: 'setup',   label: 'Setup' }
+  ];
+  const GROUP_HEADER_THRESHOLD = 5;
+
   const _settings = Object.fromEntries(SETTING_KEYS.map(k => [k, SettingsManager.DEFAULTS[k]]));
   let _settingsListenerAttached = false;
 
@@ -60,6 +73,27 @@ const SideButton = (() => {
     _createMenu();
     _attachEventListeners();
     _loadSettings();
+    _updateVisibility();
+  }
+
+  /**
+   * Returns the menu entries for the current page, after feature toggles.
+   * @returns {Object[]}
+   */
+  function _currentMenuItems() {
+    return _getMenuItemsForFeatures(ContextDetector.getAvailableFeatures());
+  }
+
+  /**
+   * Shows the button only on supported pages that have at least one menu entry
+   * (so not on Flow details, whose tools live in the page itself), and closes
+   * the menu when the button goes away.
+   */
+  function _updateVisibility() {
+    if (!buttonElement) return;
+    const visible = ContextDetector.shouldShowSideButton() && _currentMenuItems().length > 0;
+    buttonElement.style.display = visible ? '' : 'none';
+    if (!visible) _toggleMenu(false);
   }
 
   /**
@@ -91,6 +125,7 @@ const SideButton = (() => {
     if (menuElement) {
       _populateMenu();
     }
+    _updateVisibility();
   }
 
   /**
@@ -167,8 +202,7 @@ const SideButton = (() => {
 
     content.innerHTML = '';
 
-    const features = ContextDetector.getAvailableFeatures();
-    const menuItems = _getMenuItemsForFeatures(features);
+    const menuItems = _currentMenuItems();
 
     if (menuItems.length === 0) {
       content.innerHTML = '<div class="sfut-menu-empty">No tools available for this page.</div>';
@@ -254,6 +288,8 @@ const SideButton = (() => {
     const featureMap = {
       'setup-tabs': {
         id: 'setup-tabs',
+        group: 'setup',
+        type: 'toggle',
         icon: '📑',
         label: _areSetupTabsVisible()
           ? 'Hide Setup Tabs'
@@ -261,11 +297,15 @@ const SideButton = (() => {
       },
       'canvas-search': {
         id: 'canvas-search',
+        group: 'canvas',
+        type: 'action',
         icon: '🔎',
         label: 'Search & Highlight'
       },
       'missing-descriptions': {
         id: 'missing-descriptions',
+        group: 'canvas',
+        type: 'toggle',
         icon: '⚠️',
         label: _areMissingDescriptionFlagsActive()
           ? 'Hide Missing Description Flags'
@@ -273,32 +313,44 @@ const SideButton = (() => {
       },
       'ai-assistant': {
         id: 'ai-assistant',
+        group: 'assist',
+        type: 'action',
         icon: '🤖',
         label: 'Flow Metadata & AI Assistant'
       },
       'comparison-exporter': {
         id: 'comparison-exporter',
+        group: 'move',
+        type: 'action',
         icon: '📊',
         label: 'Comparison Exporter'
       },
 
       'flow-health-check': {
         id: 'flow-health-check',
+        group: 'analyse',
+        type: 'action',
         icon: '🩺',
         label: 'Run Health Check'
       },
       'unused-resources': {
         id: 'unused-resources',
-        icon: '🔍',
+        group: 'analyse',
+        type: 'action',
+        icon: '🧹',
         label: 'Find Unused Resources'
       },
       'flow-import-export': {
         id: 'flow-import-export',
+        group: 'move',
+        type: 'action',
         icon: '📦',
         label: 'Import / Export Flows'
       },
       'scheduled-flow-explorer': {
         id: 'scheduled-flow-explorer',
+        group: 'analyse',
+        type: 'action',
         icon: '⏰',
         label: 'Scheduled Flow Explorer'
       },
@@ -309,12 +361,16 @@ const SideButton = (() => {
         ContextDetector.isErrorDebugSession()
       ) ? {
         id: 'flow-error-explorer',
+        group: 'analyse',
+        type: 'action',
         icon: '🚫',
         label: 'Flow Error Explorer'
       } : null,
 
       'flow-error-dictionary': {
         id: 'flow-error-dictionary',
+        group: 'analyse',
+        type: 'action',
         icon: '🚫',
         label: 'Flow Error Dictionary'
       }
@@ -330,6 +386,8 @@ const SideButton = (() => {
     if (features.includes('missing-descriptions') && _areMissingDescriptionFlagsActive()) {
       items.push({
         id: 'missing-descriptions',
+        group: 'canvas',
+        type: 'action',
         action: 'refresh',
         icon: '🔄',
         label: 'Refresh Missing Descriptions'
@@ -362,7 +420,9 @@ const SideButton = (() => {
   function _toggleMenu(forceState) {
     if (!menuElement) return;
 
-    isMenuOpen = forceState !== undefined ? forceState : !isMenuOpen;
+    const opening = forceState !== undefined ? forceState : !isMenuOpen;
+    if (opening && _currentMenuItems().length === 0) return;
+    isMenuOpen = opening;
 
     if (isMenuOpen) {
       // Rebuild menu content so dynamic labels reflect current state
@@ -470,14 +530,7 @@ const SideButton = (() => {
         lastUrl = currentUrl;
         refresh();
 
-        if (buttonElement) {
-          if (ContextDetector.shouldShowSideButton()) {
-            buttonElement.style.display = 'flex';
-          } else {
-            buttonElement.style.display = 'none';
-            _toggleMenu(false);
-          }
-        }
+        // refresh() also shows or hides the button for the new page.
       }
     });
 

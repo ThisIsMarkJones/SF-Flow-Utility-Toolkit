@@ -82,3 +82,46 @@ test('switching keyboard shortcuts off applies without a reload', async () => {
   assert.equal(menuOpen(), false);
 });
 
+
+const FLOW_DETAILS_URL = 'https://example.lightning.force.com/lightning/setup/Flows/page?address=%2F300000000000001';
+const off = { isEnabled: () => false };
+const buttonShown = (doc) => doc.getElementById('sfut-side-button').style.display !== 'none';
+const menuLabels = (doc) => [...doc.querySelectorAll('.sfut-menu-item')].map(el => el.textContent.trim());
+
+test('the button is hidden on Flow details, where the menu would be empty', async () => {
+  const { doc, shortcut, menuOpen } = await setup({ url: FLOW_DETAILS_URL });
+  assert.equal(buttonShown(doc), false);
+  shortcut();
+  assert.equal(menuOpen(), false);
+});
+
+test('the button is hidden on a Setup page when every feature it offers is switched off', async () => {
+  const { doc } = await setup({
+    url: SETUP_FLOWS_URL,
+    features: { SetupTabsFeature: off, ScheduledFlowExplorer: off, FlowErrorDictionaryFeature: off, FlowImportExport: off }
+  });
+  assert.equal(buttonShown(doc), false);
+});
+
+test('the button shows on Setup pages and Flow Builder', async () => {
+  for (const url of [SETUP_FLOWS_URL, FLOW_BUILDER_URL]) {
+    const { doc } = await setup({ url });
+    assert.equal(buttonShown(doc), true, url);
+  }
+});
+
+test('feature toggles still hide their entries', async () => {
+  const { doc, shortcut } = await setup({ features: { FlowHealthCheck: off } });
+  shortcut();
+  const labels = menuLabels(doc);
+  assert.ok(labels.some(l => l.includes('Find Unused Resources')));
+  assert.ok(!labels.some(l => l.includes('Run Health Check')));
+});
+
+test('Search & Highlight and Find Unused Resources have distinct icons', async () => {
+  const { doc, shortcut } = await setup();
+  shortcut();
+  const labels = menuLabels(doc);
+  assert.ok(labels.some(l => l.startsWith('🔎') && l.includes('Search & Highlight')));
+  assert.ok(labels.some(l => l.startsWith('🧹') && l.includes('Find Unused Resources')));
+});
