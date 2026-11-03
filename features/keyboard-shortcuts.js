@@ -26,6 +26,9 @@
  *
  * Global shortcut (handled by ui/side-button.js — active on all supported pages):
  *   Cmd+Shift+U / Ctrl+Shift+U — Open Utility Sidebar
+ *   Registered as the browser command 'toggle-menu' (background.js), so it
+ *   also works with focus inside a Setup iframe and can be remapped in the
+ *   browser; the page's own keydown listener stays as a fallback.
  *
  * Documented native shortcut (no implementation required):
  *   Cmd+Shift+S / Ctrl+Shift+S — Save As New Version (native Salesforce behaviour)

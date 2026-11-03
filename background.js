@@ -221,6 +221,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 /**
+ * Toolbar icon and the Cmd/Ctrl+Shift+U command both toggle the side menu in
+ * the tab's top frame. A browser command fires wherever focus is, including
+ * inside the Setup iframe, where the page's own keydown listener can't hear it.
+ *
+ * Where nothing answers (not a Salesforce page) or the page has no menu
+ * entries (e.g. Flow details), the toolbar icon opens Settings instead and
+ * the command does nothing.
+ */
+chrome.action.onClicked.addListener((tab) => {
+  _toggleMenuInTab(tab, 'action', () => chrome.runtime.openOptionsPage());
+});
+
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (command !== 'toggle-menu') return;
+  _toggleMenuInTab(tab, 'command', () => {});
+});
+
+/**
+ * @param {chrome.tabs.Tab|undefined} tab
+ * @param {'action'|'command'} source
+ * @param {Function} onUnavailable - Called when the page has no menu to toggle
+ */
+async function _toggleMenuInTab(tab, source, onUnavailable) {
+  if (!tab?.id) {
+    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  }
+  if (!tab?.id) {
+    onUnavailable();
+    return;
+  }
+
+  chrome.tabs.sendMessage(tab.id, { action: 'sfut-toggle-menu', source }, { frameId: 0 }, (response) => {
+    if (chrome.runtime.lastError || !response?.handled) onUnavailable();
+  });
+}
+
+/**
  * Open an inactive tab on the exact API host, wait for it to load,
  * query the DurableId inside that tab, and close it afterwards.
  * @param {string} apiHostname

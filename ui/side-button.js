@@ -61,11 +61,19 @@ const SideButton = (() => {
   const IDLE_OPACITIES = [100, 75, 50, 25];
   /** Gap (px) kept between the menu and the top and bottom of the viewport. */
   const MENU_MARGIN = 16;
+  /**
+   * Minimum gap (ms) between two shortcut toggles. One key press can reach
+   * both the browser command (via background.js) and the page's own keydown
+   * listener; without this it would open and close the menu at once.
+   */
+  const TOGGLE_GUARD_MS = 300;
 
   const _settings = Object.fromEntries(SETTING_KEYS.map(k => [k, SettingsManager.DEFAULTS[k]]));
   let _settingsListenerAttached = false;
   let _settingsLoaded = false;
   let _suppressNextClick = false;
+  let _lastToggleAt = 0;
+  let _messageListenerAttached = false;
 
   /**
    * Initialises the side button if the current context supports it.
@@ -694,7 +702,7 @@ const SideButton = (() => {
     if (_isToggleShortcut(e)) {
       if (_settings['keyboardShortcuts.enabled'] === false) return;
       e.preventDefault();
-      _toggleMenu(false);
+      _requestToggle();
       return;
     }
 
@@ -766,6 +774,37 @@ const SideButton = (() => {
   }
 
   /**
+   * Toggles the menu for the shortcut or the toolbar icon, ignoring a second
+   * request within TOGGLE_GUARD_MS.
+   */
+  function _requestToggle() {
+    const now = Date.now();
+    if (now - _lastToggleAt < TOGGLE_GUARD_MS) return;
+    _lastToggleAt = now;
+    _toggleMenu();
+  }
+
+  /**
+   * Answers background.js when the toolbar icon is clicked or the browser
+   * command fires. { handled: false } (no menu on this page) makes the
+   * toolbar icon open Settings instead.
+   */
+  function _handleToggleMessage(message, sender, sendResponse) {
+    if (message?.action !== 'sfut-toggle-menu') return;
+
+    if (!ContextDetector.shouldShowSideButton() || _currentMenuItems().length === 0) {
+      sendResponse({ handled: false });
+      return;
+    }
+    if (message.source === 'command' && _settings['keyboardShortcuts.enabled'] === false) {
+      sendResponse({ handled: true });
+      return;
+    }
+    _requestToggle();
+    sendResponse({ handled: true });
+  }
+
+  /**
    * Attaches all event listeners for the side button and menu.
    */
   function _attachEventListeners() {
@@ -794,6 +833,11 @@ const SideButton = (() => {
       });
 
       closeButton.dataset.sfutBound = 'true';
+    }
+
+    if (!_messageListenerAttached && chrome?.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener(_handleToggleMessage);
+      _messageListenerAttached = true;
     }
 
     if (!menuElement.dataset.sfutKeysBound) {
@@ -844,7 +888,7 @@ const SideButton = (() => {
           // Read from the cache: preventDefault() only works before any await.
           if (_settings['keyboardShortcuts.enabled'] === false) return;
           e.preventDefault();
-          _toggleMenu();
+          _requestToggle();
         }
       });
 

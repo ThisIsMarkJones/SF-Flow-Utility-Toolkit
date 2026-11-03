@@ -18,8 +18,9 @@ const SETUP_FLOWS_URL = 'https://example.lightning.force.com/lightning/setup/Flo
 async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {}, wait = true } = {}) {
   const store = { ...settings };
   const listeners = [];
+  const messageListeners = [];
   const chrome = {
-    runtime: { sendMessage() {}, lastError: null, onMessage: { addListener() {} } },
+    runtime: { sendMessage() {}, lastError: null, onMessage: { addListener: (l) => messageListeners.push(l) } },
     storage: {
       sync: {
         get(keys, cb) {
@@ -40,6 +41,12 @@ async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {}, wai
     ['utils/context-detector.js', 'utils/settings-manager.js', 'ui/side-button.js'],
     { dom: true, url, globals: { chrome, ...features } }
   );
+  // A controllable clock for the toggle guard: shortcut() moves it on a
+  // second per press, as a person pressing twice would.
+  let clock = 1e12;
+  env.get('Date').now = () => clock;
+  const tick = (ms) => { clock += ms; };
+
   const SideButton = env.get('SideButton');
   SideButton.init();
   if (wait) await new Promise(r => setTimeout(r, 0)); // let the settings load
@@ -50,11 +57,18 @@ async function setup({ url = FLOW_BUILDER_URL, settings = {}, features = {}, wai
     (doc.activeElement || doc.body).dispatchEvent(e);
     return e;
   };
+  // What background.js sends for the toolbar icon ('action') or the command.
+  const message = (source) => {
+    let response;
+    messageListeners.forEach(l => l({ action: 'sfut-toggle-menu', source }, {}, (r) => { response = r; }));
+    return response;
+  };
   return {
-    env, doc, SideButton,
+    env, doc, SideButton, message,
     SettingsManager: env.get('SettingsManager'),
     menuOpen: () => doc.getElementById('sfut-menu')?.classList.contains('sfut-menu-visible') ?? false,
-    shortcut: () => key('U', { shiftKey: true, ctrlKey: true }),
+    shortcut: () => { tick(1000); return key('U', { shiftKey: true, ctrlKey: true }); },
+    tick,
     key
   };
 }
@@ -465,4 +479,48 @@ test('a press that barely moves is still a click', async () => {
   btn.click();
   assert.equal(menuOpen(), true);
   assert.equal(await SettingsManager.get('sideButton.verticalPosition'), 50);
+});
+
+test('toolbar icon: toggles the menu on a page that has one', async () => {
+  const { message, menuOpen, tick } = await setup();
+  assert.deepEqual({ ...message('action') }, { handled: true });
+  assert.equal(menuOpen(), true);
+  tick(1000);
+  message('action');
+  assert.equal(menuOpen(), false);
+});
+
+test('toolbar icon on a page with no menu (Flow details): not handled, so Settings opens', async () => {
+  const { message, menuOpen } = await setup({ url: FLOW_DETAILS_URL });
+  assert.deepEqual({ ...message('action') }, { handled: false });
+  assert.equal(menuOpen(), false);
+});
+
+test('toolbar icon works when the button is hidden', async () => {
+  const { message, menuOpen } = await setup({ settings: { 'sideButton.hidden': true } });
+  message('action');
+  assert.equal(menuOpen(), true);
+});
+
+test('the browser command respects the Keyboard Shortcuts setting; the toolbar icon does not', async () => {
+  const { message, menuOpen, tick } = await setup({ settings: { 'keyboardShortcuts.enabled': false } });
+  message('command');
+  assert.equal(menuOpen(), false);
+  tick(1000);
+  message('action');
+  assert.equal(menuOpen(), true);
+});
+
+test('one key press reaching both the command and the page toggles once', async () => {
+  const { message, key, menuOpen, tick } = await setup();
+  tick(1000);
+  message('command');
+  key('U', { shiftKey: true, ctrlKey: true });   // same press, same moment
+  assert.equal(menuOpen(), true);
+  tick(100);
+  key('U', { shiftKey: true, ctrlKey: true });   // still within 300ms
+  assert.equal(menuOpen(), true);
+  tick(1000);
+  message('command');                            // a real second press
+  assert.equal(menuOpen(), false);
 });

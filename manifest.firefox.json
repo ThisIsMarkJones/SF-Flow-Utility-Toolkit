@@ -84,6 +84,22 @@
     }
   ],
   "options_page": "settings/settings.html",
+  "action": {
+    "default_title": "SF Flow Utility Toolkit",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "commands": {
+    "toggle-menu": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Open or close the toolkit menu"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": [
